@@ -45,31 +45,35 @@ Private mDb As String
 Private mUserName As String
 Private mPassword As String
 
-Public Sub exAll()
+Public Sub doAll()
+    Debug.Print "Start - doAll()"
+    Debug.Print "Press F5 key to step over next."
     Debug.Assert False
-    exTestDatabase
+    doTestDatabase
     Debug.Assert False
-    exVersion
+    doVersion
     Debug.Assert False
-    exAuthenticate
+    doAuthenticate
     Debug.Assert False
-    exCheckAccessRights
+    doCheckAccessRights
     Debug.Assert False
-    exListRecords
+    doListRecords
     Debug.Assert False
-    exPagination
+    doPagination
     Debug.Assert False
-    exCountRecords
+    doCountRecords
     Debug.Assert False
-    exReadRecords
+    doReadRecords
     Debug.Assert False
-    exListRecordFields
+    doListRecordFields
     Debug.Assert False
-    exSearchAndRead
+    doSearchAndRead
     Debug.Assert False
+    Debug.Print "Done! Retry,"
+    Debug.Print "doAll"
 End Sub
 
-Public Sub exTestDatabase()
+Public Sub doTestDatabase()
     Debug.Print Now() & " - exTestDatabase"
     ' Test database
     ' https://www.odoo.com/documentation/15.0/developer/misc/api/odoo.html#test-database
@@ -89,7 +93,7 @@ Public Sub exTestDatabase()
     End With
 End Sub
 
-Public Sub exVersion()
+Public Sub doVersion()
     Debug.Print Now() & " - exVersion"
     ' version
     ' https://www.odoo.com/documentation/15.0/developer/misc/api/odoo.html#logging-in
@@ -105,7 +109,7 @@ Public Sub exVersion()
     End With
 End Sub
 
-Public Sub exAuthenticate()
+Public Sub doAuthenticate()
     Debug.Print Now() & " - exAuthenticate"
     ' version
     ' https://www.odoo.com/documentation/15.0/developer/misc/api/odoo.html#logging-in
@@ -121,7 +125,7 @@ Public Sub exAuthenticate()
     End With
 End Sub
 
-Public Sub exCheckAccessRights()
+Public Sub doCheckAccessRights()
     Debug.Print Now() & " - exCheckAccessRights"
     ' Calling methods
     ' https://www.odoo.com/documentation/15.0/developer/misc/api/odoo.html#calling-methods
@@ -136,7 +140,7 @@ Public Sub exCheckAccessRights()
     End With
 End Sub
 
-Public Sub exListRecords()
+Public Sub doListRecords()
     Debug.Print Now() & " - exListRecords"
     ' List records
     ' https://www.odoo.com/documentation/15.0/developer/misc/api/odoo.html#list-records
@@ -151,7 +155,7 @@ Public Sub exListRecords()
     End With
 End Sub
 
-Public Sub exPagination()
+Public Sub doPagination()
     Debug.Print Now() & " - exPagination"
     ' Pagination
     ' https://www.odoo.com/documentation/15.0/developer/misc/api/odoo.html#pagination
@@ -166,7 +170,7 @@ Public Sub exPagination()
     End With
 End Sub
 
-Public Sub exCountRecords()
+Public Sub doCountRecords()
     Debug.Print Now() & " - exCountRecords"
     ' Count records
     ' https://www.odoo.com/documentation/15.0/developer/misc/api/odoo.html#count-records
@@ -181,7 +185,7 @@ Public Sub exCountRecords()
     End With
 End Sub
 
-Public Sub exReadRecords()
+Public Sub doReadRecords()
     Debug.Print Now() & " - exReadRecords"
     ' Read records
     ' https://www.odoo.com/documentation/15.0/developer/misc/api/odoo.html#read-records
@@ -205,7 +209,7 @@ Public Sub exReadRecords()
     
 End Sub
 
-Public Sub exListRecordFields()
+Public Sub doListRecordFields()
     Debug.Print Now() & " - exListRecordFields"
     ' List record fields
     ' https://www.odoo.com/documentation/15.0/developer/misc/api/odoo.html#list-record-fields
@@ -220,7 +224,7 @@ Public Sub exListRecordFields()
     End With
 End Sub
 
-Public Sub exSearchAndRead()
+Public Sub doSearchAndRead()
     Debug.Print Now() & " - exSearchAndRead"
     ' Search and read
     ' https://www.odoo.com/documentation/15.0/developer/misc/api/odoo.html#search-and-read
