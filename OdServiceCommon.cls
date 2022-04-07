@@ -56,10 +56,10 @@ Public Function Version() As OdResult
 End Function
 
 ' Authenticate
-Public Function Authenticate(Optional aDbName As String = "", Optional aUserName As String = "", Optional aPassword As String = "") As OdResult
-    mClient.SetConnectionInfo aDbName:=aDbName, aUserName:=aUserName, aPassword:=aPassword
+Public Function Authenticate(Optional aDbName As String = "", Optional aUsername As String = "", Optional aPassword As String = "") As OdResult
+    mClient.SetConnectionInfo aDbName:=aDbName, aUsername:=aUsername, aPassword:=aPassword
     With New OdResult
-        Set Authenticate = .W(OdooJsonRpc.CommonAuthenticate(mClient.BaseUrl, mClient.DbName, mClient.UserName, mClient.Password))
+        Set Authenticate = .W(OdooJsonRpc.CommonAuthenticate(mClient.BaseUrl, mClient.DbName, mClient.Username, mClient.Password))
         mClient.UserId = .JsonResult
     End With
 End Function

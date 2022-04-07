@@ -47,7 +47,7 @@ Option Explicit
 
 Private mBaseUrl As String      ' Base URL (HOST)
 Private mDbName As String       ' the database to use, a string
-Private mUserName As String     ' the user name, a string
+Private mUsername As String     ' the user name, a string
 Private mPassword As String     ' the user's password, a string
 
 Private mUserId As Long         ' the user id (retrieved through authenticate), an integer
@@ -56,7 +56,7 @@ Private Sub Class_Initialize()
     mUserId = 0
 End Sub
 
-Public Sub SetConnectionInfo(Optional aBaseUrl As String = "", Optional aDbName As String = "", Optional aUserName As String, Optional aPassword As String = "")
+Public Sub SetConnectionInfo(Optional aBaseUrl As String = "", Optional aDbName As String = "", Optional aUsername As String, Optional aPassword As String = "")
     Dim blnChanged As Boolean
     blnChanged = False
     If aBaseUrl <> "" Then
@@ -71,9 +71,9 @@ Public Sub SetConnectionInfo(Optional aBaseUrl As String = "", Optional aDbName 
             blnChanged = True
         End If
     End If
-    If aUserName <> "" Then
-        If mUserName <> aUserName Then
-            mUserName = aUserName
+    If aUsername <> "" Then
+        If mUsername <> aUsername Then
+            mUsername = aUsername
             blnChanged = True
         End If
     End If
@@ -104,12 +104,12 @@ Public Property Let DbName(newValue As String)
     SetConnectionInfo aDbName:=newValue
 End Property
 
-Public Property Get UserName() As String
-    UserName = mUserName
+Public Property Get Username() As String
+    Username = mUsername
 End Property
 
-Public Property Let UserName(newValue As String)
-    SetConnectionInfo aUserName:=newValue
+Public Property Let Username(newValue As String)
+    SetConnectionInfo aUsername:=newValue
 End Property
 
 Public Property Get Password() As String

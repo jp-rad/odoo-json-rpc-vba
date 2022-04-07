@@ -55,11 +55,11 @@ Public Const CMETHOD_NAME_GET            As String = "name_get"
 Public Const CMETHOD_UNLINK              As String = "unlink"
 
 Public Function CreateJsonRequest(aMethod As String, Optional aParams As Variant = Nothing, Optional aId As Long = -1) As Object
-    Dim json As New Dictionary
+    Dim dic As New Dictionary
     If aId < 0 Then
         aId = CLng(Rnd * 100000000)
     End If
-    With json
+    With dic
         ' jsonrpc
         .Add "jsonrpc", "2.0"
         ' method
@@ -71,7 +71,7 @@ Public Function CreateJsonRequest(aMethod As String, Optional aParams As Variant
         ' id
         .Add "id", aId
     End With
-    Set CreateJsonRequest = json
+    Set CreateJsonRequest = dic
 End Function
 
 Public Function CreateJsonRequestCall(aParamsService As String, aParamsMethod As String, Optional aParamsArgs As Collection = Nothing, Optional aId As Long = -1) As Object
@@ -94,7 +94,7 @@ Public Function PostJsonRpc(aJsonBody As Dictionary, aBaseUrl As String, Optiona
     Dim postUrl As String
     Dim wc As New WebClient
     Dim wr As WebResponse
-    Dim json As Dictionary
+    Dim dic As Dictionary
     Dim errSrc As String
     Dim errDsc As String
     postUrl = WebHelpers.JoinUrl(aBaseUrl, aNamespace)
@@ -105,9 +105,9 @@ Public Function PostJsonRpc(aJsonBody As Dictionary, aBaseUrl As String, Optiona
         LogError errDsc, errSrc, CERR_STATUSCODE
         Err.Raise CERR_STATUSCODE, errSrc, errDsc
     End If
-    Set json = JsonConverter.ParseJson(wr.Content)
-    If Not json.Exists("result") Then
-        With json("error")
+    Set dic = JsonConverter.ParseJson(wr.Content)
+    If Not dic.Exists("result") Then
+        With dic("error")
             errSrc = .Item("message")
             With .Item("data")
                 errDsc = .Item("name") & vbCrLf & .Item("message")
@@ -116,7 +116,7 @@ Public Function PostJsonRpc(aJsonBody As Dictionary, aBaseUrl As String, Optiona
         LogError errDsc, errSrc, CERR_RESPONSE
         Err.Raise CERR_RESPONSE, errSrc, errDsc
     End If
-    Set PostJsonRpc = json  ' exists "result" key.
+    Set PostJsonRpc = dic  ' exists "result" key.
 End Function
 
 Public Function StartStart(aDemoUrl As String) As Dictionary
@@ -127,26 +127,26 @@ Public Function CommonVersion(aBaseUrl As String) As Dictionary
     Set CommonVersion = PostJsonRpc(CreateJsonRequestCall("common", "version"), aBaseUrl)
 End Function
 
-Public Function CommonAuthenticate(aBaseUrl As String, aDbName As String, aUserName As String, aPassword As String) As Dictionary
+Public Function CommonAuthenticate(aBaseUrl As String, aDbName As String, aUsername As String, aPassword As String) As Dictionary
     Dim args As New Collection
-    Dim json As Dictionary
+    Dim dic As Dictionary
     Dim errSrc As String
     Dim errDsc As String
     With args
         .Add aDbName        ' dbname
-        .Add aUserName      ' username
+        .Add aUsername      ' username
         .Add aPassword      ' password
         .Add New Collection ' (empty list)
     End With
-    Set json = PostJsonRpc(CreateJsonRequestCall("common", "authenticate", args), aBaseUrl)
-    If VarType(json("result")) = vbBoolean Then
-        Debug.Assert json("result") = False
+    Set dic = PostJsonRpc(CreateJsonRequestCall("common", "authenticate", args), aBaseUrl)
+    If VarType(dic("result")) = vbBoolean Then
+        Debug.Assert dic("result") = False
         errSrc = "common.authenticate"
         errDsc = "authentication failed"
         LogError errDsc, errSrc, CERR_AUTHENTICATE
         Err.Raise CERR_AUTHENTICATE, errSrc, errDsc
     End If
-    Set CommonAuthenticate = json ' Type of json("result") is Long.
+    Set CommonAuthenticate = dic ' Type of json("result") is Long.
 End Function
 
 Public Function ObjectExecuteKw(aBaseUrl As String, aDbName As String, aUserId As Long, aPassword As String, aModelName As String, aMethodName As String, aListParam As Variant, Optional aOptions As Variant = "") As Dictionary

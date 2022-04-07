@@ -42,7 +42,7 @@ Private mClient As New OdWebClient
 ' Test database
 Private mUrl As String
 Private mDb As String
-Private mUserName As String
+Private mUsername As String
 Private mPassword As String
 
 Public Sub doAll()
@@ -81,7 +81,7 @@ Public Sub doTestDatabase()
         
         mUrl = .SrHost
         mDb = .SrDatabase
-        mUserName = .SrUser
+        mUsername = .SrUser
         mPassword = .SrPassword
         
         Debug.Print "---------------"
@@ -114,7 +114,7 @@ Public Sub doAuthenticate()
     ' version
     ' https://www.odoo.com/documentation/15.0/developer/misc/api/odoo.html#logging-in
     mClient.BaseUrl = mUrl
-    With mClient.Common().Authenticate(mDb, mUserName, mPassword)
+    With mClient.Common().Authenticate(mDb, mUsername, mPassword)
         
         Debug.Print "--------------"
         Debug.Print " authenticate"

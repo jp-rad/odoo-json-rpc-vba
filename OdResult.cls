@@ -60,20 +60,20 @@ Public VrServerVersionInfo As Collection
 Public VrServerSerie As String
 Public VrProtocolVersion As Long
 
-Public Function W(json As Dictionary) As OdResult
+Public Function W(dic As Dictionary) As OdResult
     Set W = Me
-    If IsObject(json("result")) Then
-        Set Me.JsonResult = json("result")
+    If IsObject(dic("result")) Then
+        Set Me.JsonResult = dic("result")
     Else
-        Me.JsonResult = json("result")
+        Me.JsonResult = dic("result")
     End If
 End Function
 
 ' Test Database:
 ' https://www.odoo.com/documentation/15.0/developer/misc/api/odoo.html#test-database
-Public Function Ws(json As Dictionary) As OdResult
+Public Function Ws(dic As Dictionary) As OdResult
     Set Ws = Me
-    Set Me.JsonResult = json("result")
+    Set Me.JsonResult = dic("result")
     ' "result":
     ' {
     '     "host":     "https://demo3.odoo.com",
@@ -91,9 +91,9 @@ End Function
 
 ' version:
 ' https://www.odoo.com/documentation/15.0/developer/misc/api/odoo.html#logging-in
-Public Function Wv(json As Dictionary) As OdResult
+Public Function Wv(dic As Dictionary) As OdResult
     Set Wv = Me
-    Set Me.JsonResult = json("result")
+    Set Me.JsonResult = dic("result")
     Dim v As Variant
     ' "result":
     ' {
