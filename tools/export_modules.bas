@@ -63,6 +63,8 @@ Public Sub ExportModules()
     wbk.VBProject.VBComponents("OdooJsonRpcTest").Export fso.BuildPath(cur, tmp)
     tmp = "../OdDomainBuilder.cls"
     wbk.VBProject.VBComponents("OdDomainBuilder").Export fso.BuildPath(cur, tmp)
+    tmp = "../OdDomainCriteria.cls"
+    wbk.VBProject.VBComponents("OdDomainCriteria").Export fso.BuildPath(cur, tmp)
     tmp = "../OdResult.cls"
     wbk.VBProject.VBComponents("OdResult").Export fso.BuildPath(cur, tmp)
     tmp = "../OdServiceCommon.cls"

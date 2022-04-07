@@ -81,6 +81,8 @@ Public Sub BuildWorkbookFile(t)
     End If
     tmp = "../OdDomainBuilder.cls"
     wbk.VBProject.VBComponents.Import fso.BuildPath(cur, tmp)
+    tmp = "../OdDomainCriteria.cls"
+    wbk.VBProject.VBComponents.Import fso.BuildPath(cur, tmp)
     tmp = "../OdResult.cls"
     wbk.VBProject.VBComponents.Import fso.BuildPath(cur, tmp)
     tmp = "../OdServiceCommon.cls"
