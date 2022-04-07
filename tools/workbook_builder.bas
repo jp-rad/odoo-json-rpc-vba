@@ -71,8 +71,8 @@ Public Sub BuildWorkbookFile(t)
     wbk.VBProject.VBComponents.Import fso.BuildPath(cur, tmp)
     tmp = "../imports/vba-web/src/IWebAuthenticator.cls"
     wbk.VBProject.VBComponents.Import fso.BuildPath(cur, tmp)
-    tmp = "../imports/vba-web/src/WebAsyncWrapper.cls"
-    wbk.VBProject.VBComponents.Import fso.BuildPath(cur, tmp)
+    'tmp = "../imports/vba-web/src/WebAsyncWrapper.cls"
+    'wbk.VBProject.VBComponents.Import fso.BuildPath(cur, tmp)
     tmp = "../imports/vba-web/src/WebClient.cls"
     wbk.VBProject.VBComponents.Import fso.BuildPath(cur, tmp)
     tmp = "../imports/vba-web/src/WebRequest.cls"

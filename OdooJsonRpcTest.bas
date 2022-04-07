@@ -250,42 +250,42 @@ Public Sub testDomainBuilder()
     With New OdDomainBuilder
         
         ' criteria
-        .AddCriteriaEq "[=] equals to", 1
-        .AddCriteriaNotEq "[!=] not equals to", 2
-        .AddCriteriaGt "[>] greater than", 3
-        .AddCriteriaGe "[>=] greater than or equal to", 4
-        .AddCriteriaLt "[<] less than", 5
-        .AddCriteriaLe "[<=] less than or equal to", 6
-        .AddCriteriaUnsetOrEq "[=?] unset or equals to", 7
+        .AddCriteria("[=] equals to").Eq 1
+        .AddCriteria("[!=] not equals to").NotEq 2
+        .AddCriteria("[>] greater than").Gt 3
+        .AddCriteria("[>=] greater than or equal to").Ge 4
+        .AddCriteria("[<] less than").Lt 5
+        .AddCriteria("[<=] less than or equal to").Le 6
+        .AddCriteria("[=?] unset or equals to").UnsetOrEq 7
         
         .AddLogicalAnd
         
-        .AddCriteriaEqLike "[=like] matches field_name against the value pattern", 8
-        .AddCriteriaLike "[like] matches field_name against the %value% pattern", 9
-        .AddCriteriaNotLike "[not like] doesnft match against the %value% pattern", 10
+        .AddCriteria("[=like] matches field_name against the value pattern").EqLike 8
+        .AddCriteria("[like] matches field_name against the %value% pattern").IsLike 9
+        .AddCriteria("[not like] doesnft match against the %value% pattern").NotLike 10
         
         .AddLogicalOr
         
-        .AddCriteriaCILike "[ilike] case insensitive like", 11
-        .AddCriteriaNotCILike "[not ilike] case insensitive not like", 12
-        .AddCriteriaEqCILike "[=ilike] case insensitive =like", 13
+        .AddCriteria("[ilike] case insensitive like").CILike 11
+        .AddCriteria("[not ilike] case insensitive not like").NotCILike 12
+        .AddCriteria("[=ilike] case insensitive =like").EqCILike 13
         
         .AddLogicalNot
         
-        .AddCriteriaIn "[in] is equal to any of the items from value", 14
-        .AddCriteriaNotIn "[not in] is unequal to all of the items from value", 15
-        .AddCriteriaChildOf "[child_of] is a child (descendant) of a value record", 16
-        .AddCriteriaParentOf "[parent_of] is a parent (ascendant) of a value record", 17
+        .AddCriteria("[in] is equal to any of the items from value").IsIn 14
+        .AddCriteria("[not in] is unequal to all of the items from value").NotIn 15
+        .AddCriteria("[child_of] is a child (descendant) of a value record").ChildOf 16
+        .AddCriteria("[parent_of] is a parent (ascendant) of a value record").ParentOf 17
         
         ' New Collection
         With .NewCollection()
             With .NewCollection()
                 .AddLogicalOr
-                Call .NewCollection().AddLogicalAnd().AddCriteriaEq("flag1", True).AddCriteriaEq("field1", "a")
-                Call .NewCollection().AddLogicalAnd().AddCriteriaEq("flag2", False).AddCriteriaEq("field2", "b")
+                Call .NewCollection().AddLogicalAnd().AddCriteria("flag1").Eq(True).AddCriteria("field1").Eq("a")
+                Call .NewCollection().AddLogicalAnd().AddCriteria("flag2").Eq(False).AddCriteria("field2").Eq("b")
             End With
             .AddLogicalNot
-            .AddCriteriaEq "active", False
+            .AddCriteria("active").Eq False
         End With
         
         ' result

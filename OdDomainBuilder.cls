@@ -41,7 +41,7 @@ Attribute VB_Exposed = False
 
 Option Explicit
 
-Private mCollection As New Collection
+Private mDomain As New Collection
 
 Private Function AddItemsTo(args As Variant, target As Collection) As Collection
     Dim v As Variant
@@ -57,105 +57,39 @@ Private Function AddItemsTo(args As Variant, target As Collection) As Collection
     Set AddItemsTo = target
 End Function
 
-Public Property Get RefCollection() As Collection
-    Set RefCollection = mCollection
-End Property
-
 Public Property Get RefMe() As OdDomainBuilder
     Set RefMe = Me
 End Property
 
 Public Function GetDomain() As Collection
-    Set GetDomain = mCollection
+    Set GetDomain = mDomain
 End Function
 
 Public Function NewCollection(Optional args As Variant) As OdDomainBuilder
     With New OdDomainBuilder
-        mCollection.Add AddItemsTo(args, .RefCollection)
+        mDomain.Add AddItemsTo(args, .GetDomain())
         Set NewCollection = .RefMe
     End With
 End Function
 
+Public Function AddCriteria(aFieldName As String) As OdDomainCriteria
+    With New OdDomainCriteria
+        Set AddCriteria = .AssignFieldName(aFieldName, Me)
+    End With
+End Function
+
 Private Function AddCollection(Optional args As Variant) As OdDomainBuilder
-    mCollection.Add AddItemsTo(args, New Collection)
+    mDomain.Add AddItemsTo(args, New Collection)
     Set AddCollection = Me
 End Function
 
-Public Function AddCriteria(aFieldName As String, aOperator As String, aValue As Variant) As OdDomainBuilder
+Public Function AddCriteriaTriple(aFieldName As String, aOperator As String, aValue As Variant) As OdDomainBuilder
     AddCollection Array(aFieldName, aOperator, aValue)
-    Set AddCriteria = Me
-End Function
-
-Public Function AddCriteriaEq(aFieldName As String, aValue As Variant) As OdDomainBuilder
-    Set AddCriteriaEq = Me.AddCriteria(aFieldName, "=", aValue)
-End Function
-
-Public Function AddCriteriaNotEq(aFieldName As String, aValue As Variant) As OdDomainBuilder
-    Set AddCriteriaNotEq = Me.AddCriteria(aFieldName, "!=", aValue)
-End Function
-
-Public Function AddCriteriaGt(aFieldName As String, aValue As Variant) As OdDomainBuilder
-    Set AddCriteriaGt = Me.AddCriteria(aFieldName, ">", aValue)
-End Function
-
-Public Function AddCriteriaGe(aFieldName As String, aValue As Variant) As OdDomainBuilder
-    Set AddCriteriaGe = Me.AddCriteria(aFieldName, ">=", aValue)
-End Function
-
-Public Function AddCriteriaLt(aFieldName As String, aValue As Variant) As OdDomainBuilder
-    Set AddCriteriaLt = Me.AddCriteria(aFieldName, "<", aValue)
-End Function
-
-Public Function AddCriteriaLe(aFieldName As String, aValue As Variant) As OdDomainBuilder
-    Set AddCriteriaLe = Me.AddCriteria(aFieldName, "<=", aValue)
-End Function
-
-Public Function AddCriteriaUnsetOrEq(aFieldName As String, aValue As Variant) As OdDomainBuilder
-    Set AddCriteriaUnsetOrEq = Me.AddCriteria(aFieldName, "=?", aValue)
-End Function
-
-Public Function AddCriteriaEqLike(aFieldName As String, aValue As Variant) As OdDomainBuilder
-    Set AddCriteriaEqLike = Me.AddCriteria(aFieldName, "=like", aValue)
-End Function
-
-Public Function AddCriteriaLike(aFieldName As String, aValue As Variant) As OdDomainBuilder
-    Set AddCriteriaLike = Me.AddCriteria(aFieldName, "like", aValue)
-End Function
-
-Public Function AddCriteriaNotLike(aFieldName As String, aValue As Variant) As OdDomainBuilder
-    Set AddCriteriaNotLike = Me.AddCriteria(aFieldName, "not like", aValue)
-End Function
-
-Public Function AddCriteriaCILike(aFieldName As String, aValue As Variant) As OdDomainBuilder
-    Set AddCriteriaCILike = Me.AddCriteria(aFieldName, "ilike", aValue)
-End Function
-
-Public Function AddCriteriaNotCILike(aFieldName As String, aValue As Variant) As OdDomainBuilder
-    Set AddCriteriaNotCILike = Me.AddCriteria(aFieldName, "not ilike", aValue)
-End Function
-
-Public Function AddCriteriaEqCILike(aFieldName As String, aValue As Variant) As OdDomainBuilder
-    Set AddCriteriaEqCILike = Me.AddCriteria(aFieldName, "=ilike", aValue)
-End Function
-
-Public Function AddCriteriaIn(aFieldName As String, aValue As Variant) As OdDomainBuilder
-    Set AddCriteriaIn = Me.AddCriteria(aFieldName, "in", aValue)
-End Function
-
-Public Function AddCriteriaNotIn(aFieldName As String, aValue As Variant) As OdDomainBuilder
-    Set AddCriteriaNotIn = Me.AddCriteria(aFieldName, "not in", aValue)
-End Function
-
-Public Function AddCriteriaChildOf(aFieldName As String, aValue As Variant) As OdDomainBuilder
-    Set AddCriteriaChildOf = Me.AddCriteria(aFieldName, "child_of", aValue)
-End Function
-
-Public Function AddCriteriaParentOf(aFieldName As String, aValue As Variant) As OdDomainBuilder
-    Set AddCriteriaParentOf = Me.AddCriteria(aFieldName, "parent_of", aValue)
+    Set AddCriteriaTriple = Me
 End Function
 
 Private Function AddLogical(v As String) As OdDomainBuilder
-    mCollection.Add v
+    mDomain.Add v
     Set AddLogical = Me
 End Function
 
