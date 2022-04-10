@@ -188,6 +188,6 @@ End Property
 ' Inspection and introspection:
 ' https://www.odoo.com/documentation/15.0/developer/misc/api/odoo.html#inspection-and-introspection
 Public Property Get ModelOfIrModelFields() As OdServiceObject
-    Set ModelOfIrModel = Me.Model("ir.model.fields")
+    Set ModelOfIrModelFields = Me.Model("ir.model.fields")
 End Property
 

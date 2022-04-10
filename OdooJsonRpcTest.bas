@@ -69,12 +69,16 @@ Public Sub doAll()
     Debug.Assert False
     doSearchAndRead
     Debug.Assert False
+    doCreateUpdateUnlinkRecords
+    Debug.Assert False
+    doInspectionAndIntrospection
+    Debug.Assert False
     Debug.Print "Done! Retry,"
     Debug.Print "doAll"
 End Sub
 
 Public Sub doTestDatabase()
-    Debug.Print Now() & " - exTestDatabase"
+    Debug.Print Now() & " - doTestDatabase"
     ' Test database
     ' https://www.odoo.com/documentation/15.0/developer/misc/api/odoo.html#test-database
     With mClient.Start().Start()
@@ -94,7 +98,7 @@ Public Sub doTestDatabase()
 End Sub
 
 Public Sub doVersion()
-    Debug.Print Now() & " - exVersion"
+    Debug.Print Now() & " - doVersion"
     ' version
     ' https://www.odoo.com/documentation/15.0/developer/misc/api/odoo.html#logging-in
     mClient.BaseUrl = mUrl
@@ -110,7 +114,7 @@ Public Sub doVersion()
 End Sub
 
 Public Sub doAuthenticate()
-    Debug.Print Now() & " - exAuthenticate"
+    Debug.Print Now() & " - doAuthenticate"
     ' version
     ' https://www.odoo.com/documentation/15.0/developer/misc/api/odoo.html#logging-in
     mClient.BaseUrl = mUrl
@@ -126,7 +130,7 @@ Public Sub doAuthenticate()
 End Sub
 
 Public Sub doCheckAccessRights()
-    Debug.Print Now() & " - exCheckAccessRights"
+    Debug.Print Now() & " - doCheckAccessRights"
     ' Calling methods
     ' https://www.odoo.com/documentation/15.0/developer/misc/api/odoo.html#calling-methods
     With mClient.Model("res.partner").MethodCheckAccessRights("['read']", "{'raise_exception': false}")
@@ -141,7 +145,7 @@ Public Sub doCheckAccessRights()
 End Sub
 
 Public Sub doListRecords()
-    Debug.Print Now() & " - exListRecords"
+    Debug.Print Now() & " - doListRecords"
     ' List records
     ' https://www.odoo.com/documentation/15.0/developer/misc/api/odoo.html#list-records
     With mClient.Model("res.partner").MethodSearch("[['is_company', '=', true]]")
@@ -156,7 +160,7 @@ Public Sub doListRecords()
 End Sub
 
 Public Sub doPagination()
-    Debug.Print Now() & " - exPagination"
+    Debug.Print Now() & " - doPagination"
     ' Pagination
     ' https://www.odoo.com/documentation/15.0/developer/misc/api/odoo.html#pagination
     With mClient.Model("res.partner").MethodSearch("[['is_company', '=', true]]", "{'offset': 10, 'limit': 5}")
@@ -171,7 +175,7 @@ Public Sub doPagination()
 End Sub
 
 Public Sub doCountRecords()
-    Debug.Print Now() & " - exCountRecords"
+    Debug.Print Now() & " - doCountRecords"
     ' Count records
     ' https://www.odoo.com/documentation/15.0/developer/misc/api/odoo.html#count-records
     With mClient.Model("res.partner").ExecuteKw(CMETHOD_SEARCH_COUNT, "[[['is_company', '=', true]]]")
@@ -186,7 +190,7 @@ Public Sub doCountRecords()
 End Sub
 
 Public Sub doReadRecords()
-    Debug.Print Now() & " - exReadRecords"
+    Debug.Print Now() & " - doReadRecords"
     ' Read records
     ' https://www.odoo.com/documentation/15.0/developer/misc/api/odoo.html#read-records
     Dim ids As Collection
@@ -210,7 +214,7 @@ Public Sub doReadRecords()
 End Sub
 
 Public Sub doListRecordFields()
-    Debug.Print Now() & " - exListRecordFields"
+    Debug.Print Now() & " - doListRecordFields"
     ' List record fields
     ' https://www.odoo.com/documentation/15.0/developer/misc/api/odoo.html#list-record-fields
     With mClient.Model("res.partner").ExecuteKw(CMETHOD_FIELDS_GET, "[]", "{'attributes': ['string', 'help', 'type']}")
@@ -225,7 +229,7 @@ Public Sub doListRecordFields()
 End Sub
 
 Public Sub doSearchAndRead()
-    Debug.Print Now() & " - exSearchAndRead"
+    Debug.Print Now() & " - doSearchAndRead"
     ' Search and read
     ' https://www.odoo.com/documentation/15.0/developer/misc/api/odoo.html#search-and-read
     With mClient.Model("res.partner").MethodSearchAndRead("[['is_company', '=', true]]", " {'fields': ['name', 'country_id', 'comment'], 'limit': 5}")
@@ -239,12 +243,152 @@ Public Sub doSearchAndRead()
     End With
 End Sub
 
-' Create records
-' Update records
-' Delete records
-' Inspection and introspection
-' - Custom model
-' - Custom field
+Public Sub doCreateUpdateUnlinkRecords()
+    Debug.Print Now() & " - doCreateUpdateUnlinkRecords"
+    ' Create records
+    ' https://www.odoo.com/documentation/15.0/developer/misc/api/odoo.html#create-records
+    Dim n As Long
+    With mClient.Model("res.partner").MethodCreate("{'name': 'New Partner'}")
+        n = .JsonResult
+        
+        Debug.Print "-------------------"
+        Debug.Print " Create records"
+        Debug.Print "-------------------"
+        Debug.Print "result: " & .JsonResult
+        Debug.Print
+        
+    End With
+    ' Update records
+    ' https://www.odoo.com/documentation/15.0/developer/misc/api/odoo.html#update-records
+    With mClient.Model("res.partner").MethodWrite(n, "{'name': 'Newer Partner'}")
+        
+        Debug.Print "-------------------"
+        Debug.Print " Update records"
+        Debug.Print "-------------------"
+        Debug.Print "result: " & .JsonResult
+        Debug.Print
+        
+    End With
+    ' name_get
+    With mClient.Model("res.partner").MethodNameGet(n)
+        
+        Debug.Print "---------------------------"
+        Debug.Print " Update records - name_get"
+        Debug.Print "---------------------------"
+        Debug.Print "result: " & JsonConverter.ConvertToJson(.JsonResult, 4)
+        Debug.Print
+        
+    End With
+    ' Delete records
+    ' https://www.odoo.com/documentation/15.0/developer/misc/api/odoo.html#delete-records
+On Error Resume Next
+    With mClient.Model("res.partner").MethodUnlink(n)
+        
+        Debug.Print "-------------------"
+        Debug.Print " Delete records"
+        Debug.Print "-------------------"
+        If Err.Number = 0 Then
+            Debug.Print "result: " & .JsonResult
+        Else
+            Debug.Print "error: " & Err.Description
+        End If
+        'Debug.Print
+        
+    End With
+    With New OdDomainBuilder
+        .AddCriteria("id").Eq n
+        With mClient.Model("res.partner").MethodSearch(.GetDomain)
+            Debug.Print "search: " & JsonConverter.ConvertToJson(.JsonResult)
+            Debug.Print
+        End With
+    End With
+On Error GoTo 0
+    
+End Sub
+
+Public Sub doInspectionAndIntrospection()
+    Debug.Print Now() & " - doInspectionAndIntrospection"
+    ' Inspection and introspection
+    ' https://www.odoo.com/documentation/15.0/developer/misc/api/odoo.html#inspection-and-introspection
+    Dim s As String
+    Dim n As Long
+    ' - Custom model
+    s = "{" _
+        & vbCrLf & "'name': 'Custom Model'," _
+        & vbCrLf & "'model': 'x_custom_vba_model'," _
+        & vbCrLf & "'state': 'manual'" _
+        & vbCrLf & "}"
+On Error Resume Next
+    With mClient.ModelOfIrModel.MethodCreate(s)
+        n = .JsonResult
+        Debug.Print "-------------------"
+        Debug.Print " Custom model"
+        Debug.Print "-------------------"
+        If Err.Number = 0 Then
+            Debug.Print "result: " & .JsonResult
+        Else
+            Debug.Print "error: " & Err.Description
+        End If
+        Debug.Print
+        
+    End With
+On Error GoTo 0
+    With mClient.Model("x_custom_vba_model").ExecuteKw(CMETHOD_FIELDS_GET, "[]", "{'attributes': ['string', 'help', 'type']}")
+        Debug.Print "fields_get: " & JsonConverter.ConvertToJson(.JsonResult, 4)
+        Debug.Print
+    End With
+    ' - Custom field
+    s = "{" _
+        & vbCrLf & "'name': 'Custom Model'," _
+        & vbCrLf & "'model': 'x_custom_vba'," _
+        & vbCrLf & "'state': 'manual'" _
+        & vbCrLf & "}"
+On Error Resume Next
+    Err.Clear
+    With mClient.ModelOfIrModel.MethodCreate(s)
+        n = .JsonResult
+        Debug.Print "-------------------"
+        Debug.Print " Custom field"
+        Debug.Print "-------------------"
+        If Err.Number = 0 Then
+            Debug.Print "model: " & .JsonResult
+        Else
+            Debug.Print "error: " & Err.Description
+        End If
+        Debug.Print
+        
+    End With
+    s = "{" _
+    & vbCrLf & "'model_id': " & n & "," _
+    & vbCrLf & "'name': 'x_name_vba'," _
+    & vbCrLf & "'ttype': 'char'," _
+    & vbCrLf & "'state': 'manual'," _
+    & vbCrLf & "'required': true" _
+    & vbCrLf & "}"
+    Err.Clear
+    With mClient.ModelOfIrModelFields.MethodCreate(s)
+        If Err.Number = 0 Then
+            Debug.Print "field: " & .JsonResult
+        Else
+            Debug.Print "error: " & Err.Description
+        End If
+        Debug.Print
+    End With
+On Error GoTo 0
+    With mClient.Model("x_custom_vba").MethodCreate("{'x_name_vba': 'test record'}")
+        n = .JsonResult
+        
+        Debug.Print "record_id: " & .JsonResult
+        
+    End With
+    With New OdDomainBuilder
+        .AddCriteria("id").Eq n
+        With mClient.Model("x_custom_vba").MethodSearch(.GetDomain)
+            Debug.Print "search: " & JsonConverter.ConvertToJson(.JsonResult)
+            Debug.Print
+        End With
+    End With
+End Sub
 
 Public Sub testDomainBuilder()
     With New OdDomainBuilder
