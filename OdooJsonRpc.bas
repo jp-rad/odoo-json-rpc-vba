@@ -90,15 +90,17 @@ Public Function CreateJsonRequestCall(aParamsService As String, aParamsMethod As
     Set CreateJsonRequestCall = CreateJsonRequest("call", params, aId)
 End Function
 
-Public Function PostJsonRpc(aJsonBody As Dictionary, aBaseUrl As String, Optional aNamespace As String = "jsonrpc") As Dictionary
+Public Function PostJsonRpc(aJsonBody As Dictionary, aBaseUrl As String, Optional aNamespace As String = "jsonrpc", Optional aWebClient As WebClient) As Dictionary
     Dim postUrl As String
-    Dim wc As New WebClient
     Dim wr As WebResponse
     Dim dic As Dictionary
     Dim errSrc As String
     Dim errDsc As String
+    If aWebClient Is Nothing Then
+        Set aWebClient = New WebClient
+    End If
     postUrl = WebHelpers.JoinUrl(aBaseUrl, aNamespace)
-    Set wr = wc.PostJson(postUrl, aJsonBody)
+    Set wr = aWebClient.PostJson(postUrl, aJsonBody)
     If wr.StatusCode <> WebStatusCode.Ok Then
         errSrc = postUrl
         errDsc = "web response error (status code: " & wr.StatusCode & " )" & vbCrLf & postUrl
