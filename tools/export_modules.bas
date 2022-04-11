@@ -34,8 +34,33 @@ Private Function GetFileSystemObject() 'As FileSystemObject
     Set GetFileSystemObject = WScript.CreateObject("Scripting.FileSystemObject")
 End Function
 
+Private Function CreateNewDictionary() 'As Dictionary
+    Set CreateNewDictionary = WScript.CreateObject("Scripting.Dictionary")
+End Function
+
 Private Function GetScriptFolderName() 'As String
     GetScriptFolderName = GetFileSystemObject().GetParentFolderName(WScript.ScriptFullName)
+End Function
+
+Private Function GetVbaModules() 'As Dictionary
+    Dim dic 'As Dictionary
+    Dim fso 'As FileSystemObject
+    Dim a 'As Variant
+    
+    Set dic = CreateNewDictionary()
+    Set fso = GetFileSystemObject()
+    
+    With fso.OpenTextFile(fso.BuildPath(GetScriptFolderName(), "vba_modules.txt"))
+        Do Until .AtEndOfLine
+            a = Split(.ReadLine(), Chr(9))
+            If UBound(a) = 1 Then
+                dic(fso.GetBaseName(a(1))) = a(1)
+            End If
+        Loop
+        .Close
+    End With
+    
+    Set GetVbaModules = dic
 End Function
 
 Public Sub ExportModules()
@@ -56,48 +81,19 @@ Public Sub ExportModules()
     Set wbk = appExcel.Workbooks.Open(fnm, , True)
     
     Dim tmp 'As String
-    ' odoo-JSON-RPC-VBA
-    tmp = "../OdooJsonRpc.bas"
-    wbk.VBProject.VBComponents("OdooJsonRpc").Export fso.BuildPath(cur, tmp)
-    tmp = "../OdooJsonRpcTest.bas"
-    wbk.VBProject.VBComponents("OdooJsonRpcTest").Export fso.BuildPath(cur, tmp)
-    tmp = "../OdDomainBuilder.cls"
-    wbk.VBProject.VBComponents("OdDomainBuilder").Export fso.BuildPath(cur, tmp)
-    tmp = "../OdDomainCriteria.cls"
-    wbk.VBProject.VBComponents("OdDomainCriteria").Export fso.BuildPath(cur, tmp)
-    tmp = "../OdResult.cls"
-    wbk.VBProject.VBComponents("OdResult").Export fso.BuildPath(cur, tmp)
-    tmp = "../OdServiceCommon.cls"
-    wbk.VBProject.VBComponents("OdServiceCommon").Export fso.BuildPath(cur, tmp)
-    tmp = "../OdServiceObject.cls"
-    wbk.VBProject.VBComponents("OdServiceObject").Export fso.BuildPath(cur, tmp)
-    tmp = "../OdServiceStart.cls"
-    wbk.VBProject.VBComponents("OdServiceStart").Export fso.BuildPath(cur, tmp)
-    tmp = "../OdWebClient.cls"
-    wbk.VBProject.VBComponents("OdWebClient").Export fso.BuildPath(cur, tmp)
-    ' VBA-tools/VBA-Web
-    tmp = "../imports/vba-web/src/WebHelpers.bas"
-    wbk.VBProject.VBComponents("WebHelpers").Export fso.BuildPath(cur, tmp)
-    tmp = "../imports/vba-web/src/IWebAuthenticator.cls"
-    wbk.VBProject.VBComponents("IWebAuthenticator").Export fso.BuildPath(cur, tmp)
-    'tmp = "../imports/vba-web/src/WebAsyncWrapper.cls"
-    'wbk.VBProject.VBComponents("WebAsyncWrapper").Export fso.BuildPath(cur, tmp)
-    tmp = "../imports/vba-web/src/WebClient.cls"
-    wbk.VBProject.VBComponents("WebClient").Export fso.BuildPath(cur, tmp)
-    tmp = "../imports/vba-web/src/WebRequest.cls"
-    wbk.VBProject.VBComponents("WebRequest").Export fso.BuildPath(cur, tmp)
-    tmp = "../imports/vba-web/src/WebResponse.cls"
-    wbk.VBProject.VBComponents("WebResponse").Export fso.BuildPath(cur, tmp)
-    'VBA-tools/VBA -JSON
-    tmp = "../imports/vba-json/JsonConverter.bas"
-    wbk.VBProject.VBComponents("JsonConverter").Export fso.BuildPath(cur, tmp)
-    ' VBA-tools/VBA -Dictionary
-    tmp = "../imports/vba-dictionary/Dictionary.cls"
-    wbk.VBProject.VBComponents("Dictionary").Export fso.BuildPath(cur, tmp)
+    Dim cmp 'As Variant
+    Dim mods 'As Dictionary
+    Set mods = GetVbaModules()
+    
+On Error Resume Next
+    For Each cmp In mods.Keys()
+        tmp = mods(cmp)
+        wbk.VBProject.VBComponents(cmp).Export fso.BuildPath(cur, tmp)
+    Next 'cmp
+On Error GoTo 0
     
     wbk.Close
     appExcel.Quit
     
 End Sub
-
 
