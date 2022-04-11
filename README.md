@@ -1,5 +1,13 @@
 # odoo-JSON-RPC-VBA
-The Odoo's models API is easily available over JSON-RPC and accessible from the VBA language such as Excel application.
+The odoo's models API is easily available over JSON-RPC and accessible from the VBA language such as Excel application.
+
+## git clone
+
+Run the `git clone` command with the submodules.
+
+```
+git clone --recursive https://github.com/jp-rad/odoo-json-rpc-vba
+```
 
 ## Tutorial workbook
 
