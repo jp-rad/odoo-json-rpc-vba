@@ -1,0 +1,16 @@
+required	../OdooJsonRpc.bas
+optional	../OdooJsonRpcTest.bas
+required	../OdDomainBuilder.cls
+required	../OdDomainCriteria.cls
+required	../OdResult.cls
+required	../OdServiceCommon.cls
+required	../OdServiceObject.cls
+required	../OdServiceStart.cls
+required	../OdWebClient.cls
+required	../imports/vba-web/src/WebHelpers.bas
+required	../imports/vba-web/src/IWebAuthenticator.cls
+required	../imports/vba-web/src/WebClient.cls
+required	../imports/vba-web/src/WebRequest.cls
+required	../imports/vba-web/src/WebResponse.cls
+required	../imports/vba-json/JsonConverter.bas
+required	../imports/vba-dictionary/Dictionary.cls
