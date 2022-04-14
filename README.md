@@ -22,3 +22,28 @@ Refer to the following document for the contents of each step.
 ## Blank workbook
 
 Run `./tools/create_blank_workbook.vbs`, the `JSON-RPC Blank.xlsm` file will be created.
+
+# Note:
+
+## Date(time) Fields
+
+When assigning a value to a Date/Datetime field, the following options are valid:
+
+- A `date` or `datetime` object.
+- A string in the proper server format:  
+`YYYY-MM-DD` for Date fields,  
+`YYYY-MM-DD HH:MM:SS` for Datetime fields.
+- `False` or `None`.
+
+see also [odoo docs - Date(time) Fields](https://www.odoo.com/documentation/15.0/developer/reference/backend/orm.html#date-time-fields).
+
+
+The problem here is that when using `JsonConverter`, a value of type `Date` is converted to ISO format string, which the odoo server will not accept as an invalid format.
+Also, VBA does not distinguish between `date` and `datetime` types, so not only `datetime` types, but even `date` types are converted to utc datetime.
+
+To avoid these, instead of assigning `Date` type values to json, use the following conversion functions to assign `converted string`.
+
+- `OdooJsonRpc.FormatToServerDate` for Date fields
+- `OdooJsonRpc.FormatToServerUtc` for Datetime fields
+
+Conversely, when reading from the server to the client, use the `CDate` function for Date fields and the `JsonConverter.ParseUtc` function for Datetime fields to convert them to `Date` type.

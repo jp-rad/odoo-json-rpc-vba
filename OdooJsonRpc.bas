@@ -177,3 +177,11 @@ Public Function ObjectExecuteKw(aBaseUrl As String, aDbName As String, aUserId A
     End With
     Set ObjectExecuteKw = PostJsonRpc(CreateJsonRequestCall("object", "execute_kw", args), aBaseUrl)
 End Function
+
+Public Function FormatToServerDate(d As Date) As String
+    FormatToServerDate = Format(d, "yyyy-mm-dd")
+End Function
+
+Public Function FormatToServerUtc(utc_LocalDate As Date) As String
+    FormatToServerUtc = Format(JsonConverter.ConvertToUtc(utc_LocalDate), "yyyy-mm-dd hh:nn:ss")
+End Function
