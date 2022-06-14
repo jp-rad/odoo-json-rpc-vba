@@ -17,13 +17,19 @@ Press `F5` key to step next.
 
 Refer to the following document for the contents of each step.
 
-- [odoo docs - External API](https://www.odoo.com/documentation/15.0/developer/misc/api/odoo.html)
+- [odoo docs - External API](https://www.odoo.com/documentation/15.0/developer/misc/api/external_api.html)
 
 ## Blank workbook
 
 Run `./tools/create_blank_workbook.vbs`, the `JSON-RPC Blank.xlsm` file will be created.
 
 # Note:
+
+## VBS Tools Runtime Error
+
+Programmatic access to Office VBA project may be  denied.  In that case, please refer to the following page.
+
+- [Programmatic access to Office VBA project is denied](https://support.microsoft.com/en-us/topic/programmatic-access-to-office-vba-project-is-denied-960d5265-6592-9400-31bc-b2ddfb94b445)
 
 ## Date(time) Fields
 
