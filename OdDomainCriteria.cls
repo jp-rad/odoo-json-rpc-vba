@@ -11,7 +11,7 @@ Attribute VB_Exposed = False
 '
 ' MIT License
 '
-' Copyright (c) 2022 jp-rad
+' Copyright (c) 2022-2025 jp-rad
 '
 ' Permission is hereby granted, free of charge, to any person obtaining a copy
 ' of this software and associated documentation files (the "Software"), to deal
@@ -36,7 +36,7 @@ Attribute VB_Exposed = False
 ' ORM API - odoo docs
 '
 ' Search domains:
-' https://www.odoo.com/documentation/15.0/developer/reference/backend/orm.html#search-domains
+' https://www.odoo.com/documentation/master/developer/reference/backend/orm.html#search-domains
 '
 
 Option Explicit
@@ -121,5 +121,3 @@ End Function
 Public Function ParentOf(aValue As Variant) As OdDomainBuilder
     Set ParentOf = SetOpeValue("parent_of", aValue)
 End Function
-
-

@@ -2,7 +2,7 @@ VERSION 1.0 CLASS
 BEGIN
   MultiUse = -1  'True
 END
-Attribute VB_Name = "OdWebClient"
+Attribute VB_Name = "OdService"
 Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
@@ -45,106 +45,111 @@ Attribute VB_Exposed = False
 
 Option Explicit
 
-Private mOdService As New odService
+Private mBaseUrl As String      ' Base URL (HOST)
+Private mDbName As String       ' the database to use, a string
+Private mUsername As String     ' the user name, a string
+Private mPassword As String     ' the user's password, a string
+
+Private mUserId As Long         ' the user id (retrieved through authenticate), an integer
+
+Private mWebClient As New WebClient
+
+Private Sub Class_Initialize()
+    SetConnectionInfo _
+        aBaseUrl:="https://localhost", _
+        aDbName:="odoo", _
+        aUsername:="admin", _
+        aPassword:="admin"
+End Sub
+
+Public Sub SetConnectionInfo(Optional aBaseUrl As String = "", Optional aDbName As String = "", Optional aUsername As String, Optional aPassword As String = "")
+    Dim blnChanged As Boolean
+    blnChanged = False
+    If aBaseUrl <> "" Then
+        If mBaseUrl <> aBaseUrl Then
+            mBaseUrl = aBaseUrl
+            blnChanged = True
+        End If
+    End If
+    If aDbName <> "" Then
+        If mDbName <> aDbName Then
+            mDbName = aDbName
+            blnChanged = True
+        End If
+    End If
+    If aUsername <> "" Then
+        If mUsername <> aUsername Then
+            mUsername = aUsername
+            blnChanged = True
+        End If
+    End If
+    If aPassword <> "" Then
+        If mPassword <> aPassword Then
+            mPassword = aPassword
+            blnChanged = True
+        End If
+    End If
+    If blnChanged Then
+        mUserId = 0
+    End If
+End Sub
 
 Public Property Get BaseUrl() As String
-    BaseUrl = mOdService.BaseUrl
+    BaseUrl = mBaseUrl
 End Property
 
 Public Property Let BaseUrl(newValue As String)
-    mOdService.SetConnectionInfo aBaseUrl:=newValue
+    SetConnectionInfo aBaseUrl:=newValue
 End Property
 
 Public Property Get DbName() As String
-    DbName = mOdService.DbName
+    DbName = mDbName
 End Property
 
 Public Property Let DbName(newValue As String)
-    mOdService.SetConnectionInfo aDbName:=newValue
+    SetConnectionInfo aDbName:=newValue
 End Property
 
 Public Property Get Username() As String
-    Username = mOdService.Username
+    Username = mUsername
 End Property
 
 Public Property Let Username(newValue As String)
-    mOdService.SetConnectionInfo aUsername:=newValue
+    SetConnectionInfo aUsername:=newValue
 End Property
 
 Public Property Get Password() As String
-    Password = mOdService.Password
+    Password = mPassword
 End Property
 
 Public Property Let Password(newValue As String)
-    mOdService.SetConnectionInfo aPassword:=newValue
+    SetConnectionInfo aPassword:=newValue
 End Property
 
 Public Property Get UserId() As Long
-    UserId = mOdService.UserId
+    UserId = mUserId
+End Property
+
+Public Property Let UserId(newValue As Long)
+    If newValue > 0 Then
+        mUserId = newValue
+    Else
+        mUserId = 0
+    End If
 End Property
 
 Public Function IsAuthenticated() As Boolean
-    IsAuthenticated = mOdService.IsAuthenticated
+    IsAuthenticated = mUserId > 0
 End Function
 
 Public Sub SetInsecure(aValue As Boolean)
-    mOdService.SetInsecure aValue
+    mWebClient.Insecure = aValue
 End Sub
 
 Public Sub SetFollowRedirects(aValue As Boolean)
-    mOdService.SetFollowRedirects aValue
+    mWebClient.FollowRedirects = aValue
 End Sub
 
-' ======================
-'  Start
-' ======================
-' Test database:
-' https://www.odoo.com/documentation/master/developer/misc/api/odoo.html#test-database
-Public Function TestDatabase() As OdResult
-    Dim odService As New odService
-    Dim dic As Dictionary
-    odService.BaseUrl = OdRpc.CURL_DEMO
-    With New OdResult
-        Set TestDatabase = .Ws(OdXmlRpc.TestDatabase(odService))
-    End With
-End Function
-
-' ======================
-'  Common
-' ======================
-' Logging in:
-' https://www.odoo.com/documentation/master/developer/misc/api/odoo.html#logging-in
-Public Property Get Common() As OdServiceCommon
-    With New OdServiceCommon
-        Set Common = .Assign(mOdService)
-    End With
-End Property
-
-' ======================
-'  Model (Object)
-' ======================
-' Calling methods:
-' https://www.odoo.com/documentation/master/developer/misc/api/odoo.html#calling-methods
-Public Property Get Model(aModelName As String) As OdServiceObject
-    With New OdServiceObject
-        Set Model = .Assign(mOdService, aModelName)
-    End With
-End Property
-
-' ======================================
-'  Model of 'ir.model' (Object)
-' ======================================
-' Inspection and introspection:
-' https://www.odoo.com/documentation/master/developer/misc/api/odoo.html#inspection-and-introspection
-Public Property Get ModelOfIrModel() As OdServiceObject
-    Set ModelOfIrModel = Me.Model("ir.model")
-End Property
-
-' ======================================
-'  Model of 'ir.model.fields' (Object)
-' ======================================
-' Inspection and introspection:
-' https://www.odoo.com/documentation/master/developer/misc/api/odoo.html#inspection-and-introspection
-Public Property Get ModelOfIrModelFields() As OdServiceObject
-    Set ModelOfIrModelFields = Me.Model("ir.model.fields")
+Public Property Get RefWebClient() As WebClient
+    Set RefWebClient = mWebClient
 End Property

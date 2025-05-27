@@ -1,9 +1,9 @@
-Attribute VB_Name = "OdooJsonRpcTest"
+Attribute VB_Name = "OdWebClientTest"
 ' External API - odoo-JSON-RPC-VBA
 '
 ' MIT License
 '
-' Copyright (c) 2022 jp-rad
+' Copyright (c) 2022-2025 jp-rad
 '
 ' Permission is hereby granted, free of charge, to any person obtaining a copy
 ' of this software and associated documentation files (the "Software"), to deal
@@ -32,24 +32,67 @@ Attribute VB_Name = "OdooJsonRpcTest"
 ' integration with various tools. Part of the Models API is easily available over
 ' XML-RPC and accessible from a variety of languages.
 '
-' see also: https://www.odoo.com/documentation/15.0/developer/misc/api/odoo.html
+' see also: https://www.odoo.com/documentation/master/developer/misc/api/odoo.html
 '
 
 Option Explicit
 
+Private Const CBASEURL As String = "https://localhost"
+Private Const CDBNAME As String = "dev_odoo"
+Private Const CUSERNAME As String = "admin"
+Private Const CPASSWORD As String = "admin"
+
 Private mClient As New OdWebClient
 
-' Test database
-Private mUrl As String
-Private mDb As String
-Private mUsername As String
-Private mPassword As String
+Public Sub doSetupClient(Optional TestDatabase As Boolean = True)
+    If TestDatabase Then
+        ' Test database
+        ' https://www.odoo.com/documentation/master/developer/misc/api/odoo.html#test-database
+        With mClient.TestDatabase()
+            mClient.BaseUrl = .sHost
+            mClient.DbName = .sDatabase
+            mClient.Username = .sUser
+            mClient.Password = .sPassword
+        End With
+    Else
+        ' Turn off SSL validation
+        mClient.SetInsecure True
+        ' Follow redirects (301, 302, 307) using Location header
+        mClient.SetFollowRedirects False
+        
+        mClient.BaseUrl = CBASEURL
+        mClient.DbName = CDBNAME
+        mClient.Username = CUSERNAME
+        mClient.Password = CPASSWORD
+    End If
+    
+    Debug.Print "---------------"
+    Debug.Print " Setup client"
+    Debug.Print "---------------"
+    Debug.Print "BaseUrl:", mClient.BaseUrl
+    Debug.Print "Database:", mClient.DbName
+    Debug.Print "Username:", mClient.Username
+    Debug.Print "Password:", mClient.Password
+    Debug.Print
+
+End Sub
+
+Public Sub doConnectToTest()
+    doSetupClient True
+End Sub
+
+Public Sub doConnectToLocal()
+    doSetupClient False
+End Sub
 
 Public Sub doAll()
+On Error GoTo ErrHandler
     Debug.Print "Start - doAll()"
     Debug.Print "Press F5 key to step over next."
-    Debug.Assert False
-    doTestDatabase
+    If mClient.BaseUrl = "" Then
+        Debug.Assert False
+        doSetupClient
+    End If
     Debug.Assert False
     doVersion
     Debug.Assert False
@@ -75,33 +118,18 @@ Public Sub doAll()
     Debug.Assert False
     Debug.Print "Done! Retry,"
     Debug.Print "doAll"
-End Sub
-
-Public Sub doTestDatabase()
-    Debug.Print Now() & " - doTestDatabase"
-    ' Test database
-    ' https://www.odoo.com/documentation/15.0/developer/misc/api/odoo.html#test-database
-    With mClient.Start().Start()
-        
-        mUrl = .SrHost
-        mDb = .SrDatabase
-        mUsername = .SrUser
-        mPassword = .SrPassword
-        
-        Debug.Print "---------------"
-        Debug.Print " Test Database"
-        Debug.Print "---------------"
-        Debug.Print JsonConverter.ConvertToJson(.JsonResult)
-        Debug.Print
-        
-    End With
+ExitProc:
+    Exit Sub
+ErrHandler:
+    Debug.Assert False
+    MsgBox Err.Description, vbCritical, Err.Source
+    Resume Next
 End Sub
 
 Public Sub doVersion()
     Debug.Print Now() & " - doVersion"
     ' version
-    ' https://www.odoo.com/documentation/15.0/developer/misc/api/odoo.html#logging-in
-    mClient.BaseUrl = mUrl
+    ' https://www.odoo.com/documentation/master/developer/misc/api/odoo.html#logging-in
     With mClient.Common().Version()
         
         Debug.Print "---------"
@@ -116,9 +144,8 @@ End Sub
 Public Sub doAuthenticate()
     Debug.Print Now() & " - doAuthenticate"
     ' version
-    ' https://www.odoo.com/documentation/15.0/developer/misc/api/odoo.html#logging-in
-    mClient.BaseUrl = mUrl
-    With mClient.Common().Authenticate(mDb, mUsername, mPassword)
+    ' https://www.odoo.com/documentation/master/developer/misc/api/odoo.html#logging-in
+    With mClient.Common().Authenticate()
         
         Debug.Print "--------------"
         Debug.Print " authenticate"
@@ -132,7 +159,7 @@ End Sub
 Public Sub doCheckAccessRights()
     Debug.Print Now() & " - doCheckAccessRights"
     ' Calling methods
-    ' https://www.odoo.com/documentation/15.0/developer/misc/api/odoo.html#calling-methods
+    ' https://www.odoo.com/documentation/master/developer/misc/api/odoo.html#calling-methods
     With mClient.Model("res.partner").MethodCheckAccessRights("['read']", "{'raise_exception': false}")
         
         Debug.Print "-------------------"
@@ -147,7 +174,7 @@ End Sub
 Public Sub doListRecords()
     Debug.Print Now() & " - doListRecords"
     ' List records
-    ' https://www.odoo.com/documentation/15.0/developer/misc/api/odoo.html#list-records
+    ' https://www.odoo.com/documentation/master/developer/misc/api/odoo.html#list-records
     With mClient.Model("res.partner").MethodSearch("[['is_company', '=', true]]")
         
         Debug.Print "-------------------"
@@ -162,7 +189,7 @@ End Sub
 Public Sub doPagination()
     Debug.Print Now() & " - doPagination"
     ' Pagination
-    ' https://www.odoo.com/documentation/15.0/developer/misc/api/odoo.html#pagination
+    ' https://www.odoo.com/documentation/master/developer/misc/api/odoo.html#pagination
     With mClient.Model("res.partner").MethodSearch("[['is_company', '=', true]]", "{'offset': 10, 'limit': 5}")
         
         Debug.Print "-------------------"
@@ -177,8 +204,8 @@ End Sub
 Public Sub doCountRecords()
     Debug.Print Now() & " - doCountRecords"
     ' Count records
-    ' https://www.odoo.com/documentation/15.0/developer/misc/api/odoo.html#count-records
-    With mClient.Model("res.partner").ExecuteKw(CMETHOD_SEARCH_COUNT, "[[['is_company', '=', true]]]")
+    ' https://www.odoo.com/documentation/master/developer/misc/api/odoo.html#count-records
+    With mClient.Model("res.partner").ExecuteKw(OdRpc.CMETHOD_SEARCH_COUNT, "[[['is_company', '=', true]]]")
         
         Debug.Print "-------------------"
         Debug.Print " Count records"
@@ -192,7 +219,7 @@ End Sub
 Public Sub doReadRecords()
     Debug.Print Now() & " - doReadRecords"
     ' Read records
-    ' https://www.odoo.com/documentation/15.0/developer/misc/api/odoo.html#read-records
+    ' https://www.odoo.com/documentation/master/developer/misc/api/odoo.html#read-records
     Dim ids As Collection
     Set ids = mClient.Model("res.partner").MethodSearch("[['is_company', '=', true]]", "{'limit': 1}").JsonResult
     With mClient.Model("res.partner").MethodRead(ids)
@@ -216,8 +243,8 @@ End Sub
 Public Sub doListRecordFields()
     Debug.Print Now() & " - doListRecordFields"
     ' List record fields
-    ' https://www.odoo.com/documentation/15.0/developer/misc/api/odoo.html#list-record-fields
-    With mClient.Model("res.partner").ExecuteKw(CMETHOD_FIELDS_GET, "[]", "{'attributes': ['string', 'help', 'type']}")
+    ' https://www.odoo.com/documentation/master/developer/misc/api/odoo.html#list-record-fields
+    With mClient.Model("res.partner").ExecuteKw(OdRpc.CMETHOD_FIELDS_GET, "[]", "{'attributes': ['string', 'help', 'type']}")
         
         Debug.Print "-------------------"
         Debug.Print " List record fields"
@@ -231,7 +258,7 @@ End Sub
 Public Sub doSearchAndRead()
     Debug.Print Now() & " - doSearchAndRead"
     ' Search and read
-    ' https://www.odoo.com/documentation/15.0/developer/misc/api/odoo.html#search-and-read
+    ' https://www.odoo.com/documentation/master/developer/misc/api/odoo.html#search-and-read
     With mClient.Model("res.partner").MethodSearchAndRead("[['is_company', '=', true]]", " {'fields': ['name', 'country_id', 'comment'], 'limit': 5}")
         
         Debug.Print "-------------------"
@@ -246,7 +273,7 @@ End Sub
 Public Sub doCreateUpdateUnlinkRecords()
     Debug.Print Now() & " - doCreateUpdateUnlinkRecords"
     ' Create records
-    ' https://www.odoo.com/documentation/15.0/developer/misc/api/odoo.html#create-records
+    ' https://www.odoo.com/documentation/master/developer/misc/api/odoo.html#create-records
     Dim n As Long
     With mClient.Model("res.partner").MethodCreate("{'name': 'New Partner'}")
         n = .JsonResult
@@ -259,7 +286,7 @@ Public Sub doCreateUpdateUnlinkRecords()
         
     End With
     ' Update records
-    ' https://www.odoo.com/documentation/15.0/developer/misc/api/odoo.html#update-records
+    ' https://www.odoo.com/documentation/master/developer/misc/api/odoo.html#update-records
     With mClient.Model("res.partner").MethodWrite(n, "{'name': 'Newer Partner'}")
         
         Debug.Print "-------------------"
@@ -280,7 +307,7 @@ Public Sub doCreateUpdateUnlinkRecords()
         
     End With
     ' Delete records
-    ' https://www.odoo.com/documentation/15.0/developer/misc/api/odoo.html#delete-records
+    ' https://www.odoo.com/documentation/master/developer/misc/api/odoo.html#delete-records
 On Error Resume Next
     With mClient.Model("res.partner").MethodUnlink(n)
         
@@ -309,7 +336,7 @@ End Sub
 Public Sub doInspectionAndIntrospection()
     Debug.Print Now() & " - doInspectionAndIntrospection"
     ' Inspection and introspection
-    ' https://www.odoo.com/documentation/15.0/developer/misc/api/odoo.html#inspection-and-introspection
+    ' https://www.odoo.com/documentation/master/developer/misc/api/odoo.html#inspection-and-introspection
     Dim s As String
     Dim n As Long
     ' - Custom model
@@ -333,7 +360,7 @@ On Error Resume Next
         
     End With
 On Error GoTo 0
-    With mClient.Model("x_custom_vba_model").ExecuteKw(CMETHOD_FIELDS_GET, "[]", "{'attributes': ['string', 'help', 'type']}")
+    With mClient.Model("x_custom_vba_model").ExecuteKw(OdRpc.CMETHOD_FIELDS_GET, "[]", "{'attributes': ['string', 'help', 'type']}")
         Debug.Print "fields_get: " & JsonConverter.ConvertToJson(.JsonResult, 4)
         Debug.Print
     End With

@@ -11,7 +11,7 @@ Attribute VB_Exposed = False
 '
 ' MIT License
 '
-' Copyright (c) 2022 jp-rad
+' Copyright (c) 2022-2025 jp-rad
 '
 ' Permission is hereby granted, free of charge, to any person obtaining a copy
 ' of this software and associated documentation files (the "Software"), to deal
@@ -40,7 +40,7 @@ Attribute VB_Exposed = False
 ' integration with various tools. Part of the Models API is easily available over
 ' XML-RPC and accessible from a variety of languages.
 '
-' see also: https://www.odoo.com/documentation/15.0/developer/misc/api/odoo.html
+' see also: https://www.odoo.com/documentation/master/developer/misc/api/odoo.html
 '
 
 Option Explicit
@@ -49,16 +49,16 @@ Option Explicit
 Public JsonResult As Variant
 
 ' Result of start.start
-Public SrHost As String
-Public SrDatabase As String
-Public SrUser As String
-Public SrPassword As String
+Public sHost As String
+Public sDatabase As String
+Public sUser As String
+Public sPassword As String
 
 ' Result of common.version
-Public VrServerVersion As String
-Public VrServerVersionInfo As Collection
-Public VrServerSerie As String
-Public VrProtocolVersion As Long
+Public vServerVersion As String
+Public vServerVersionInfo As Collection
+Public vServerSerie As String
+Public vProtocolVersion As Long
 
 Public Function W(dic As Dictionary) As OdResult
     Set W = Me
@@ -70,7 +70,7 @@ Public Function W(dic As Dictionary) As OdResult
 End Function
 
 ' Test Database:
-' https://www.odoo.com/documentation/15.0/developer/misc/api/odoo.html#test-database
+' https://www.odoo.com/documentation/master/developer/misc/api/odoo.html#test-database
 Public Function Ws(dic As Dictionary) As OdResult
     Set Ws = Me
     Set Me.JsonResult = dic("result")
@@ -82,15 +82,15 @@ Public Function Ws(dic As Dictionary) As OdResult
     '     "password": "admin"
     ' }
     With Me.JsonResult  ' json("result")
-        Me.SrHost = .Item("host")
-        Me.SrDatabase = .Item("database")
-        Me.SrUser = .Item("user")
-        Me.SrPassword = .Item("password")
+        Me.sHost = .Item("host")
+        Me.sDatabase = .Item("database")
+        Me.sUser = .Item("user")
+        Me.sPassword = .Item("password")
     End With
 End Function
 
 ' version:
-' https://www.odoo.com/documentation/15.0/developer/misc/api/odoo.html#logging-in
+' https://www.odoo.com/documentation/master/developer/misc/api/odoo.html#logging-in
 Public Function Wv(dic As Dictionary) As OdResult
     Set Wv = Me
     Set Me.JsonResult = dic("result")
@@ -110,13 +110,12 @@ Public Function Wv(dic As Dictionary) As OdResult
     '     "protocol_version": 1
     ' }
     With Me.JsonResult  ' json("result")
-        Me.VrServerVersion = .Item("server_version")
-        Set Me.VrServerVersionInfo = New Collection
+        Me.vServerVersion = .Item("server_version")
+        Set Me.vServerVersionInfo = New Collection
         For Each v In .Item("server_version_info")
-            Me.VrServerVersionInfo.Add v
+            Me.vServerVersionInfo.Add v
         Next v
-        Me.VrServerSerie = .Item("server_serie")
-        Me.VrProtocolVersion = .Item("protocol_version")
+        Me.vServerSerie = .Item("server_serie")
+        Me.vProtocolVersion = .Item("protocol_version")
     End With
 End Function
-
