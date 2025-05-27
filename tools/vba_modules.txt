@@ -1,11 +1,13 @@
-required	../OdooJsonRpc.bas
-optional	../OdooJsonRpcTest.bas
+required	../OdJsonRpc.bas
+required	../OdRpc.bas
+optional	../OdWebClientTest.bas
+required	../OdXmlRpc.bas
 required	../OdDomainBuilder.cls
 required	../OdDomainCriteria.cls
 required	../OdResult.cls
+required	../OdService.cls
 required	../OdServiceCommon.cls
 required	../OdServiceObject.cls
-required	../OdServiceStart.cls
 required	../OdWebClient.cls
 required	../imports/vba-web/src/WebHelpers.bas
 required	../imports/vba-web/src/IWebAuthenticator.cls

@@ -11,7 +11,7 @@ Attribute VB_Exposed = False
 '
 ' MIT License
 '
-' Copyright (c) 2022 jp-rad
+' Copyright (c) 2022-2025 jp-rad
 '
 ' Permission is hereby granted, free of charge, to any person obtaining a copy
 ' of this software and associated documentation files (the "Software"), to deal
@@ -36,12 +36,12 @@ Attribute VB_Exposed = False
 ' External API - odoo docs
 '
 ' Calling methods:
-' https://www.odoo.com/documentation/15.0/developer/misc/api/odoo.html#calling-methods
+' https://www.odoo.com/documentation/master/developer/misc/api/odoo.html#calling-methods
 '
 
 Option Explicit
 
-Private mClient As OdWebClient
+Private mOdService As odService
 Private mModelName As String
 
 Private Function WL(v As Variant) As Variant
@@ -76,46 +76,46 @@ Private Function WL2(n As Long, Optional v As Variant = "") As Variant
     End If
 End Function
 
-Public Function AssignObject(aClient As OdWebClient, aModelName As String) As OdServiceObject
-    Set AssignObject = Me
-    Set mClient = aClient
+Public Function Assign(aOdService As odService, aModelName As String) As OdServiceObject
+    Set Assign = Me
+    Set mOdService = aOdService
     mModelName = aModelName
 End Function
 
 Public Function ExecuteKw(aMethodName As String, aListParam As Variant, Optional aDictParam As Variant = "") As OdResult
     With New OdResult
-        Set ExecuteKw = .W(OdooJsonRpc.ObjectExecuteKw(mClient.BaseUrl, mClient.DbName, mClient.UserId, mClient.Password, mModelName, aMethodName, aListParam, aDictParam))
+        Set ExecuteKw = .W(OdJsonRpc.JsonRpcObjectExecuteKw(mOdService, mModelName, aMethodName, aListParam, aDictParam))
     End With
 End Function
 
 Public Function MethodCheckAccessRights(aRights As Variant, aParameters As Variant) As OdResult
-    Set MethodCheckAccessRights = Me.ExecuteKw(CMETHOD_CHECK_ACCESS_RIGHTS, aRights, aParameters)
+    Set MethodCheckAccessRights = Me.ExecuteKw(OdRpc.CMETHOD_CHECK_ACCESS_RIGHTS, aRights, aParameters)
 End Function
 
 Public Function MethodSearch(aDomain As Variant, Optional aParameters As Variant = "") As OdResult
-    Set MethodSearch = Me.ExecuteKw(CMETHOD_SEARCH, WL(aDomain), aParameters)
+    Set MethodSearch = Me.ExecuteKw(OdRpc.CMETHOD_SEARCH, WL(aDomain), aParameters)
 End Function
 
 Public Function MethodRead(aIds As Variant, Optional aParameters As Variant = "") As OdResult
-    Set MethodRead = Me.ExecuteKw(CMETHOD_READ, WL(aIds), aParameters)
+    Set MethodRead = Me.ExecuteKw(OdRpc.CMETHOD_READ, WL(aIds), aParameters)
 End Function
 
 Public Function MethodSearchAndRead(aDomain As Variant, Optional aParameters As Variant = "") As OdResult
-    Set MethodSearchAndRead = Me.ExecuteKw(CMETHOD_SEARCH_READ, WL(aDomain), aParameters)
+    Set MethodSearchAndRead = Me.ExecuteKw(OdRpc.CMETHOD_SEARCH_READ, WL(aDomain), aParameters)
 End Function
 
 Public Function MethodCreate(aValues As Variant) As OdResult
-    Set MethodCreate = Me.ExecuteKw(CMETHOD_CREATE, WL(aValues))
+    Set MethodCreate = Me.ExecuteKw(OdRpc.CMETHOD_CREATE, WL(aValues))
 End Function
 
 Public Function MethodWrite(aId As Long, aValues As Variant) As OdResult
-    Set MethodWrite = Me.ExecuteKw(CMETHOD_WRITE, WL2(aId, aValues))
+    Set MethodWrite = Me.ExecuteKw(OdRpc.CMETHOD_WRITE, WL2(aId, aValues))
 End Function
 
 Public Function MethodNameGet(aId As Long) As OdResult
-    Set MethodNameGet = Me.ExecuteKw(CMETHOD_NAME_GET, WL(WL(aId)))
+    Set MethodNameGet = Me.ExecuteKw(OdRpc.CMETHOD_NAME_GET, WL(WL(aId)))
 End Function
 
 Public Function MethodUnlink(aId As Long) As OdResult
-    Set MethodUnlink = Me.ExecuteKw(CMETHOD_UNLINK, WL(WL(aId)))
+    Set MethodUnlink = Me.ExecuteKw(OdRpc.CMETHOD_UNLINK, WL(WL(aId)))
 End Function

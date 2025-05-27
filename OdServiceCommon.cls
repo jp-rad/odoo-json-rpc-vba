@@ -11,7 +11,7 @@ Attribute VB_Exposed = False
 '
 ' MIT License
 '
-' Copyright (c) 2022 jp-rad
+' Copyright (c) 2022-2025 jp-rad
 '
 ' Permission is hereby granted, free of charge, to any person obtaining a copy
 ' of this software and associated documentation files (the "Software"), to deal
@@ -36,31 +36,29 @@ Attribute VB_Exposed = False
 ' External API - odoo docs
 '
 ' Logging in:
-' https://www.odoo.com/documentation/15.0/developer/misc/api/odoo.html#logging-in
+' https://www.odoo.com/documentation/master/developer/misc/api/odoo.html#logging-in
 '
 
 Option Explicit
 
-Private mClient As OdWebClient
+Private mOdService As odService
 
-Public Function AssignCommon(aClient As OdWebClient) As OdServiceCommon
-    Set AssignCommon = Me
-    Set mClient = aClient
+Public Function Assign(aOdService As odService) As OdServiceCommon
+    Set Assign = Me
+    Set mOdService = aOdService
 End Function
 
 ' Version
 Public Function Version() As OdResult
     With New OdResult
-        Set Version = .Wv(OdooJsonRpc.CommonVersion(mClient.BaseUrl))
+        Set Version = .Wv(OdJsonRpc.JsonRpcCommonVersion(mOdService))
     End With
 End Function
 
 ' Authenticate
-Public Function Authenticate(Optional aDbName As String = "", Optional aUsername As String = "", Optional aPassword As String = "") As OdResult
-    mClient.SetConnectionInfo aDbName:=aDbName, aUsername:=aUsername, aPassword:=aPassword
+Public Function Authenticate() As OdResult
     With New OdResult
-        Set Authenticate = .W(OdooJsonRpc.CommonAuthenticate(mClient.BaseUrl, mClient.DbName, mClient.Username, mClient.Password))
-        mClient.UserId = .JsonResult
+        Set Authenticate = .W(OdJsonRpc.JsonRpcCommonAuthenticate(mOdService))
+        mOdService.UserId = .JsonResult
     End With
 End Function
-
