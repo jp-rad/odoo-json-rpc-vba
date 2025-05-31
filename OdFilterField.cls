@@ -2,7 +2,7 @@ VERSION 1.0 CLASS
 BEGIN
   MultiUse = -1  'True
 END
-Attribute VB_Name = "OdDomainCriteria"
+Attribute VB_Name = "OdFilterField"
 Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
@@ -33,91 +33,102 @@ Attribute VB_Exposed = True
 '
 
 '
-' ORM API - odoo docs
+' Search domains, ORM API - odoo docs
 '
-' Search domains:
-' https://www.odoo.com/documentation/master/developer/reference/backend/orm.html#search-domains
+' A domain is a list of criteria, each criterion being a triple (either a list or a tuple)
+' of (field_name, operator, value)
+'
+' see also: https://www.odoo.com/documentation/18.0/developer/reference/backend/orm.html#search-domains
 '
 
 Option Explicit
 
 Private mFieldName As String
-Private mDomainBuilder As OdDomainBuilder
 
-Public Function AssignFieldName(aFieldName As String, aDomainBuilder As OdDomainBuilder) As OdDomainCriteria
-    Set AssignFieldName = Me
+Public Function SetFieldName(aFieldName As String) As OdFilterField
+    Set SetFieldName = Me
     mFieldName = aFieldName
-    Set mDomainBuilder = aDomainBuilder
 End Function
 
-Private Function SetOpeValue(aOperator As String, aValue As Variant) As OdDomainBuilder
-    Set SetOpeValue = mDomainBuilder.AddCriteriaTriple(mFieldName, aOperator, aValue)
+Private Function SetOpeValue(aOperator As String, aValue As Variant) As OdFilterCriteria
+    With New OdFilterCriteria
+        Set SetOpeValue = .SetCriteria(mFieldName, aOperator, aValue)
+    End With
 End Function
 
-Public Function Eq(aValue As Variant) As OdDomainBuilder
+Public Function Eq(aValue As Variant) As OdFilterCriteria
     Set Eq = SetOpeValue("=", aValue)
 End Function
 
-Public Function NotEq(aValue As Variant) As OdDomainBuilder
+Public Function NotEq(aValue As Variant) As OdFilterCriteria
     Set NotEq = SetOpeValue("!=", aValue)
 End Function
 
-Public Function Gt(aValue As Variant) As OdDomainBuilder
+Public Function Gt(aValue As Variant) As OdFilterCriteria
     Set Gt = SetOpeValue(">", aValue)
 End Function
 
-Public Function Ge(aValue As Variant) As OdDomainBuilder
+Public Function Ge(aValue As Variant) As OdFilterCriteria
     Set Ge = SetOpeValue(">=", aValue)
 End Function
 
-Public Function Lt(aValue As Variant) As OdDomainBuilder
+Public Function Lt(aValue As Variant) As OdFilterCriteria
     Set Lt = SetOpeValue("<", aValue)
 End Function
 
-Public Function Le(aValue As Variant) As OdDomainBuilder
+Public Function Le(aValue As Variant) As OdFilterCriteria
     Set Le = SetOpeValue("<=", aValue)
 End Function
 
-Public Function UnsetOrEq(aValue As Variant) As OdDomainBuilder
+Public Function UnsetOrEq(aValue As Variant) As OdFilterCriteria
     Set UnsetOrEq = SetOpeValue("=?", aValue)
 End Function
 
-Public Function EqLike(aValue As Variant) As OdDomainBuilder
+Public Function EqLike(aValue As Variant) As OdFilterCriteria
     Set EqLike = SetOpeValue("=like", aValue)
 End Function
 
-Public Function IsLike(aValue As Variant) As OdDomainBuilder
+Public Function IsLike(aValue As Variant) As OdFilterCriteria
     Set IsLike = SetOpeValue("like", aValue)
 End Function
 
-Public Function NotLike(aValue As Variant) As OdDomainBuilder
+Public Function NotLike(aValue As Variant) As OdFilterCriteria
     Set NotLike = SetOpeValue("not like", aValue)
 End Function
 
-Public Function CILike(aValue As Variant) As OdDomainBuilder
-    Set CILike = SetOpeValue("ilike", aValue)
+Public Function IsILike(aValue As Variant) As OdFilterCriteria
+    Set IsILike = SetOpeValue("ilike", aValue)
 End Function
 
-Public Function NotCILike(aValue As Variant) As OdDomainBuilder
-    Set NotCILike = SetOpeValue("not ilike", aValue)
+Public Function NotILike(aValue As Variant) As OdFilterCriteria
+    Set NotILike = SetOpeValue("not ilike", aValue)
 End Function
 
-Public Function EqCILike(aValue As Variant) As OdDomainBuilder
-    Set EqCILike = SetOpeValue("=ilike", aValue)
+Public Function EqILike(aValue As Variant) As OdFilterCriteria
+    Set EqILike = SetOpeValue("=ilike", aValue)
 End Function
 
-Public Function IsIn(aValue As Variant) As OdDomainBuilder
+Public Function IsIn(aValue As Variant) As OdFilterCriteria
     Set IsIn = SetOpeValue("in", aValue)
 End Function
 
-Public Function NotIn(aValue As Variant) As OdDomainBuilder
+Public Function NotIn(aValue As Variant) As OdFilterCriteria
     Set NotIn = SetOpeValue("not in", aValue)
 End Function
 
-Public Function ChildOf(aValue As Variant) As OdDomainBuilder
+Public Function ChildOf(aValue As Variant) As OdFilterCriteria
     Set ChildOf = SetOpeValue("child_of", aValue)
 End Function
 
-Public Function ParentOf(aValue As Variant) As OdDomainBuilder
+Public Function ParentOf(aValue As Variant) As OdFilterCriteria
     Set ParentOf = SetOpeValue("parent_of", aValue)
 End Function
+
+Public Function IsAny(aValue As Variant) As OdFilterCriteria
+    Set IsAny = SetOpeValue("any", aValue)
+End Function
+
+Public Function NotAny(aValue As Variant) As OdFilterCriteria
+    Set NotAny = SetOpeValue("not any", aValue)
+End Function
+

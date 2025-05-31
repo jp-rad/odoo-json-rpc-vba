@@ -2,7 +2,7 @@ VERSION 1.0 CLASS
 BEGIN
   MultiUse = -1  'True
 END
-Attribute VB_Name = "OdServiceCommon"
+Attribute VB_Name = "OdFilterCombi"
 Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
@@ -33,32 +33,41 @@ Attribute VB_Exposed = True
 '
 
 '
-' External API - odoo docs
+' Search domains, ORM API - odoo docs
 '
-' Logging in:
-' https://www.odoo.com/documentation/master/developer/misc/api/odoo.html#logging-in
+' A domain is a list of criteria, each criterion being a triple (either a list or a tuple)
+' of (field_name, operator, value)
+'
+' see also: https://www.odoo.com/documentation/18.0/developer/reference/backend/orm.html#search-domains
 '
 
-Option Explicit
+Private mLogic As String
+Private mArity1 As Object
+Private mArity2 As Object
 
-Private mOdService As odService
-
-Public Function Assign(aOdService As odService) As OdServiceCommon
-    Set Assign = Me
-    Set mOdService = aOdService
+Public Function ToFilterString() As String
+    ToFilterString = "'" & mLogic & "', " & mArity1.ToFilterString()
+    If Not mArity2 Is Nothing Then
+        ToFilterString = ToFilterString & ", " & mArity2.ToFilterString()
+    End If
 End Function
 
-' Version
-Public Function Version() As OdResult
-    With New OdResult
-        Set Version = .Wv(OdJsonRpc.JsonRpcCommonVersion(mOdService))
-    End With
+Private Function SetLogic(aLogic As String, aArity1 As Object, aArity2 As Object) As OdFilterCombi
+    Set SetLogic = Me
+    mLogic = aLogic
+    Set mArity1 = aArity1
+    Set mArity2 = aArity2
 End Function
 
-' Authenticate
-Public Function Authenticate() As OdResult
-    With New OdResult
-        Set Authenticate = .W(OdJsonRpc.JsonRpcCommonAuthenticate(mOdService))
-        mOdService.UserId = .JsonResult
-    End With
+Public Function SetAndLogic(aArity1 As Object, aArity2 As Object) As OdFilterCombi
+    Set SetAndLogic = SetLogic("&", aArity1, aArity2)
 End Function
+
+Public Function SetOrLogic(aArity1 As Object, aArity2 As Object) As OdFilterCombi
+    Set SetOrLogic = SetLogic("|", aArity1, aArity2)
+End Function
+
+Public Function SetNotLogic(aArity As Object) As OdFilterCombi
+    Set SetNotLogic = SetLogic("!", aArity, Nothing)
+End Function
+

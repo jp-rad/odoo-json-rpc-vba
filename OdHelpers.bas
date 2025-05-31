@@ -1,12 +1,4 @@
-VERSION 1.0 CLASS
-BEGIN
-  MultiUse = -1  'True
-END
-Attribute VB_Name = "OdServiceCommon"
-Attribute VB_GlobalNameSpace = False
-Attribute VB_Creatable = False
-Attribute VB_PredeclaredId = False
-Attribute VB_Exposed = True
+Attribute VB_Name = "OdHelpers"
 ' External API - odoo-JSON-RPC-VBA
 '
 ' MIT License
@@ -35,30 +27,20 @@ Attribute VB_Exposed = True
 '
 ' External API - odoo docs
 '
-' Logging in:
-' https://www.odoo.com/documentation/master/developer/misc/api/odoo.html#logging-in
+' Odoo is usually extended internally via modules, but many of its features and
+' all of its data are also available from the outside for external analysis or
+' integration with various tools. Part of the Models API is easily available over
+' XML-RPC and accessible from a variety of languages.
+'
+' see also: https://www.odoo.com/documentation/15.0/developer/misc/api/odoo.html
 '
 
 Option Explicit
 
-Private mOdService As odService
-
-Public Function Assign(aOdService As odService) As OdServiceCommon
-    Set Assign = Me
-    Set mOdService = aOdService
+Public Function NewOdWebClient() As OdWebClient
+    Set NewOdWebClient = New OdWebClient
 End Function
 
-' Version
-Public Function Version() As OdResult
-    With New OdResult
-        Set Version = .Wv(OdJsonRpc.JsonRpcCommonVersion(mOdService))
-    End With
-End Function
-
-' Authenticate
-Public Function Authenticate() As OdResult
-    With New OdResult
-        Set Authenticate = .W(OdJsonRpc.JsonRpcCommonAuthenticate(mOdService))
-        mOdService.UserId = .JsonResult
-    End With
+Public Function NewOdDomainBuilder() As OdDomainBuilder
+    Set NewOdDomainBuilder = New OdDomainBuilder
 End Function

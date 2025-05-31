@@ -66,16 +66,16 @@ Public Function CreatePostXmlWebRequest(Url As String, Body As Variant, Optional
     
 End Function
 
-Public Function ParseXml(value As String) As Object ' MSXML2.DOMDocument
+Public Function ParseXml(Value As String) As Object ' MSXML2.DOMDocument
     ' https://github.com/VBA-tools/VBA-Web/wiki/XML-Support-in-4.0
     Set ParseXml = CreateObject("MSXML2.DOMDocument")
     ParseXml.Async = False
-    ParseXml.LoadXML value
+    ParseXml.LoadXML Value
 End Function
  
-Public Function ConvertToXml(value As Object) As String
+Public Function ConvertToXml(Value As Object) As String
     ' https://github.com/VBA-tools/VBA-Web/wiki/XML-Support-in-4.0
-    ConvertToXml = Trim(Replace(value.xml, vbCrLf, ""))
+    ConvertToXml = Trim(Replace(Value.Xml, vbCrLf, ""))
 End Function
 
 Public Function PostXml(aOdService As odService, aUrlPath As String, aBody As Variant, Optional aOptions As Dictionary) As Object    ' MSXML2.DOMDocument
@@ -123,17 +123,17 @@ Public Function CreateXmlBody(aMethodName As String, Optional aParams As Variant
 
     Set CreateXmlBody = xmlDoc
     
-    Debug.Print xmlDoc.xml
+    Debug.Print xmlDoc.Xml
 End Function
 
 Public Function TestDatabase(aOdService As odService) As Dictionary
     Dim xmlDoc As Object
-    Dim result As New Dictionary
+    Dim Result As New Dictionary
     Set xmlDoc = PostXmlStart(aOdService, CreateXmlBody("start"))
     Dim memberNode As Object
     For Each memberNode In xmlDoc.SelectNodes("//member")
-        result.Add memberNode.SelectSingleNode("name").Text, memberNode.SelectSingleNode("value/string").Text
+        Result.Add memberNode.SelectSingleNode("name").Text, memberNode.SelectSingleNode("value/string").Text
     Next
     Set TestDatabase = New Dictionary
-    TestDatabase.Add "result", result
+    TestDatabase.Add "result", Result
 End Function

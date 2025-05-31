@@ -2,7 +2,7 @@ VERSION 1.0 CLASS
 BEGIN
   MultiUse = -1  'True
 END
-Attribute VB_Name = "OdServiceCommon"
+Attribute VB_Name = "OdFIlterCriteria"
 Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
@@ -33,32 +33,45 @@ Attribute VB_Exposed = True
 '
 
 '
-' External API - odoo docs
+' Search domains, ORM API - odoo docs
 '
-' Logging in:
-' https://www.odoo.com/documentation/master/developer/misc/api/odoo.html#logging-in
+' A domain is a list of criteria, each criterion being a triple (either a list or a tuple)
+' of (field_name, operator, value)
+'
+' see also: https://www.odoo.com/documentation/18.0/developer/reference/backend/orm.html#search-domains
 '
 
 Option Explicit
 
-Private mOdService As odService
+Private mFieldName As String
+Private mOperator As String
+Private mValue As Variant   ' string, number, domain
 
-Public Function Assign(aOdService As odService) As OdServiceCommon
-    Set Assign = Me
-    Set mOdService = aOdService
+Public Function ToFilterString() As String
+    Dim sValue As String
+    If IsObject(mValue) Then
+        sValue = COdFilterDomain(mValue).ToFilterString()
+    ElseIf VarType(mValue) = vbString Then
+        sValue = "'" & mValue & "'"
+    Else
+        sValue = mValue
+    End If
+
+    ToFilterString = "('" & mFieldName & "', '" & mOperator & "', " & sValue & ")"
 End Function
 
-' Version
-Public Function Version() As OdResult
-    With New OdResult
-        Set Version = .Wv(OdJsonRpc.JsonRpcCommonVersion(mOdService))
-    End With
+Private Function COdFilterDomain(v As Variant) As OdFilterDomain
+    Set COdFilterDomain = v
 End Function
 
-' Authenticate
-Public Function Authenticate() As OdResult
-    With New OdResult
-        Set Authenticate = .W(OdJsonRpc.JsonRpcCommonAuthenticate(mOdService))
-        mOdService.UserId = .JsonResult
-    End With
+Public Function SetCriteria(aFieldName As String, aOperator As String, aValue As Variant) As OdFilterCriteria
+    Set SetCriteria = Me
+    mFieldName = aFieldName
+    mOperator = aOperator
+    If IsObject(aValue) Then
+        Set mValue = COdFilterDomain(aValue)
+    Else
+        mValue = aValue
+    End If
 End Function
+
