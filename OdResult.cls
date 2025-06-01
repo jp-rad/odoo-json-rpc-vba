@@ -32,21 +32,20 @@ Attribute VB_Exposed = True
 ' SOFTWARE.
 '
 
+Option Explicit
+
 '
 ' External API - odoo docs
 '
-' Odoo is usually extended internally via modules, but many of its features and
-' all of its data are also available from the outside for external analysis or
-' integration with various tools. Part of the Models API is easily available over
-' XML-RPC and accessible from a variety of languages.
+' Odoo is usually extended internally via modules, but many of its features and all of its data
+' are also available from the outside for external analysis or integration with various tools.
+' Part of the Models API is easily available over XML-RPC and accessible from a variety of languages.
 '
-' see also: https://www.odoo.com/documentation/master/developer/misc/api/odoo.html
+' https://www.odoo.com/documentation/master/developer/reference/external_api.html
 '
-
-Option Explicit
 
 ' result value
-Public JsonResult As Variant
+Private mResult As Variant
 
 ' Result of start.start
 Public sHost As String
@@ -60,12 +59,20 @@ Public vServerVersionInfo As Collection
 Public vServerSerie As String
 Public vProtocolVersion As Long
 
+Public Property Get Result() As Variant
+    If IsObject(mResult) Then
+        Set Result = mResult
+    Else
+        Result = mResult
+    End If
+End Property
+
 Public Function W(dic As Dictionary) As OdResult
     Set W = Me
     If IsObject(dic("result")) Then
-        Set Me.JsonResult = dic("result")
+        Set mResult = dic("result")
     Else
-        Me.JsonResult = dic("result")
+        mResult = dic("result")
     End If
 End Function
 
@@ -73,7 +80,7 @@ End Function
 ' https://www.odoo.com/documentation/master/developer/misc/api/odoo.html#test-database
 Public Function Ws(dic As Dictionary) As OdResult
     Set Ws = Me
-    Set Me.JsonResult = dic("result")
+    Set mResult = dic("result")
     ' "result":
     ' {
     '     "host":     "https://demo3.odoo.com",
@@ -81,7 +88,7 @@ Public Function Ws(dic As Dictionary) As OdResult
     '     "user":     "admin",
     '     "password": "admin"
     ' }
-    With Me.JsonResult  ' json("result")
+    With mResult
         Me.sHost = .Item("host")
         Me.sDatabase = .Item("database")
         Me.sUser = .Item("user")
@@ -92,9 +99,11 @@ End Function
 ' version:
 ' https://www.odoo.com/documentation/master/developer/misc/api/odoo.html#logging-in
 Public Function Wv(dic As Dictionary) As OdResult
-    Set Wv = Me
-    Set Me.JsonResult = dic("result")
     Dim v As Variant
+    
+    Set Wv = Me
+    Set mResult = dic("result")
+    
     ' "result":
     ' {
     '     "server_version": "15.0+e",
@@ -109,7 +118,7 @@ Public Function Wv(dic As Dictionary) As OdResult
     '     "server_serie": "15.0",
     '     "protocol_version": 1
     ' }
-    With Me.JsonResult  ' json("result")
+    With mResult
         Me.vServerVersion = .Item("server_version")
         Set Me.vServerVersionInfo = New Collection
         For Each v In .Item("server_version_info")

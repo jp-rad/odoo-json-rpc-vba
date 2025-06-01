@@ -32,46 +32,144 @@ Attribute VB_Exposed = True
 ' SOFTWARE.
 '
 
-'
-' Search domains, ORM API - odoo docs
-'
-' A domain is a list of criteria, each criterion being a triple (either a list or a tuple)
-' of (field_name, operator, value)
-'
-' see also: https://www.odoo.com/documentation/18.0/developer/reference/backend/orm.html#search-domains
-'
-
 Option Explicit
 
-Private mFieldName As String
+'
+' Search domains - ORM API
+'
+' A search domain is a first-order logical predicate used for filtering and searching recordsets.
+' You combine simple conditions on a field expression with logical operators.
+'
+' https://www.odoo.com/documentation/master/developer/reference/backend/orm.html#search-domains
+'
+
+Private mFieldExpr As String
 Private mOperator As String
-Private mValue As Variant   ' string, number, domain
-
-Public Function ToFilterString() As String
-    Dim sValue As String
-    If IsObject(mValue) Then
-        sValue = COdFilterDomain(mValue).ToFilterString()
-    ElseIf VarType(mValue) = vbString Then
-        sValue = "'" & mValue & "'"
-    Else
-        sValue = mValue
-    End If
-
-    ToFilterString = "('" & mFieldName & "', '" & mOperator & "', " & sValue & ")"
-End Function
+Private mValue As Variant   ' string, number, boolean, null, domain
 
 Private Function COdFilterDomain(v As Variant) As OdFilterDomain
     Set COdFilterDomain = v
 End Function
 
-Public Function SetCriteria(aFieldName As String, aOperator As String, aValue As Variant) As OdFilterCriteria
+Public Function ToJson() As String
+    Dim sValue As String
+    If IsEmpty(mValue) Then
+        Debug.Assert False
+        sValue = "null"
+    ElseIf IsObject(mValue) Then
+        If mValue Is Nothing Then
+            sValue = "null" ' null
+        Else
+            sValue = COdFilterDomain(mValue).ToJson()
+        End If
+    ElseIf VarType(mValue) = vbString Then
+        sValue = "'" & mValue & "'"
+    ElseIf VarType(mValue) = vbBoolean Then
+        sValue = IIf(mValue, "true", "false")   ' true/false
+    Else
+        sValue = mValue
+    End If
+
+    ToJson = "['" & mFieldExpr & "', '" & mOperator & "', " & sValue & "]"
+End Function
+
+Public Function SetCriteria(aFieldExpr As String, aOperator As String, aValue As Variant) As OdFilterCriteria
     Set SetCriteria = Me
-    mFieldName = aFieldName
+    mFieldExpr = aFieldExpr
     mOperator = aOperator
     If IsObject(aValue) Then
         Set mValue = COdFilterDomain(aValue)
     Else
         mValue = aValue
     End If
+End Function
+
+Public Function SetFieldExpr(aFieldExpr As String) As OdFilterCriteria
+    Set SetFieldExpr = Me
+    mFieldExpr = aFieldExpr
+    mOperator = ""
+    mValue = Empty  ' Clear
+End Function
+
+Private Function SetOpeValue(aOperator As String, aValue As Variant) As OdFilterCriteria
+    With New OdFilterCriteria
+        Set SetOpeValue = .SetCriteria(mFieldExpr, aOperator, aValue)
+    End With
+End Function
+
+Public Function Eq(aValue As Variant) As OdFilterCriteria
+    Set Eq = SetOpeValue("=", aValue)
+End Function
+
+Public Function NotEq(aValue As Variant) As OdFilterCriteria
+    Set NotEq = SetOpeValue("!=", aValue)
+End Function
+
+Public Function Gt(aValue As Variant) As OdFilterCriteria
+    Set Gt = SetOpeValue(">", aValue)
+End Function
+
+Public Function Ge(aValue As Variant) As OdFilterCriteria
+    Set Ge = SetOpeValue(">=", aValue)
+End Function
+
+Public Function Lt(aValue As Variant) As OdFilterCriteria
+    Set Lt = SetOpeValue("<", aValue)
+End Function
+
+Public Function Le(aValue As Variant) As OdFilterCriteria
+    Set Le = SetOpeValue("<=", aValue)
+End Function
+
+Public Function UnsetOrEq(aValue As Variant) As OdFilterCriteria
+    Set UnsetOrEq = SetOpeValue("=?", aValue)
+End Function
+
+Public Function EqLike(aValue As Variant) As OdFilterCriteria
+    Set EqLike = SetOpeValue("=like", aValue)
+End Function
+
+Public Function IsLike(aValue As Variant) As OdFilterCriteria
+    Set IsLike = SetOpeValue("like", aValue)
+End Function
+
+Public Function NotLike(aValue As Variant) As OdFilterCriteria
+    Set NotLike = SetOpeValue("not like", aValue)
+End Function
+
+Public Function IsILike(aValue As Variant) As OdFilterCriteria
+    Set IsILike = SetOpeValue("ilike", aValue)
+End Function
+
+Public Function NotILike(aValue As Variant) As OdFilterCriteria
+    Set NotILike = SetOpeValue("not ilike", aValue)
+End Function
+
+Public Function EqILike(aValue As Variant) As OdFilterCriteria
+    Set EqILike = SetOpeValue("=ilike", aValue)
+End Function
+
+Public Function IsIn(aValue As Variant) As OdFilterCriteria
+    Set IsIn = SetOpeValue("in", aValue)
+End Function
+
+Public Function NotIn(aValue As Variant) As OdFilterCriteria
+    Set NotIn = SetOpeValue("not in", aValue)
+End Function
+
+Public Function ChildOf(aValue As Variant) As OdFilterCriteria
+    Set ChildOf = SetOpeValue("child_of", aValue)
+End Function
+
+Public Function ParentOf(aValue As Variant) As OdFilterCriteria
+    Set ParentOf = SetOpeValue("parent_of", aValue)
+End Function
+
+Public Function IsAny(aValue As Variant) As OdFilterCriteria
+    Set IsAny = SetOpeValue("any", aValue)
+End Function
+
+Public Function NotAny(aValue As Variant) As OdFilterCriteria
+    Set NotAny = SetOpeValue("not any", aValue)
 End Function
 

@@ -24,18 +24,17 @@ Attribute VB_Name = "OdJsonRpc"
 ' SOFTWARE.
 '
 
+Option Explicit
+
 '
 ' External API - odoo docs
 '
-' Odoo is usually extended internally via modules, but many of its features and
-' all of its data are also available from the outside for external analysis or
-' integration with various tools. Part of the Models API is easily available over
-' XML-RPC and accessible from a variety of languages.
+' Odoo is usually extended internally via modules, but many of its features and all of its data
+' are also available from the outside for external analysis or integration with various tools.
+' Part of the Models API is easily available over XML-RPC and accessible from a variety of languages.
 '
-' see also: https://www.odoo.com/documentation/master/developer/misc/api/odoo.html
+' https://www.odoo.com/documentation/master/developer/reference/external_api.html
 '
-
-Option Explicit
 
 Private mJsonRpcId As Long
 
@@ -84,23 +83,23 @@ Private Function GetHeaderFromWebResponse(wr As WebResponse, header As String) A
     
 End Function
 
-Public Function PostJson(aOdService As odService, aUrlPath As String, aJsonRpc As Dictionary) As Dictionary
+Public Function PostJson(aOdConnection As OdConnection, aUrlPath As String, aJsonRpc As Dictionary) As Dictionary
     Dim sUrl As String
     Dim wr As WebResponse
     Dim errSrc As String
     Dim errDsc As String
-    sUrl = WebHelpers.JoinUrl(aOdService.BaseUrl, aUrlPath)
-    Set wr = aOdService.RefWebClient.PostJson(sUrl, aJsonRpc)
+    sUrl = WebHelpers.JoinUrl(aOdConnection.BaseUrl, aUrlPath)
+    Set wr = aOdConnection.RefWebClient.PostJson(sUrl, aJsonRpc)
     If wr.StatusCode = 301 Or wr.StatusCode = 302 Or wr.StatusCode = 307 Then
         sUrl = GetHeaderFromWebResponse(wr, "Location")
         Debug.Print "[" & wr.StatusCode & "]" & " Location:" & sUrl, "OdService.PostJson"
-        Set wr = aOdService.RefWebClient.PostJson(sUrl, aJsonRpc)
+        Set wr = aOdConnection.RefWebClient.PostJson(sUrl, aJsonRpc)
     End If
     If wr.StatusCode <> WebStatusCode.Ok Then
         errSrc = sUrl
         errDsc = "web response error (status code: " & wr.StatusCode & " )" & vbCrLf & sUrl
-        LogError errDsc, errSrc, OdRpc.CERR_STATUSCODE
-        Err.Raise OdRpc.CERR_STATUSCODE, errSrc, errDsc
+        LogError errDsc, errSrc, Od.CERR_STATUSCODE
+        Err.Raise Od.CERR_STATUSCODE, errSrc, errDsc
     End If
     Set PostJson = JsonConverter.ParseJson(wr.Content)
     If Not PostJson.Exists("result") Then
@@ -110,25 +109,25 @@ Public Function PostJson(aOdService As odService, aUrlPath As String, aJsonRpc A
                 errDsc = .Item("name") & vbCrLf & .Item("message")
             End With
         End With
-        LogError errDsc, errSrc, OdRpc.CERR_RESPONSE
-        Err.Raise OdRpc.CERR_RESPONSE, errSrc, errDsc
+        LogError errDsc, errSrc, Od.CERR_RESPONSE
+        Err.Raise Od.CERR_RESPONSE, errSrc, errDsc
     End If
     If GetJsonRpcId(aJsonRpc) <> GetJsonRpcId(PostJson) Then
         errSrc = "OdJsonRpc.PostJson"
         errDsc = "Invalid JSON-RPC ID." & vbCrLf & "Expected: " & GetJsonRpcId(aJsonRpc) & vbCrLf & "Actual: " & GetJsonRpcId(PostJson)
         Debug.Print errDsc
         Debug.Assert False
-        LogError errDsc, errSrc, OdRpc.CERR_JSONRPC_ID
-        Err.Raise OdRpc.CERR_JSONRPC_ID, errSrc, errDsc
+        LogError errDsc, errSrc, Od.CERR_JSONRPC_ID
+        Err.Raise Od.CERR_JSONRPC_ID, errSrc, errDsc
     End If
 End Function
 
-Public Function TestDatabase(aOdService As odService) As Dictionary
-    Set TestDatabase = PostJson(aOdService, "start", CreateJsonRpc("start"))
+Public Function TestDatabase(aOdConnection As OdConnection) As Dictionary
+    Set TestDatabase = PostJson(aOdConnection, "start", CreateJsonRpc("start"))
 End Function
 
-Private Function PostJsonRpc(aOdService As odService, aJsonRpc As Dictionary) As Dictionary
-    Set PostJsonRpc = PostJson(aOdService, "jsonrpc", aJsonRpc)
+Private Function PostJsonRpc(aOdConnection As OdConnection, aJsonRpc As Dictionary) As Dictionary
+    Set PostJsonRpc = PostJson(aOdConnection, "jsonrpc", aJsonRpc)
 End Function
 
 Private Function CreateJsonRpcCall(aParamsService As String, aParamsMethod As String, Optional aParamsArgs As Collection = Nothing) As Dictionary
@@ -147,45 +146,53 @@ Private Function CreateJsonRpcCall(aParamsService As String, aParamsMethod As St
     Set CreateJsonRpcCall = CreateJsonRpc("call", params)
 End Function
 
-Public Function JsonRpcCommonVersion(aOdService As odService) As Dictionary
-    Set JsonRpcCommonVersion = PostJsonRpc(aOdService, CreateJsonRpcCall("common", "version"))
+Public Function JsonRpcCommonVersion(aOdConnection As OdConnection) As Dictionary
+    Set JsonRpcCommonVersion = PostJsonRpc(aOdConnection, CreateJsonRpcCall("common", "version"))
 End Function
 
-Public Function JsonRpcCommonAuthenticate(aOdService As odService) As Dictionary
+Public Function JsonRpcCommonAuthenticate(aOdConnection As OdConnection) As Dictionary
     Dim args As New Collection
     Dim dic As Dictionary
     Dim errSrc As String
     Dim errDsc As String
     With args
-        .Add aOdService.DbName      ' dbname
-        .Add aOdService.Username    ' username
-        .Add aOdService.Password    ' password
-        .Add New Collection         ' (empty list)
+        .Add aOdConnection.DbName      ' dbname
+        .Add aOdConnection.Username    ' username
+        .Add aOdConnection.Password    ' password
+        .Add New Collection            ' (empty list)
     End With
-    Set dic = PostJsonRpc(aOdService, CreateJsonRpcCall("common", "authenticate", args))
+    Set dic = PostJsonRpc(aOdConnection, CreateJsonRpcCall("common", "authenticate", args))
     If VarType(dic("result")) = vbBoolean Then
         Debug.Assert dic("result") = False
         errSrc = "common.authenticate"
         errDsc = "authentication failed"
-        LogError errDsc, errSrc, OdRpc.CERR_AUTHENTICATE
-        Err.Raise OdRpc.CERR_AUTHENTICATE, errSrc, errDsc
+        LogError errDsc, errSrc, Od.CERR_AUTHENTICATE
+        Err.Raise Od.CERR_AUTHENTICATE, errSrc, errDsc
     End If
     Set JsonRpcCommonAuthenticate = dic ' Type of json("result") is Long.
 End Function
 
-Public Function JsonRpcObjectExecuteKw(aOdService As odService, aModelName As String, aMethodName As String, aListParam As Variant, Optional aOptions As Variant = "") As Dictionary
+Public Function JsonRpcObjectExecuteKw(aOdConnection As OdConnection, aModelName As String, aMethodName As String, Optional aParams As Variant = "", Optional aOptions As Variant = "") As Dictionary
     Dim args As New Collection
     With args
-        .Add aOdService.DbName    ' the database to use, a string
-        .Add aOdService.UserId    ' the user id (retrieved through authenticate), an integer
-        .Add aOdService.Password  ' the userÅfs password, a string
+        .Add aOdConnection.DbName    ' the database to use, a string
+        .Add aOdConnection.UserId    ' the user id (retrieved through authenticate), an integer
+        .Add aOdConnection.Password  ' the userÅfs password, a string
         
         .Add aModelName                 ' the model name, a string
         .Add aMethodName                ' the method name, a string
-        If IsObject(aListParam) Then    ' an array/list of parameters passed by position
-            .Add aListParam
+        If IsObject(aParams) Then       ' an array/list of parameters passed by position
+            If aParams Is Nothing Then
+                .Add New Collection
+            Else
+                .Add aParams
+            End If
         Else
-            .Add JsonConverter.ParseJson(aListParam)
+            If aParams = "" Then
+                .Add New Collection
+            Else
+                .Add JsonConverter.ParseJson(aParams)
+            End If
         End If
         If IsObject(aOptions) Then      ' a mapping/dict of parameters to pass by keyword (optional)
             If Not aOptions Is Nothing Then
@@ -197,6 +204,6 @@ Public Function JsonRpcObjectExecuteKw(aOdService As odService, aModelName As St
             End If
         End If
     End With
-    Set JsonRpcObjectExecuteKw = PostJsonRpc(aOdService, CreateJsonRpcCall("object", "execute_kw", args))
+    Set JsonRpcObjectExecuteKw = PostJsonRpc(aOdConnection, CreateJsonRpcCall("object", "execute_kw", args))
 End Function
 

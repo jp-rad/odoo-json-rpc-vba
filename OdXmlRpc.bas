@@ -24,18 +24,17 @@ Attribute VB_Name = "OdXmlRpc"
 ' SOFTWARE.
 '
 
+Option Explicit
+
 '
 ' External API - odoo docs
 '
-' Odoo is usually extended internally via modules, but many of its features and
-' all of its data are also available from the outside for external analysis or
-' integration with various tools. Part of the Models API is easily available over
-' XML-RPC and accessible from a variety of languages.
+' Odoo is usually extended internally via modules, but many of its features and all of its data
+' are also available from the outside for external analysis or integration with various tools.
+' Part of the Models API is easily available over XML-RPC and accessible from a variety of languages.
 '
-' see also: https://www.odoo.com/documentation/15.0/developer/misc/api/odoo.html
+' https://www.odoo.com/documentation/master/developer/reference/external_api.html
 '
-
-Option Explicit
 
 Private mRegisteredXml As Boolean
 
@@ -66,19 +65,19 @@ Public Function CreatePostXmlWebRequest(Url As String, Body As Variant, Optional
     
 End Function
 
-Public Function ParseXml(Value As String) As Object ' MSXML2.DOMDocument
+Public Function ParseXml(Encoded As String) As Object ' MSXML2.DOMDocument
     ' https://github.com/VBA-tools/VBA-Web/wiki/XML-Support-in-4.0
     Set ParseXml = CreateObject("MSXML2.DOMDocument")
     ParseXml.Async = False
-    ParseXml.LoadXML Value
+    ParseXml.LoadXML Encoded
 End Function
  
-Public Function ConvertToXml(Value As Object) As String
+Public Function ConvertToXml(Obj As Object) As String
     ' https://github.com/VBA-tools/VBA-Web/wiki/XML-Support-in-4.0
-    ConvertToXml = Trim(Replace(Value.Xml, vbCrLf, ""))
+    ConvertToXml = Trim(Replace(Obj.Xml, vbCrLf, ""))
 End Function
 
-Public Function PostXml(aOdService As odService, aUrlPath As String, aBody As Variant, Optional aOptions As Dictionary) As Object    ' MSXML2.DOMDocument
+Public Function PostXml(aOdConnection As OdConnection, aUrlPath As String, aBody As Variant, Optional aOptions As Dictionary) As Object    ' MSXML2.DOMDocument
     ' https://github.com/VBA-tools/VBA-Web/wiki/XML-Support-in-4.0
     Dim sUrl As String
     Dim web_Request As WebRequest
@@ -86,15 +85,15 @@ Public Function PostXml(aOdService As odService, aUrlPath As String, aBody As Va
     Dim errSrc As String
     Dim errDsc As String
     
-    sUrl = WebHelpers.JoinUrl(aOdService.BaseUrl, aUrlPath)
+    sUrl = WebHelpers.JoinUrl(aOdConnection.BaseUrl, aUrlPath)
     Set web_Request = CreatePostXmlWebRequest(sUrl, aBody, aOptions)
-    Set web_Response = aOdService.RefWebClient.Execute(web_Request)
+    Set web_Response = aOdConnection.RefWebClient.Execute(web_Request)
     
     If web_Response.StatusCode <> WebStatusCode.Ok Then
         errSrc = sUrl
         errDsc = "web response error (status code: " & web_Response.StatusCode & " )" & vbCrLf & sUrl
-        LogError errDsc, errSrc, OdRpc.CERR_STATUSCODE
-        Err.Raise OdRpc.CERR_STATUSCODE, errSrc, errDsc
+        LogError errDsc, errSrc, Od.CERR_STATUSCODE
+        Err.Raise Od.CERR_STATUSCODE, errSrc, errDsc
     End If
     
     Debug.Print web_Response.Content
@@ -102,8 +101,8 @@ Public Function PostXml(aOdService As odService, aUrlPath As String, aBody As Va
     
 End Function
 
-Public Function PostXmlStart(aOdService As odService, aXmlBody As Variant) As Object    ' MSXML2.DOMDocument
-    Set PostXmlStart = PostXml(aOdService, "start", aXmlBody)
+Public Function PostXmlStart(aOdConnection As OdConnection, aXmlBody As Variant) As Object    ' MSXML2.DOMDocument
+    Set PostXmlStart = PostXml(aOdConnection, "start", aXmlBody)
 End Function
 
 Public Function CreateXmlBody(aMethodName As String, Optional aParams As Variant = Nothing) As Object   ' MSXML2.DOMDocument
@@ -126,14 +125,14 @@ Public Function CreateXmlBody(aMethodName As String, Optional aParams As Variant
     Debug.Print xmlDoc.Xml
 End Function
 
-Public Function TestDatabase(aOdService As odService) As Dictionary
+Public Function TestDatabase(aOdConnection As OdConnection) As Dictionary
     Dim xmlDoc As Object
-    Dim Result As New Dictionary
-    Set xmlDoc = PostXmlStart(aOdService, CreateXmlBody("start"))
+    Dim dicResult As New Dictionary
+    Set xmlDoc = PostXmlStart(aOdConnection, CreateXmlBody("start"))
     Dim memberNode As Object
     For Each memberNode In xmlDoc.SelectNodes("//member")
-        Result.Add memberNode.SelectSingleNode("name").Text, memberNode.SelectSingleNode("value/string").Text
+        dicResult.Add memberNode.SelectSingleNode("name").Text, memberNode.SelectSingleNode("value/string").Text
     Next
     Set TestDatabase = New Dictionary
-    TestDatabase.Add "result", Result
+    TestDatabase.Add "result", dicResult
 End Function

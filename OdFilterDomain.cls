@@ -32,65 +32,69 @@ Attribute VB_Exposed = True
 ' SOFTWARE.
 '
 
-'
-' Search domains, ORM API - odoo docs
-'
-' A domain is a list of criteria, each criterion being a triple (either a list or a tuple)
-' of (field_name, operator, value)
-'
-' see also: https://www.odoo.com/documentation/18.0/developer/reference/backend/orm.html#search-domains
-'
-
 Option Explicit
 
-Private mList As New Collection ' list of criteria or combinations or number or string
+'
+' Search domains - ORM API
+'
+' A search domain is a first-order logical predicate used for filtering and searching recordsets.
+' You combine simple conditions on a field expression with logical operators.
+'
+' https://www.odoo.com/documentation/master/developer/reference/backend/orm.html#search-domains
+'
 
-Public Function ToFilterString() As String
+Private mList As New Collection ' list of criteria or combinations
+
+Public Property Get AsList() As Collection
+    Set AsList = JsonConverter.ParseJson(Me.ToJson())
+End Property
+
+Public Function AppendTo(aList As Collection) As Collection
+    Set AppendTo = AsList
+    aList.Add AppendTo
+End Function
+
+Public Function ToJson() As String
     Dim a() As String
     Dim i As Integer
     
     If mList.Count = 0 Then
-        ToFilterString = "[]"
+        ToJson = "[]"
         GoTo ExitProc
     End If
     
     ReDim a(1 To mList.Count)
     For i = LBound(a) To UBound(a)
-        a(i) = VarToFilterString(mList(i))
+        a(i) = VarToJson(mList(i))
     Next i
     
-    ToFilterString = "[" & Join(a, ", ") & "]"
+    ToJson = "[" & Join(a, ", ") & "]"
     
 ExitProc:
     Exit Function
 End Function
 
-Private Function VarToFilterString(v As Variant) As String
+Private Function VarToJson(v As Object) As String
 On Error Resume Next
     Dim criteria As OdFilterCriteria
     Dim combi As OdFilterCombi
-    
     Set criteria = v
     If Not criteria Is Nothing Then
-        VarToFilterString = criteria.ToFilterString()
+        VarToJson = criteria.ToJson()
         GoTo ExitProc
     End If
+On Error GoTo 0
     Set combi = v
     If Not combi Is Nothing Then
-        VarToFilterString = combi.ToFilterString()
+        VarToJson = combi.ToJson()
         GoTo ExitProc
     End If
-    If VarType(v) = vbString Then
-        VarToFilterString = "'" & v & "'"
-        GoTo ExitProc
-    End If
-    VarToFilterString = v
 ExitProc:
     Exit Function
 End Function
 
 Public Function AddArity(aArity As Object) As OdFilterDomain
-    mList.Add aArity
     Set AddArity = Me
+    mList.Add aArity
 End Function
 

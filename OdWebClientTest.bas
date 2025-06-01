@@ -42,9 +42,10 @@ Private Const CDBNAME As String = "dev_odoo"
 Private Const CUSERNAME As String = "admin"
 Private Const CPASSWORD As String = "admin"
 
-Private mClient As New OdWebClient
+Private mClient As OdWebClient
 
 Public Sub doSetupClient(Optional TestDatabase As Boolean = True)
+    Set mClient = NewOdWebClient()
     If TestDatabase Then
         ' Test database
         ' https://www.odoo.com/documentation/master/developer/misc/api/odoo.html#test-database
@@ -322,7 +323,7 @@ On Error Resume Next
         'Debug.Print
         
     End With
-    With New OdDomainBuilder
+    With NewOdDomainBuilder
         .AddCriteria("id").Eq n
         With mClient.Model("res.partner").MethodSearch(.GetDomain)
             Debug.Print "search: " & JsonConverter.ConvertToJson(.JsonResult)
@@ -408,7 +409,7 @@ On Error GoTo 0
         Debug.Print "record_id: " & .JsonResult
         
     End With
-    With New OdDomainBuilder
+    With NewOdDomainBuilder
         .AddCriteria("id").Eq n
         With mClient.Model("x_custom_vba").MethodSearch(.GetDomain)
             Debug.Print "search: " & JsonConverter.ConvertToJson(.JsonResult)
@@ -418,7 +419,7 @@ On Error GoTo 0
 End Sub
 
 Public Sub testDomainBuilder()
-    With New OdDomainBuilder
+    With NewOdDomainBuilder
         
         ' criteria
         .AddCriteria("[=] equals to").Eq 1

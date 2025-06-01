@@ -32,42 +32,71 @@ Attribute VB_Exposed = True
 ' SOFTWARE.
 '
 
+Option Explicit
+
 '
-' Search domains, ORM API - odoo docs
+' Search domains - ORM API
 '
-' A domain is a list of criteria, each criterion being a triple (either a list or a tuple)
-' of (field_name, operator, value)
+' A search domain is a first-order logical predicate used for filtering and searching recordsets.
+' You combine simple conditions on a field expression with logical operators.
 '
-' see also: https://www.odoo.com/documentation/18.0/developer/reference/backend/orm.html#search-domains
+' https://www.odoo.com/documentation/master/developer/reference/backend/orm.html#search-domains
 '
+
+Private Const CLOGIC_NOT As String = "'!'"
+Private Const CLOGIC_AND As String = "'&'"
+Private Const CLOGIC_OR As String = "'|'"
 
 Private mLogic As String
-Private mArity1 As Object
-Private mArity2 As Object
+Private mArityList As Collection
 
-Public Function ToFilterString() As String
-    ToFilterString = "'" & mLogic & "', " & mArity1.ToFilterString()
-    If Not mArity2 Is Nothing Then
-        ToFilterString = ToFilterString & ", " & mArity2.ToFilterString()
+Public Function ToJson() As String
+    Dim a() As String
+    Dim cnt As Long
+    Dim i As Long
+    Dim v As Variant
+    
+    If mLogic = CLOGIC_NOT Then
+        ReDim a(0 To 1)
+        a(0) = CLOGIC_NOT
+        a(1) = mArityList(1).ToJson()
+    Else
+        cnt = mArityList.Count
+        ReDim a(0 To (cnt - 1) * 2)
+        For i = 0 To cnt - 2
+            a(i) = mLogic
+        Next i
+        For Each v In mArityList
+            a(i) = v.ToJson()
+            i = i + 1
+        Next v
     End If
+    ToJson = Join(a, ", ")
 End Function
 
 Private Function SetLogic(aLogic As String, aArity1 As Object, aArity2 As Object) As OdFilterCombi
     Set SetLogic = Me
     mLogic = aLogic
-    Set mArity1 = aArity1
-    Set mArity2 = aArity2
+    Set mArityList = New Collection
+    mArityList.Add aArity1
+    If mLogic <> CLOGIC_NOT Then
+        mArityList.Add aArity2
+    End If
 End Function
 
 Public Function SetAndLogic(aArity1 As Object, aArity2 As Object) As OdFilterCombi
-    Set SetAndLogic = SetLogic("&", aArity1, aArity2)
+    Set SetAndLogic = SetLogic(CLOGIC_AND, aArity1, aArity2)
 End Function
 
 Public Function SetOrLogic(aArity1 As Object, aArity2 As Object) As OdFilterCombi
-    Set SetOrLogic = SetLogic("|", aArity1, aArity2)
+    Set SetOrLogic = SetLogic(CLOGIC_OR, aArity1, aArity2)
 End Function
 
 Public Function SetNotLogic(aArity As Object) As OdFilterCombi
-    Set SetNotLogic = SetLogic("!", aArity, Nothing)
+    Set SetNotLogic = SetLogic(CLOGIC_NOT, aArity, Nothing)
 End Function
 
+Public Function Add(aArity As Object) As OdFilterCombi
+    Set Add = Me
+    mArityList.Add aArity
+End Function
