@@ -67,6 +67,31 @@ Public Sub TestJson()
     End With
 End Sub
 
+Public Sub TestCombi()
+    
+    With NewAnd(NewField("phone").IsILike("7620"), NewField("mobile").IsILike("7620"))
+        Debug.Assert "'&', ['phone', 'ilike', '7620'], ['mobile', 'ilike', '7620']" = .ToJson()
+        .Add NewField("fax").IsILike("7620")
+        Debug.Assert "'&', '&', ['phone', 'ilike', '7620'], ['mobile', 'ilike', '7620'], ['fax', 'ilike', '7620']" = .ToJson()
+    End With
+    
+    With NewOr(NewField("phone").IsILike("7620"), NewField("mobile").IsILike("7620"))
+        Debug.Assert "'|', ['phone', 'ilike', '7620'], ['mobile', 'ilike', '7620']" = .ToJson()
+        .Add NewField("fax").IsILike("7620")
+        Debug.Assert "'|', '|', ['phone', 'ilike', '7620'], ['mobile', 'ilike', '7620'], ['fax', 'ilike', '7620']" = .ToJson()
+    End With
+    
+    With NewNot(NewField("phone").IsILike("7620"))
+        Debug.Assert "'!', ['phone', 'ilike', '7620']" = .ToJson()
+        .Add NewField("mobile").IsILike("7620")
+        Debug.Assert "'!', ['phone', 'ilike', '7620']" = .ToJson()
+        .Add NewField("fax").IsILike("7620")
+        Debug.Assert "'!', ['phone', 'ilike', '7620']" = .ToJson()
+    End With
+    
+    
+End Sub
+
 Public Sub TestField()
     '
     ' Example
@@ -210,7 +235,7 @@ Public Sub TestDomain()
         .AddArity NewOr(NewField("phone").IsILike("7620"), NewField("mobile").IsILike("7620"))
         Debug.Print .ToJson()
         Debug.Assert IsValidJson(.ToJson())
-        Debug.Assert "[['name','=','ABC'],'|',['phone','ilike','7620'],['mobile','ilike','7620']]" = Replace(JsonConverter.ConvertToJson(.AsList), """", "'")
+        Debug.Assert "[['name','=','ABC'],'|',['phone','ilike','7620'],['mobile','ilike','7620']]" = Replace(JsonConverter.ConvertToJson(.Build), """", "'")
     End With
     
     With NewDomain()
@@ -218,15 +243,66 @@ Public Sub TestDomain()
         .AddArity NewField("order_line").IsAny(NewDomain().AddArity(NewField("product_id.qty_available").Le(0)))
         Debug.Print .ToJson()
         Debug.Assert IsValidJson(.ToJson())
-        Debug.Assert "[['invoice_status','=','to invoice'],['order_line','any',[['product_id.qty_available','<=',0]]]]" = Replace(JsonConverter.ConvertToJson(.AsList), """", "'")
+        Debug.Assert "[['invoice_status','=','to invoice'],['order_line','any',[['product_id.qty_available','<=',0]]]]" = Replace(JsonConverter.ConvertToJson(.Build), """", "'")
     End With
     
     With NewDomain()
         .AddArity NewCriteria("birthday.month_number", "=", 2)
         Debug.Print .ToJson()
         Debug.Assert IsValidJson(.ToJson())
-        Debug.Assert "[['birthday.month_number','=',2]]" = Replace(JsonConverter.ConvertToJson(.AsList), """", "'")
+        Debug.Assert "[['birthday.month_number','=',2]]" = Replace(JsonConverter.ConvertToJson(.Build), """", "'")
     End With
 
 End Sub
 
+Public Sub TestCoding()
+    Dim params As Collection
+    Dim domain As OdFilterDomain
+    Dim criteria As OdFilterCriteria
+    Dim id As Long
+    Dim v As Variant
+    
+    ' [[['is_company', '=', True]]]
+    Set params = NewList
+    With NewDomain
+        .AddArity NewField("is_company").Eq(True)
+        .BuildAndAppend params
+    End With
+    Debug.Print JsonConverter.ConvertToJson(params)
+    Debug.Assert "[[['is_company','=',true]]]" = Replace(JsonConverter.ConvertToJson(params), """", "'")
+    
+    ' [[['id', '=', id]]]
+    id = &H7FFFFFFF ' 2147483647
+    Set params = NewList
+    With NewDomain()
+        .AddArity NewField("id").Eq(id)
+        .BuildAndAppend params
+    End With
+    Debug.Print JsonConverter.ConvertToJson(params)
+    Debug.Assert "[[['id','=',2147483647]]]" = Replace(JsonConverter.ConvertToJson(params), """", "'")
+
+    ' [[['id', '=', id]]]
+    ' id = 0, 1, 2, 3
+    ' build
+    Set domain = NewDomain
+    Set criteria = NewField("id").Eq(Empty)
+    domain.AddArity criteria
+    ' loop
+    For Each v In Split("0, 1, 2, 3", ",")
+        id = v
+        criteria.SetValue id
+        Set params = NewList
+        params.Add domain.Build
+        Debug.Print JsonConverter.ConvertToJson(params)
+        Debug.Assert "[[['id','='," & id & "]]]" = Replace(JsonConverter.ConvertToJson(params), """", "'")
+    Next v
+End Sub
+
+Public Sub TestAll()
+    TestJson
+    TestCombi
+    TestField
+    TestCriteria
+    TestDomain
+    TestCoding
+End Sub

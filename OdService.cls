@@ -62,7 +62,7 @@ End Function
 ' https://www.odoo.com/documentation/master/developer/reference/external_api.html#logging-in
 Public Function Version() As OdResult
     With New OdResult
-        Set Version = .Wv(OdJsonRpc.JsonRpcCommonVersion(mOdConnection))
+        Set Version = .Wv(JsonRpcCommonVersion(mOdConnection))
     End With
 End Function
 
@@ -73,7 +73,7 @@ End Function
 ' https://www.odoo.com/documentation/master/developer/reference/external_api.html#logging-in
 Public Function Authenticate() As OdResult
     With New OdResult
-        Set Authenticate = .W(OdJsonRpc.JsonRpcCommonAuthenticate(mOdConnection))
+        Set Authenticate = .W(JsonRpcCommonAuthenticate(mOdConnection))
         mOdConnection.UserId = .Result
     End With
 End Function
@@ -87,7 +87,7 @@ Public Function ExecuteKw(Optional aParams As Collection = Nothing, Optional aNa
     Debug.Assert mModelName <> ""
     Debug.Assert mMethodName <> ""
     With New OdResult
-        Set ExecuteKw = .W(OdJsonRpc.JsonRpcObjectExecuteKw(mOdConnection, mModelName, mMethodName, aParams, aNamedParams))
+        Set ExecuteKw = .W(JsonRpcObjectExecuteKw(mOdConnection, mModelName, mMethodName, aParams, aNamedParams))
     End With
 End Function
 

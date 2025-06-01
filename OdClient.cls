@@ -101,11 +101,11 @@ End Sub
 ' ======================
 ' Test database:
 ' https://www.odoo.com/documentation/master/developer/reference/external_api.html#test-database
-Public Function TestDatabase() As OdResult
+Public Function StartTestDatabase() As OdResult
     Dim connDemo As New OdConnection
     connDemo.BaseUrl = CURL_TEST_DATABASE
     With New OdResult
-        Set TestDatabase = .Ws(OdXmlRpc.TestDatabase(connDemo))
+        Set StartTestDatabase = .Ws(TestDatabase(connDemo))
     End With
 End Function
 

@@ -45,13 +45,31 @@ Option Explicit
 
 Private mList As New Collection ' list of criteria or combinations
 
-Public Property Get AsList() As Collection
-    Set AsList = JsonConverter.ParseJson(Me.ToJson())
-End Property
+Public Function AddArity(aArity As Object) As OdFilterDomain
+    Set AddArity = Me
+    mList.Add aArity
+End Function
 
-Public Function AppendTo(aList As Collection) As Collection
-    Set AppendTo = AsList
-    aList.Add AppendTo
+Private Function VarToJson(v As Object) As String
+On Error Resume Next
+    Dim criteria As OdFilterCriteria
+    Set criteria = v
+    If Not criteria Is Nothing Then
+        VarToJson = criteria.ToJson()
+        GoTo ExitProc
+    End If
+    Dim combi As OdFilterCombi
+    Set combi = v
+    If Not combi Is Nothing Then
+        VarToJson = combi.ToJson()
+        GoTo ExitProc
+    End If
+On Error GoTo ErrRaiseHandler
+    VarToJson = v.ToJson()
+ExitProc:
+    Exit Function
+ErrRaiseHandler:
+    Err.Raise Err.Number, Err.Source, Err.Description & vbCrLf & "TypeName:" & TypeName(v)
 End Function
 
 Public Function ToJson() As String
@@ -74,27 +92,11 @@ ExitProc:
     Exit Function
 End Function
 
-Private Function VarToJson(v As Object) As String
-On Error Resume Next
-    Dim criteria As OdFilterCriteria
-    Dim combi As OdFilterCombi
-    Set criteria = v
-    If Not criteria Is Nothing Then
-        VarToJson = criteria.ToJson()
-        GoTo ExitProc
-    End If
-On Error GoTo 0
-    Set combi = v
-    If Not combi Is Nothing Then
-        VarToJson = combi.ToJson()
-        GoTo ExitProc
-    End If
-ExitProc:
-    Exit Function
+Public Function Build() As Collection
+    Set Build = JsonConverter.ParseJson(Me.ToJson())
 End Function
 
-Public Function AddArity(aArity As Object) As OdFilterDomain
-    Set AddArity = Me
-    mList.Add aArity
+Public Function BuildAndAppend(aList As Collection) As Collection
+    Set BuildAndAppend = Build
+    aList.Add BuildAndAppend
 End Function
-

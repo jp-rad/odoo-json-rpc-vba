@@ -2,7 +2,7 @@ VERSION 1.0 CLASS
 BEGIN
   MultiUse = -1  'True
 END
-Attribute VB_Name = "OdFIlterCriteria"
+Attribute VB_Name = "OdFilterCriteria"
 Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
@@ -73,15 +73,19 @@ Public Function ToJson() As String
     ToJson = "['" & mFieldExpr & "', '" & mOperator & "', " & sValue & "]"
 End Function
 
-Public Function SetCriteria(aFieldExpr As String, aOperator As String, aValue As Variant) As OdFilterCriteria
-    Set SetCriteria = Me
-    mFieldExpr = aFieldExpr
-    mOperator = aOperator
+Public Sub SetValue(aValue As Variant)
     If IsObject(aValue) Then
         Set mValue = COdFilterDomain(aValue)
     Else
         mValue = aValue
     End If
+End Sub
+
+Public Function SetCriteria(aFieldExpr As String, aOperator As String, aValue As Variant) As OdFilterCriteria
+    Set SetCriteria = Me
+    mFieldExpr = aFieldExpr
+    mOperator = aOperator
+    SetValue aValue
 End Function
 
 Public Function SetFieldExpr(aFieldExpr As String) As OdFilterCriteria

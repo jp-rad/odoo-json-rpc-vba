@@ -48,7 +48,7 @@ Private Function ConnectToDatabase(Optional TestDatabase As Boolean = False) As 
     Set oClient = NewOdClient()
     
     If TestDatabase Then
-        With oClient.TestDatabase()
+        With oClient.StartTestDatabase()
             oClient.BaseUrl = .sHost
             oClient.DbName = .sDatabase
             oClient.Username = .sUser
@@ -132,7 +132,7 @@ Public Sub doExternalApiTutorial()
     Set params = NewList  ' [[['is_company', '=', True]]]
     With NewDomain
         .AddArity NewField("is_company").Eq(True)
-        .AppendTo params
+        .BuildAndAppend params
     End With
     Set ret = oClient.Model("res.partner").Method("search").ExecuteKw(params)
     Debug.Print "--------------"
@@ -146,7 +146,7 @@ Public Sub doExternalApiTutorial()
     Set params = NewList ' [[['is_company', '=', True]]]
     With NewDomain
         .AddArity NewField("is_company").Eq(True)
-        .AppendTo params
+        .BuildAndAppend params
     End With
     Set named = NewDict  ' {'offset': 10, 'limit': 5}
     With named
@@ -165,7 +165,7 @@ Public Sub doExternalApiTutorial()
     Set params = NewList    ' [[['is_company', '=', True]]]
     With NewDomain
         .AddArity NewField("is_company").Eq(True)
-        .AppendTo params
+        .BuildAndAppend params
     End With
     Set ret = oClient.Model("res.partner").Method("search_count").ExecuteKw(params)
     Debug.Print "---------------"
@@ -183,7 +183,7 @@ Public Sub doExternalApiTutorial()
     Set params = NewList ' [[['is_company', '=', True]]]
     With NewDomain
         .AddArity NewField("is_company").Eq(True)
-        .AppendTo params
+        .BuildAndAppend params
     End With
     Set named = NewDict ' {'limit': 1}
     named.Add "limit", 1
@@ -230,7 +230,7 @@ Public Sub doExternalApiTutorial()
     Set params = NewList ' [[['is_company', '=', True]]]
     With NewDomain
         .AddArity NewField("is_company").Eq(True)
-        .AppendTo params
+        .BuildAndAppend params
     End With
     Set named = NewDict  ' {'fields': ['name', 'country_id', 'comment'], 'limit': 5}
     With SetList(named, "fields")
@@ -307,7 +307,7 @@ Public Sub doExternalApiTutorial()
     Set params = NewList ' [[['id', '=', id]]]
     With NewDomain()
         .AddArity NewField("id").Eq(id)
-        .AppendTo params
+        .BuildAndAppend params
     End With
     Set ret = oClient.Model("res.partner").Method("search").ExecuteKw(params)
     Debug.Print JsonConverter.ConvertToJson(ret.Result, 4)
@@ -317,7 +317,7 @@ Public Sub doExternalApiTutorial()
     Set params = NewList
     With NewDomain()
         .AddArity NewField("model").IsILike("x_custom")
-        .AppendTo params
+        .BuildAndAppend params
     End With
     Set ret = oClient.ModelOfIrModel.Method("search").ExecuteKw(params)
     Set params = NewList
