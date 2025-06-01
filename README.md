@@ -1,6 +1,8 @@
 # odoo-JSON-RPC-VBA
 The odoo's models API is easily available over JSON-RPC and accessible from the VBA language such as Excel application.
 
+[source code: https://github.com/jp-rad/odoo-json-rpc-vba](https://github.com/jp-rad/odoo-json-rpc-vba)
+
 ## git clone
 
 Run the `git clone --recursive` command with the submodules.
@@ -18,7 +20,7 @@ cd odoo-json-rpc-vba/tools
 ./create_tutorial_workbook.vbs
 ```
 
-Then open `JSON-RPC Tutorial.xlsm` and call `doAll` in the Excel VBA imidiate window.
+Then open `JSON-RPC Tutorial.xlsm` and call `doExternalApiTutorial` in the Excel VBA imidiate window.
 
 Press `F5` key to step next.
 
@@ -55,12 +57,12 @@ When working with Date or Datetime fields in Odoo from VBA, note the following:
 
 **To ensure compatibility:**
 
-- Use `OdooRpc.FormatDate` to convert VBA `Date` values for Date fields.
-- Use `OdooRpc.ConvertToIsoDatetime` to convert VBA `Date` values for Datetime fields.
+- Use `OdRpc.FormatDate` to convert VBA `Date` values for Date fields.
+- Use `OdRpc.ConvertToIsoDatetime` to convert VBA `Date` values for Datetime fields.
 
 **When reading values from Odoo:**
 
-- Use `OdooRpc.ParseDate` to convert a string from a Date field to a VBA `Date`.
-- Use `OdooRpc.ParseIsoDatetime` to convert a string from a Datetime field to a VBA `Date`.
+- Use `OdRpc.ParseDate` to convert a string from a Date field to a VBA `Date`.
+- Use `OdRpc.ParseIsoDatetime` to convert a string from a Datetime field to a VBA `Date`.
 
 For more details, see the [Odoo documentation on Date(time) Fields](https://www.odoo.com/documentation/15.0/developer/reference/backend/orm.html#date-time-fields).
