@@ -53,7 +53,7 @@ Private Function GetVbaModules(t) 'As Dictionary
         Do Until .AtEndOfLine
             a = Split(.ReadLine(), Chr(9))
             If UBound(a) = 1 Then
-                If a(0) = "required" Or t Then
+                If (a(0) = t) Or ("develop" = t) Then
                     dic(fso.GetBaseName(a(1))) = a(1)
                 End If
             End If
@@ -105,13 +105,18 @@ Public Sub BuildWorkbookFile(t)
     Next 'tmp
 
     Dim fnm 'As String
-    If t Then
-        fnm = BuildUniqueFilePath(cur, "../odoo-json-rpc-vba tutorial", "xlsm")
-        wbk.SaveAs fnm, 52 'xlOpenXMLWorkbookMacroEnabled
-    Else
+    If t = "library" Then
         wbk.VBProject.Name="OdooJsonRpcVBA"
-        fnm = BuildUniqueFilePath(cur, "../odoo-json-rpc-vba", "xlam")
+        fnm = fso.BuildPath(cur, "../odoo-json-rpc-vba.xlam")
+        appExcel.DisplayAlerts = False
         wbk.SaveAs fnm, 55 'xlOpenXMLAddIn
+    ElseIf t = "example" Then
+        fnm = BuildUniqueFilePath(cur, "../odoo-json-rpc-vba example", "xlsm")
+        wbk.SaveAs fnm, 52 'xlOpenXMLWorkbookMacroEnabled
+    Else    ' "develop"
+        wbk.VBProject.Name="OdooJsonRpcVBADev"
+        fnm = BuildUniqueFilePath(cur, "../odoo-json-rpc-vba develop", "xlsm")
+        wbk.SaveAs fnm, 52 'xlOpenXMLWorkbookMacroEnabled
     End If
     
     wbk.Close
