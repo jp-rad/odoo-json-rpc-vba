@@ -2,7 +2,7 @@
 '
 ' MIT License
 '
-' Copyright (c) 2022 jp-rad
+' Copyright (c) 2022-2025 jp-rad
 '
 ' Permission is hereby granted, free of charge, to any person obtaining a copy
 ' of this software and associated documentation files (the "Software"), to deal
@@ -103,14 +103,16 @@ Public Sub BuildWorkbookFile(t)
     For Each tmp In dic.Items()
         wbk.VBProject.VBComponents.Import fso.BuildPath(cur, tmp)
     Next 'tmp
-    
+
     Dim fnm 'As String
     If t Then
-        fnm = BuildUniqueFilePath(cur, "../JSON-RPC Tutorial", "xlsm")
+        fnm = BuildUniqueFilePath(cur, "../odoo-json-rpc-vba tutorial", "xlsm")
+        wbk.SaveAs fnm, 52 'xlOpenXMLWorkbookMacroEnabled
     Else
-        fnm = BuildUniqueFilePath(cur, "../JSON-RPC Blank", "xlsm")
+        wbk.VBProject.Name="OdooJsonRpcVBA"
+        fnm = BuildUniqueFilePath(cur, "../odoo-json-rpc-vba", "xlam")
+        wbk.SaveAs fnm, 55 'xlOpenXMLAddIn
     End If
-    wbk.SaveAs fnm, 52 'xlOpenXMLWorkbookMacroEnabled
     
     wbk.Close
     appExcel.Quit

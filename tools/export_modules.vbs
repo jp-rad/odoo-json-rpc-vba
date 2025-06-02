@@ -2,7 +2,7 @@
 '
 ' MIT License
 '
-' Copyright (c) 2022 jp-rad
+' Copyright (c) 2022-2025 jp-rad
 '
 ' Permission is hereby granted, free of charge, to any person obtaining a copy
 ' of this software and associated documentation files (the "Software"), to deal
@@ -74,7 +74,7 @@ Public Sub ExportModules()
     cur = GetScriptFolderName()
     
     Dim fnm 'As String
-    fnm = fso.BuildPath(cur, "../JSON-RPC Tutorial.xlsm")
+    fnm = fso.BuildPath(cur, "../odoo-json-rpc-vba develop.xlsm")
     
     Dim wbk 'As Workbook
     Set wbk = appExcel.Workbooks.Open(fnm, , True)
