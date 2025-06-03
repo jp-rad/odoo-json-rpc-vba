@@ -259,7 +259,7 @@ Public Sub TestCoding()
     Dim params As Collection
     Dim domain As OdFilterDomain
     Dim criteria As OdFilterCriteria
-    Dim id As Long
+    Dim nId As Long
     Dim v As Variant
     
     ' [[['is_company', '=', True]]]
@@ -272,10 +272,10 @@ Public Sub TestCoding()
     Debug.Assert "[[['is_company','=',true]]]" = Replace(JsonConverter.ConvertToJson(params), """", "'")
     
     ' [[['id', '=', id]]]
-    id = &H7FFFFFFF ' 2147483647
+    nId = &H7FFFFFFF ' 2147483647
     Set params = NewList
     With NewDomain()
-        .AddArity NewField("id").Eq(id)
+        .AddArity NewField("id").Eq(nId)
         .BuildAndAppend params
     End With
     Debug.Print JsonConverter.ConvertToJson(params)
@@ -289,12 +289,12 @@ Public Sub TestCoding()
     domain.AddArity criteria
     ' loop
     For Each v In Split("0, 1, 2, 3", ",")
-        id = v
-        criteria.SetValue id
+        nId = v
+        criteria.SetValue nId
         Set params = NewList
         params.Add domain.Build
         Debug.Print JsonConverter.ConvertToJson(params)
-        Debug.Assert "[[['id','='," & id & "]]]" = Replace(JsonConverter.ConvertToJson(params), """", "'")
+        Debug.Assert "[[['id','='," & nId & "]]]" = Replace(JsonConverter.ConvertToJson(params), """", "'")
     Next v
 End Sub
 

@@ -57,11 +57,11 @@ Private Sub Class_Initialize()
     SetConnectionInfo _
         aBaseUrl:="https://localhost", _
         aDbName:="odoo", _
-        aUsername:="admin", _
+        aUserName:="admin", _
         aPassword:="admin"
 End Sub
 
-Public Sub SetConnectionInfo(Optional aBaseUrl As String = "", Optional aDbName As String = "", Optional aUsername As String, Optional aPassword As String = "")
+Public Sub SetConnectionInfo(Optional aBaseUrl As String = "", Optional aDbName As String = "", Optional aUserName As String, Optional aPassword As String = "")
     Dim blnChanged As Boolean
     blnChanged = False
     If aBaseUrl <> "" Then
@@ -76,9 +76,9 @@ Public Sub SetConnectionInfo(Optional aBaseUrl As String = "", Optional aDbName 
             blnChanged = True
         End If
     End If
-    If aUsername <> "" Then
-        If mUsername <> aUsername Then
-            mUsername = aUsername
+    If aUserName <> "" Then
+        If mUsername <> aUserName Then
+            mUsername = aUserName
             blnChanged = True
         End If
     End If
@@ -114,7 +114,7 @@ Public Property Get Username() As String
 End Property
 
 Public Property Let Username(newValue As String)
-    SetConnectionInfo aUsername:=newValue
+    SetConnectionInfo aUserName:=newValue
 End Property
 
 Public Property Get Password() As String

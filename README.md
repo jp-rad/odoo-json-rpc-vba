@@ -11,13 +11,13 @@ Run the `git clone --recursive` command with the submodules.
 git clone --recursive https://github.com/jp-rad/odoo-json-rpc-vba
 ```
 
-## Tutorial workbook
+## Example workbook
 
-Run `./tools/create_tutorial_workbook.vbs`.
+Run `./tools/create_workbook.vbs`.
 
 ```
 cd odoo-json-rpc-vba/tools
-./create_tutorial_workbook.vbs
+./create_workbook.vbs
 ```
 
 Then open `JSON-RPC Tutorial.xlsm` and call `doExternalApiTutorial` in the Excel VBA imidiate window.
