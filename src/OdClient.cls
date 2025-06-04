@@ -69,7 +69,7 @@ Public Property Get Username() As String
 End Property
 
 Public Property Let Username(newValue As String)
-    mOdConnection.SetConnectionInfo aUsername:=newValue
+    mOdConnection.SetConnectionInfo aUserName:=newValue
 End Property
 
 Public Property Get Password() As String

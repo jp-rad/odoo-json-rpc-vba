@@ -2,7 +2,7 @@
 '
 ' MIT License
 '
-' Copyright (c) 2022 jp-rad
+' Copyright (c) 2022-2025 jp-rad
 '
 ' Permission is hereby granted, free of charge, to any person obtaining a copy
 ' of this software and associated documentation files (the "Software"), to deal
@@ -45,15 +45,29 @@ Private Function GetVbaModules(t) 'As Dictionary
     Dim dic 'As Dictionary
     Dim fso 'As FileSystemObject
     Dim a 'As Variant
+    dim filter 'As Dictionary
     
     Set dic = CreateNewDictionary()
     Set fso = GetFileSystemObject()
-    
+    Set filter = CreateNewDictionary()
+
+    Select Case t
+        Case "library"
+            filter.Add "library", True
+            filter.Add "imports", True
+        Case "example"
+            filter.Add "example", True
+        Case Else
+            filter.Add "library", True
+            filter.Add "example", True
+            filter.Add "imports", True
+    End Select
+
     With fso.OpenTextFile(fso.BuildPath(GetScriptFolderName(), "vba_modules.txt"))
         Do Until .AtEndOfLine
             a = Split(.ReadLine(), Chr(9))
             If UBound(a) = 1 Then
-                If a(0) = "required" Or t Then
+                If (filter(a(0)) = True) Then
                     dic(fso.GetBaseName(a(1))) = a(1)
                 End If
             End If
@@ -103,14 +117,21 @@ Public Sub BuildWorkbookFile(t)
     For Each tmp In dic.Items()
         wbk.VBProject.VBComponents.Import fso.BuildPath(cur, tmp)
     Next 'tmp
-    
+
     Dim fnm 'As String
-    If t Then
-        fnm = BuildUniqueFilePath(cur, "../JSON-RPC Tutorial", "xlsm")
-    Else
-        fnm = BuildUniqueFilePath(cur, "../JSON-RPC Blank", "xlsm")
+    If t = "library" Then
+        wbk.VBProject.Name="OdooJsonRpcVBA"
+        fnm = fso.BuildPath(cur, "../odoo-json-rpc-vba.xlam")
+        appExcel.DisplayAlerts = False
+        wbk.SaveAs fnm, 55 'xlOpenXMLAddIn
+    ElseIf t = "example" Then
+        fnm = BuildUniqueFilePath(cur, "../odoo-json-rpc-vba example", "xlsm")
+        wbk.SaveAs fnm, 52 'xlOpenXMLWorkbookMacroEnabled
+    Else    ' "develop"
+        wbk.VBProject.Name="OdooJsonRpcVBADev"
+        fnm = BuildUniqueFilePath(cur, "../odoo-json-rpc-vba develop", "xlsm")
+        wbk.SaveAs fnm, 52 'xlOpenXMLWorkbookMacroEnabled
     End If
-    wbk.SaveAs fnm, 52 'xlOpenXMLWorkbookMacroEnabled
     
     wbk.Close
     appExcel.Quit
