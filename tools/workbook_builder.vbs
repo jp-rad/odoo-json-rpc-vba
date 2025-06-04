@@ -45,15 +45,29 @@ Private Function GetVbaModules(t) 'As Dictionary
     Dim dic 'As Dictionary
     Dim fso 'As FileSystemObject
     Dim a 'As Variant
+    dim filter 'As Dictionary
     
     Set dic = CreateNewDictionary()
     Set fso = GetFileSystemObject()
-    
+    Set filter = CreateNewDictionary()
+
+    Select Case t
+        Case "library"
+            filter.Add "library", True
+            filter.Add "imports", True
+        Case "example"
+            filter.Add "example", True
+        Case Else
+            filter.Add "library", True
+            filter.Add "example", True
+            filter.Add "imports", True
+    End Select
+
     With fso.OpenTextFile(fso.BuildPath(GetScriptFolderName(), "vba_modules.txt"))
         Do Until .AtEndOfLine
             a = Split(.ReadLine(), Chr(9))
             If UBound(a) = 1 Then
-                If (a(0) = t) Or ("develop" = t) Then
+                If (filter(a(0)) = True) Then
                     dic(fso.GetBaseName(a(1))) = a(1)
                 End If
             End If
