@@ -1,4 +1,4 @@
-Attribute VB_Name = "TestOd"
+Attribute VB_Name = "TestOdTutrial"
 ' External API - odoo-JSON-RPC-VBA
 '
 ' MIT License
@@ -35,111 +35,6 @@ Option Explicit
 '
 ' https://www.odoo.com/documentation/master/developer/reference/external_api.html
 '
-
-Private Const CBASEURL As String = "https://localhost"
-Private Const CINSECURE As Boolean = True
-Private Const CFOLLOWREDIRECTS As Boolean = False
-Private Const CDBNAME As String = "dev_odoo"
-Private Const CUSERNAME As String = "admin"
-Private Const CPASSWORD As String = "admin"
-
-Private mConn As New Collection
-
-Private Sub InitAuthConn()
-    Set mConn = New Collection
-End Sub
-
-Private Function GetAuthConn(Optional aConnName As String = "", Optional aForceFetch As Boolean = False, _
-Optional aBaseUrl As String = CBASEURL, Optional aInsecure As Boolean = CINSECURE, Optional aFollowRedirects As Boolean = CFOLLOWREDIRECTS, _
-Optional aDbName As String = CDBNAME, Optional aUserName As String = CUSERNAME, Optional aPassword As String = CPASSWORD) As OdClient
-On Error Resume Next
-    If aForceFetch Then
-        mConn.Remove aConnName
-    End If
-    Set GetAuthConn = mConn.Item(aConnName)
-On Error GoTo 0
-    If GetAuthConn Is Nothing Then
-        Dim oClient As OdClient
-        Set oClient = NewOdClient
-        
-        With oClient
-            .BaseUrl = aBaseUrl
-            .SetInsecure aInsecure
-            .SetFollowRedirects aFollowRedirects
-            .DbName = aDbName
-            .Username = aUserName
-            .Password = aPassword
-        End With
-        
-        oClient.Common.Authenticate
-        
-        mConn.Add oClient, aConnName
-        Set GetAuthConn = oClient
-    End If
-End Function
-
-Public Sub TestGetAuthConn()
-    Dim oClient As OdClient
-    Dim oTest As OdResult
-    
-    ' Initialize
-    InitAuthConn
-    
-    ' create
-    Set oClient = GetAuthConn(aConnName:="", aInsecure:=True)
-    Debug.Assert oClient.IsAuthenticated
-    ' cached
-    Set oClient = GetAuthConn(aConnName:="")
-    Debug.Assert oClient.IsAuthenticated
-    ' create - force
-    Set oClient = GetAuthConn(aConnName:="", aInsecure:=True, aForceFetch:=True)
-    Debug.Assert oClient.IsAuthenticated
-    
-    ' --- Test Database ---
-    Set oTest = NewOdClient.StartTestDatabase()
-    ' create
-    Set oClient = GetAuthConn(aConnName:="demo", aBaseUrl:=oTest.sHost, aDbName:=oTest.sDatabase, aUserName:=oTest.sUser, aPassword:=oTest.sPassword)
-    Debug.Assert oClient.IsAuthenticated
-    ' cached
-    Set oClient = GetAuthConn(aConnName:="demo")
-    Debug.Assert oClient.IsAuthenticated
-    ' cached - force
-    Set oClient = GetAuthConn(aConnName:="demo", aBaseUrl:=oTest.sHost, aDbName:=oTest.sDatabase, aUserName:=oTest.sUser, aPassword:=oTest.sPassword, aForceFetch:=True)
-    Debug.Assert oClient.IsAuthenticated
-    ' ---------------------
-    
-    ' cached
-    Set oClient = GetAuthConn(aConnName:="")
-    Debug.Assert oClient.IsAuthenticated
-    
-    On Error Resume Next
-    ' (ERROR) cached - force
-    Set oClient = GetAuthConn(aConnName:="", aForceFetch:=True)
-    Debug.Assert Err.Number <> 0
-
-End Sub
-
-Public Sub TestCommonVerstion()
-    Dim oClient As OdClient
-    Dim oRet As OdResult
-    Set oClient = NewOdClient
-    
-    oClient.BaseUrl = CBASEURL
-    ' Turn off SSL validation
-    oClient.SetInsecure True
-    ' Follow redirects (301, 302, 307) using Location header
-    oClient.SetFollowRedirects False
-        
-    ' Version
-    Set oRet = oClient.Common.Version()
-    
-    Debug.Print "---------"
-    Debug.Print " version"
-    Debug.Print "---------"
-    Debug.Print JsonConverter.ConvertToJson(oRet.Result, 4)
-    Debug.Print
-    
-End Sub
 
 ' https://www.odoo.com/documentation/master/developer/reference/external_api.html#calling-methods
 Public Sub DoTutorialExternalApi()
@@ -464,3 +359,4 @@ Public Sub DoTutorialExternalApi()
     Debug.Print
     
 End Sub
+

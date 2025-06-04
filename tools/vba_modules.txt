@@ -6,8 +6,9 @@ library	../src/OdFilterDomain.cls
 library	../src/OdResult.cls
 library	../src/OdRpc.bas
 library	../src/OdService.cls
-example	../src/TestOd.bas
+example	../src/TestOdClient.bas
 example	../src/TestOdFilter.bas
+example	../src/TestOdTutrial.bas
 library	../imports/vba-web/src/WebHelpers.bas
 library	../imports/vba-web/src/IWebAuthenticator.cls
 library	../imports/vba-web/src/WebClient.cls

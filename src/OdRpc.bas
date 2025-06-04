@@ -195,6 +195,13 @@ Public Function PostJson(aOdConnection As OdConnection, aUrlPath As String, aJso
         sUrl = GetHeaderFromWebResponse(wr, "Location")
         Set wr = aOdConnection.RefWebClient.PostJson(sUrl, aJsonRpc)
     End If
+    If wr.StatusCode = 400 Then
+        errSrc = sUrl
+        errDsc = "web response error (status code: " & wr.StatusCode & " )" & vbCrLf & sUrl
+        errDsc = errDsc & vbCrLf & "The redirect may have failed. Try setting 'OdClient.SetFollowRedirects' to 'False'."""
+        LogError errDsc, errSrc, CERR_STATUSCODE
+        Err.Raise CERR_STATUSCODE, errSrc, errDsc
+    End If
     If wr.StatusCode <> WebStatusCode.Ok Then
         errSrc = sUrl
         errDsc = "web response error (status code: " & wr.StatusCode & " )" & vbCrLf & sUrl
