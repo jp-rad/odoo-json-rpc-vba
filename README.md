@@ -13,29 +13,33 @@ git clone --recursive https://github.com/jp-rad/odoo-json-rpc-vba
 
 ## Example workbook
 
-Run `./tools/create_workbook.vbs`.
+Run `./create_workbook.bat`.
 
 ```
-cd odoo-json-rpc-vba/tools
-./create_workbook.vbs
+cd odoo-json-rpc-vba
+./create_workbook.bat
 ```
 
-Then open `JSON-RPC Tutorial.xlsm` and call `doExternalApiTutorial` in the Excel VBA imidiate window.
+**Open the Excel Files**  
+- Open both `odoo-json-rpc-vba example.xlsm` and `odoo-json-rpc-vba.xlam`.
 
-Press `F5` key to step next.
+**Configure References in Visual Basic Editor (VBE)**  
+- Open the Visual Basic Editor (VBE).  
+- In VBE, select the project of `odoo-json-rpc-vba example.xlsm`.  
+- Go to **Tools** > **References**.  
+- In the References dialog, select `OdooJsonRpcVBA`.
+
+**Execute the Tutorial Method**  
+- Open the **Immediate Window** in VBE.  
+- Run the following command:  
+
+   ```vba
+   DoTutorialExternalApi
+   ```
 
 Refer to the following document for the contents of each step.
 
 - [odoo docs - External API](https://www.odoo.com/documentation/15.0/developer/misc/api/external_api.html)
-
-## Blank workbook
-
-Run `./tools/create_blank_workbook.vbs`, the `JSON-RPC Blank.xlsm` file will be created.
-
-```
-cd odoo-json-rpc-vba/tools
-./create_blank_workbook.vbs
-```
 
 # Note:
 
