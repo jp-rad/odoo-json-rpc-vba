@@ -9,10 +9,10 @@ library	../src/OdService.cls
 example	../src/TestOdClient.bas
 example	../src/TestOdFilter.bas
 example	../src/TestOdTutrial.bas
-library	../imports/vba-web/src/WebHelpers.bas
-library	../imports/vba-web/src/IWebAuthenticator.cls
-library	../imports/vba-web/src/WebClient.cls
-library	../imports/vba-web/src/WebRequest.cls
-library	../imports/vba-web/src/WebResponse.cls
-library	../imports/vba-json/JsonConverter.bas
-library	../imports/vba-dictionary/Dictionary.cls
+imports	../imports/vba-web/src/WebHelpers.bas
+imports	../imports/vba-web/src/IWebAuthenticator.cls
+imports	../imports/vba-web/src/WebClient.cls
+imports	../imports/vba-web/src/WebRequest.cls
+imports	../imports/vba-web/src/WebResponse.cls
+imports	../imports/vba-json/JsonConverter.bas
+imports	../imports/vba-dictionary/Dictionary.cls
