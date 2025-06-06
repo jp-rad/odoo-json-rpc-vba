@@ -1,4 +1,4 @@
-Attribute VB_Name = "TestOdClient"
+Attribute VB_Name = "ExampleOdClient"
 ' External API - odoo-JSON-RPC-VBA
 '
 ' MIT License
@@ -45,9 +45,9 @@ Private Const CPASSWORD As String = "admin"
 
 Private mConn As New Collection
 
-Public Sub InitAuthConn()
+Public Function InitAuthConn()
     Set mConn = New Collection
-End Sub
+End Function
 
 Public Function GetAuthConn(Optional aConnName As String = "", Optional aForceFetch As Boolean = False, _
 Optional aBaseUrl As String = CBASEURL, Optional aInsecure As Boolean = CINSECURE, Optional aFollowRedirects As Boolean = CFOLLOWREDIRECTS, _
@@ -78,7 +78,7 @@ On Error GoTo 0
     End If
 End Function
 
-Public Sub TestGetAuthConn()
+Public Function DoTestGetAuthConn()
     Dim oClient As OdClient
     Dim oTest As OdResult
     
@@ -117,26 +117,19 @@ Public Sub TestGetAuthConn()
     Set oClient = GetAuthConn(aConnName:="", aInsecure:=False, aForceFetch:=True)
     Debug.Assert Err.Number <> 0
 
-End Sub
+End Function
 
-Public Sub TestCommonVerstion()
-    Dim oClient As OdClient
-    Dim oRet As OdResult
-    Set oClient = NewOdClient
-    
-    oClient.BaseUrl = CBASEURL
-    ' Turn off SSL validation
-    oClient.SetInsecure True
-    ' Follow redirects (301, 302, 307) using Location header
-    oClient.SetFollowRedirects False
-        
-    ' Version
-    Set oRet = oClient.Common.Version()
-    
-    Debug.Print "---------"
-    Debug.Print " version"
-    Debug.Print "---------"
-    Debug.Print JsonConverter.ConvertToJson(oRet.Result, 4)
-    Debug.Print
-    
-End Sub
+Public Function GetCommonVersion( _
+Optional aBaseUrl As String = CBASEURL, _
+Optional aInsecure As Boolean = CINSECURE, _
+Optional aFollowRedirects As Boolean = CFOLLOWREDIRECTS) As OdResult
+    With NewOdClient
+        .BaseUrl = aBaseUrl
+        .SetInsecure aInsecure
+        .SetFollowRedirects aFollowRedirects
+            
+        ' Version
+        Set GetCommonVersion = .Common.Version()
+    End With
+End Function
+

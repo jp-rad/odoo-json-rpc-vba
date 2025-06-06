@@ -86,9 +86,9 @@ Public Function NewField(aFieldExpr As String) As OdFilterCriteria
     End With
 End Function
 
-Public Function NewCriteria(aFieldExpr As String, aOperator As String, aValue As Variant) As OdFilterCriteria
+Public Function NewCriteria(aFieldExpr As String, aOperator As String, aValueExpr As Variant) As OdFilterCriteria
     With New OdFilterCriteria
-        Set NewCriteria = .SetCriteria(aFieldExpr, aOperator, aValue)
+        Set NewCriteria = .SetCriteria(aFieldExpr, aOperator, aValueExpr)
     End With
 End Function
 
@@ -170,7 +170,6 @@ Private Function CreateJsonRpc(aMethod As String, Optional aParams As Variant = 
     End With
     Set CreateJsonRpc = dic
 End Function
-
 
 Private Function GetHeaderFromWebResponse(wr As WebResponse, header As String) As String
     Dim dict As Dictionary

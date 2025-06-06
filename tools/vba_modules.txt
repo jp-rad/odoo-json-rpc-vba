@@ -6,9 +6,8 @@ library	../src/OdFilterDomain.cls
 library	../src/OdResult.cls
 library	../src/OdRpc.bas
 library	../src/OdService.cls
-example	../src/TestOdClient.bas
-example	../src/TestOdFilter.bas
-example	../src/TestOdTutrial.bas
+example	../src/ExampleOdClient.bas
+example	../src/ExampleOdTutrial.bas
 imports	../imports/vba-web/src/WebHelpers.bas
 imports	../imports/vba-web/src/IWebAuthenticator.cls
 imports	../imports/vba-web/src/WebClient.cls
@@ -16,3 +15,9 @@ imports	../imports/vba-web/src/WebRequest.cls
 imports	../imports/vba-web/src/WebResponse.cls
 imports	../imports/vba-json/JsonConverter.bas
 imports	../imports/vba-dictionary/Dictionary.cls
+vbatest	../specs/imports/vba-test/src/FileReporter.cls
+vbatest	../specs/imports/vba-test/src/ImmediateReporter.cls
+vbatest	../specs/imports/vba-test/src/TestCase.cls
+vbatest	../specs/imports/vba-test/src/TestSuite.cls
+tests	../tests/Tests.bas
+tests	../tests/Tests_OdFilter.bas

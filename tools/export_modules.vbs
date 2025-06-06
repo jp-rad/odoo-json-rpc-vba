@@ -53,7 +53,7 @@ Private Function GetVbaModules() 'As Dictionary
         Do Until .AtEndOfLine
             a = Split(.ReadLine(), Chr(9))
             If UBound(a) = 1 Then
-                If ("library" = a(0)) Or ("example" = a(0)) Then
+                If ("library" = a(0)) Or ("example" = a(0) Or ("tests" = a(0))) Then
                     dic(fso.GetBaseName(a(1))) = a(1)
                 End If
             End If
