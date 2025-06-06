@@ -88,12 +88,12 @@ Public Function IsAuthenticated() As Boolean
     IsAuthenticated = mOdConnection.IsAuthenticated
 End Function
 
-Public Sub SetInsecure(aValue As Boolean)
-    mOdConnection.SetInsecure aValue
+Public Sub SetInsecure(aInsecure As Boolean)
+    mOdConnection.SetInsecure aInsecure
 End Sub
 
-Public Sub SetFollowRedirects(aValue As Boolean)
-    mOdConnection.SetFollowRedirects aValue
+Public Sub SetFollowRedirects(aFollowRedirects As Boolean)
+    mOdConnection.SetFollowRedirects aFollowRedirects
 End Sub
 
 ' ======================

@@ -73,7 +73,7 @@ ErrRaiseHandler:
 End Function
 
 Public Function ToJson() As String
-    Dim a() As String
+    Dim s() As String
     Dim i As Integer
     
     If mList.Count = 0 Then
@@ -81,12 +81,12 @@ Public Function ToJson() As String
         GoTo ExitProc
     End If
     
-    ReDim a(1 To mList.Count)
-    For i = LBound(a) To UBound(a)
-        a(i) = VarToJson(mList(i))
+    ReDim s(1 To mList.Count)
+    For i = LBound(s) To UBound(s)
+        s(i) = VarToJson(mList(i))
     Next i
     
-    ToJson = "[" & Join(a, ", ") & "]"
+    ToJson = "[" & Join(s, ", ") & "]"
     
 ExitProc:
     Exit Function
