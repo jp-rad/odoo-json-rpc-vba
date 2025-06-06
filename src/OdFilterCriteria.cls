@@ -54,7 +54,6 @@ End Function
 Public Function ToJson() As String
     Dim sValue As String
     If IsEmpty(mValue) Then
-        Debug.Assert False
         sValue = "null"
     ElseIf IsObject(mValue) Then
         If mValue Is Nothing Then

@@ -1,9 +1,9 @@
-# odoo-JSON-RPC-VBA
+## odoo-JSON-RPC-VBA
 The odoo's models API is easily available over JSON-RPC and accessible from the VBA language such as Excel application.
 
 [source code: https://github.com/jp-rad/odoo-json-rpc-vba](https://github.com/jp-rad/odoo-json-rpc-vba)
 
-## git clone
+### git clone
 
 Run the `git clone --recursive` command with the submodules.
 
@@ -11,7 +11,7 @@ Run the `git clone --recursive` command with the submodules.
 git clone --recursive https://github.com/jp-rad/odoo-json-rpc-vba
 ```
 
-## Example workbook
+### Example workbook
 
 Run `./create_workbook.bat`.
 
@@ -41,15 +41,15 @@ Refer to the following document for the contents of each step.
 
 - [odoo docs - External API](https://www.odoo.com/documentation/15.0/developer/misc/api/external_api.html)
 
-# Note:
+## Note:
 
-## VBS Tools Runtime Error
+### VBS Tools Runtime Error
 
 Programmatic access to Office VBA project may be  denied.  In that case, please refer to the following page.
 
 - [Programmatic access to Office VBA project is denied](https://support.microsoft.com/en-us/topic/programmatic-access-to-office-vba-project-is-denied-960d5265-6592-9400-31bc-b2ddfb94b445)
 
-## Date(time) Fields
+### Date(time) Fields
 
 When working with Date or Datetime fields in Odoo from VBA, note the following:
 

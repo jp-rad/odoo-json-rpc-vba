@@ -61,6 +61,8 @@ Private Function GetVbaModules(t) 'As Dictionary
             filter.Add "library", True
             filter.Add "example", True
             filter.Add "imports", True
+            filter.Add "vbatest", True
+            filter.Add "tests", True
     End Select
 
     With fso.OpenTextFile(fso.BuildPath(GetScriptFolderName(), "vba_modules.txt"))
