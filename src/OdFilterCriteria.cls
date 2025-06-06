@@ -45,7 +45,7 @@ Option Explicit
 
 Private mFieldExpr As String
 Private mOperator As String
-Private mValue As Variant   ' string, number, boolean, null, domain
+Private mValue As Variant   ' string, number, boolean, null or OdFilterDOmain
 
 Private Function COdFilterDomain(v As Variant) As OdFilterDomain
     Set COdFilterDomain = v
@@ -54,7 +54,6 @@ End Function
 Public Function ToJson() As String
     Dim sValue As String
     If IsEmpty(mValue) Then
-        Debug.Assert False
         sValue = "null"
     ElseIf IsObject(mValue) Then
         If mValue Is Nothing Then
@@ -73,19 +72,19 @@ Public Function ToJson() As String
     ToJson = "['" & mFieldExpr & "', '" & mOperator & "', " & sValue & "]"
 End Function
 
-Public Sub SetValue(aValue As Variant)
-    If IsObject(aValue) Then
-        Set mValue = COdFilterDomain(aValue)
+Public Sub SetValue(aValueExpr As Variant)
+    If IsObject(aValueExpr) Then
+        Set mValue = COdFilterDomain(aValueExpr)
     Else
-        mValue = aValue
+        mValue = aValueExpr
     End If
 End Sub
 
-Public Function SetCriteria(aFieldExpr As String, aOperator As String, aValue As Variant) As OdFilterCriteria
+Public Function SetCriteria(aFieldExpr As String, aOperator As String, aValueExpr As Variant) As OdFilterCriteria
     Set SetCriteria = Me
     mFieldExpr = aFieldExpr
     mOperator = aOperator
-    SetValue aValue
+    SetValue aValueExpr
 End Function
 
 Public Function SetFieldExpr(aFieldExpr As String) As OdFilterCriteria
@@ -95,85 +94,85 @@ Public Function SetFieldExpr(aFieldExpr As String) As OdFilterCriteria
     mValue = Empty  ' Clear
 End Function
 
-Private Function SetOpeValue(aOperator As String, aValue As Variant) As OdFilterCriteria
+Private Function SetOpeValue(aOperator As String, aValueExpr As Variant) As OdFilterCriteria
     With New OdFilterCriteria
-        Set SetOpeValue = .SetCriteria(mFieldExpr, aOperator, aValue)
+        Set SetOpeValue = .SetCriteria(mFieldExpr, aOperator, aValueExpr)
     End With
 End Function
 
-Public Function Eq(aValue As Variant) As OdFilterCriteria
-    Set Eq = SetOpeValue("=", aValue)
+Public Function Eq(aValueExpr As Variant) As OdFilterCriteria
+    Set Eq = SetOpeValue("=", aValueExpr)
 End Function
 
-Public Function NotEq(aValue As Variant) As OdFilterCriteria
-    Set NotEq = SetOpeValue("!=", aValue)
+Public Function NotEq(aValueExpr As Variant) As OdFilterCriteria
+    Set NotEq = SetOpeValue("!=", aValueExpr)
 End Function
 
-Public Function Gt(aValue As Variant) As OdFilterCriteria
-    Set Gt = SetOpeValue(">", aValue)
+Public Function Gt(aValueExpr As Variant) As OdFilterCriteria
+    Set Gt = SetOpeValue(">", aValueExpr)
 End Function
 
-Public Function Ge(aValue As Variant) As OdFilterCriteria
-    Set Ge = SetOpeValue(">=", aValue)
+Public Function Ge(aValueExpr As Variant) As OdFilterCriteria
+    Set Ge = SetOpeValue(">=", aValueExpr)
 End Function
 
-Public Function Lt(aValue As Variant) As OdFilterCriteria
-    Set Lt = SetOpeValue("<", aValue)
+Public Function Lt(aValueExpr As Variant) As OdFilterCriteria
+    Set Lt = SetOpeValue("<", aValueExpr)
 End Function
 
-Public Function Le(aValue As Variant) As OdFilterCriteria
-    Set Le = SetOpeValue("<=", aValue)
+Public Function Le(aValueExpr As Variant) As OdFilterCriteria
+    Set Le = SetOpeValue("<=", aValueExpr)
 End Function
 
-Public Function UnsetOrEq(aValue As Variant) As OdFilterCriteria
-    Set UnsetOrEq = SetOpeValue("=?", aValue)
+Public Function UnsetOrEq(aValueExpr As Variant) As OdFilterCriteria
+    Set UnsetOrEq = SetOpeValue("=?", aValueExpr)
 End Function
 
-Public Function EqLike(aValue As Variant) As OdFilterCriteria
-    Set EqLike = SetOpeValue("=like", aValue)
+Public Function EqLike(aValueExpr As Variant) As OdFilterCriteria
+    Set EqLike = SetOpeValue("=like", aValueExpr)
 End Function
 
-Public Function IsLike(aValue As Variant) As OdFilterCriteria
-    Set IsLike = SetOpeValue("like", aValue)
+Public Function IsLike(aValueExpr As Variant) As OdFilterCriteria
+    Set IsLike = SetOpeValue("like", aValueExpr)
 End Function
 
-Public Function NotLike(aValue As Variant) As OdFilterCriteria
-    Set NotLike = SetOpeValue("not like", aValue)
+Public Function NotLike(aValueExpr As Variant) As OdFilterCriteria
+    Set NotLike = SetOpeValue("not like", aValueExpr)
 End Function
 
-Public Function IsILike(aValue As Variant) As OdFilterCriteria
-    Set IsILike = SetOpeValue("ilike", aValue)
+Public Function IsILike(aValueExpr As Variant) As OdFilterCriteria
+    Set IsILike = SetOpeValue("ilike", aValueExpr)
 End Function
 
-Public Function NotILike(aValue As Variant) As OdFilterCriteria
-    Set NotILike = SetOpeValue("not ilike", aValue)
+Public Function NotILike(aValueExpr As Variant) As OdFilterCriteria
+    Set NotILike = SetOpeValue("not ilike", aValueExpr)
 End Function
 
-Public Function EqILike(aValue As Variant) As OdFilterCriteria
-    Set EqILike = SetOpeValue("=ilike", aValue)
+Public Function EqILike(aValueExpr As Variant) As OdFilterCriteria
+    Set EqILike = SetOpeValue("=ilike", aValueExpr)
 End Function
 
-Public Function IsIn(aValue As Variant) As OdFilterCriteria
-    Set IsIn = SetOpeValue("in", aValue)
+Public Function IsIn(aValueExpr As Variant) As OdFilterCriteria
+    Set IsIn = SetOpeValue("in", aValueExpr)
 End Function
 
-Public Function NotIn(aValue As Variant) As OdFilterCriteria
-    Set NotIn = SetOpeValue("not in", aValue)
+Public Function NotIn(aValueExpr As Variant) As OdFilterCriteria
+    Set NotIn = SetOpeValue("not in", aValueExpr)
 End Function
 
-Public Function ChildOf(aValue As Variant) As OdFilterCriteria
-    Set ChildOf = SetOpeValue("child_of", aValue)
+Public Function ChildOf(aValueExpr As Variant) As OdFilterCriteria
+    Set ChildOf = SetOpeValue("child_of", aValueExpr)
 End Function
 
-Public Function ParentOf(aValue As Variant) As OdFilterCriteria
-    Set ParentOf = SetOpeValue("parent_of", aValue)
+Public Function ParentOf(aValueExpr As Variant) As OdFilterCriteria
+    Set ParentOf = SetOpeValue("parent_of", aValueExpr)
 End Function
 
-Public Function IsAny(aValue As Variant) As OdFilterCriteria
-    Set IsAny = SetOpeValue("any", aValue)
+Public Function IsAny(aValueExpr As Variant) As OdFilterCriteria
+    Set IsAny = SetOpeValue("any", aValueExpr)
 End Function
 
-Public Function NotAny(aValue As Variant) As OdFilterCriteria
-    Set NotAny = SetOpeValue("not any", aValue)
+Public Function NotAny(aValueExpr As Variant) As OdFilterCriteria
+    Set NotAny = SetOpeValue("not any", aValueExpr)
 End Function
 

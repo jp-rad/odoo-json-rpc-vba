@@ -51,27 +51,27 @@ Private mLogic As String
 Private mArityList As Collection
 
 Public Function ToJson() As String
-    Dim a() As String
+    Dim s() As String
     Dim cnt As Long
     Dim i As Long
     Dim v As Variant
     
     If mLogic = CLOGIC_NOT Then
-        ReDim a(0 To 1)
-        a(0) = CLOGIC_NOT
-        a(1) = mArityList(1).ToJson()
+        ReDim s(0 To 1)
+        s(0) = CLOGIC_NOT
+        s(1) = mArityList(1).ToJson()
     Else
         cnt = mArityList.Count
-        ReDim a(0 To (cnt - 1) * 2)
+        ReDim s(0 To (cnt - 1) * 2)
         For i = 0 To cnt - 2
-            a(i) = mLogic
+            s(i) = mLogic
         Next i
         For Each v In mArityList
-            a(i) = v.ToJson()
+            s(i) = v.ToJson()
             i = i + 1
         Next v
     End If
-    ToJson = Join(a, ", ")
+    ToJson = Join(s, ", ")
 End Function
 
 Private Function SetLogic(aLogic As String, aArity1 As Object, aArity2 As Object) As OdFilterCombi

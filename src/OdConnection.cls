@@ -141,12 +141,12 @@ Public Function IsAuthenticated() As Boolean
     IsAuthenticated = mUserId > 0
 End Function
 
-Public Sub SetInsecure(aValue As Boolean)
-    mWebClient.Insecure = aValue
+Public Sub SetInsecure(aInsecure As Boolean)
+    mWebClient.Insecure = aInsecure
 End Sub
 
-Public Sub SetFollowRedirects(aValue As Boolean)
-    mWebClient.FollowRedirects = aValue
+Public Sub SetFollowRedirects(aFollowRedirects As Boolean)
+    mWebClient.FollowRedirects = aFollowRedirects
 End Sub
 
 Public Property Get RefWebClient() As WebClient

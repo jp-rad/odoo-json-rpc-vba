@@ -1,4 +1,4 @@
-Attribute VB_Name = "TestOdTutrial"
+Attribute VB_Name = "ExampleOdTutrial"
 ' External API - odoo-JSON-RPC-VBA
 '
 ' MIT License
@@ -44,6 +44,14 @@ Public Sub DoTutorialExternalApi()
     Dim named As Dictionary
     Dim sJson As String
     Dim nId As Long
+
+    ' Version
+    Set oRet = GetCommonVersion()
+    Debug.Print "---------"
+    Debug.Print " version"
+    Debug.Print "---------"
+    Debug.Print JsonConverter.ConvertToJson(oRet.Result, 4)
+    Debug.Print
 
     ' Logging in - Authenticate
     Set oClient = GetAuthConn()
