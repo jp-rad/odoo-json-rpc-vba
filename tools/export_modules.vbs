@@ -81,6 +81,7 @@ Public Sub ExportModules()
     Dim wbk 'As Workbook
     Set wbk = appExcel.Workbooks.Open(fnm, , True)
     
+    dim fld 'As String
     Dim tmp 'As String
     Dim cmp 'As Variant
     Dim mods 'As Dictionary
@@ -89,7 +90,13 @@ Public Sub ExportModules()
 On Error Resume Next
     For Each cmp In mods.Keys()
         tmp = mods(cmp)
-        wbk.VBProject.VBComponents(cmp).Export fso.BuildPath(cur, tmp)
+        tmp = fso.BuildPath(cur, tmp)
+        tmp = fso.GetAbsolutePathName(tmp)
+        fld = fso.GetParentFolderName(tmp)
+        If Not fso.FolderExists(fld) Then
+            fso.CreateFolder(fld)
+        End If
+        wbk.VBProject.VBComponents(cmp).Export tmp
     Next 'cmp
 On Error GoTo 0
     

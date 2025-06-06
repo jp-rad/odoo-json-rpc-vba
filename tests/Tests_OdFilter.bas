@@ -153,7 +153,7 @@ Public Sub TestField(Suite As TestSuite)
     Dim Tests As New TestSuite
     Dim Test As TestCase
 
-    With Suite.Test("should pass if all assertions pass")
+    With Suite.Test("TestField")
         Set Test = Tests.Test("should pass")
 
         With NewField("name").Eq("ABC")
