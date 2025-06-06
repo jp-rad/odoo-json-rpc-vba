@@ -1,7 +1,7 @@
 ## odoo-JSON-RPC-VBA
 The odoo's models API is easily available over JSON-RPC and accessible from the VBA language such as Excel application.
 
-[source code: https://github.com/jp-rad/odoo-json-rpc-vba](https://github.com/jp-rad/odoo-json-rpc-vba)
+- odoo-JSON-RPC-VBA (GitHub repository: [https://github.com/jp-rad/odoo-json-rpc-vba](https://github.com/jp-rad/odoo-json-rpc-vba))
 
 ### git clone
 
@@ -70,3 +70,16 @@ When working with Date or Datetime fields in Odoo from VBA, note the following:
 - Use `OdRpc.ParseIsoDatetime` to convert a string from a Datetime field to a VBA `Date`.
 
 For more details, see the [Odoo documentation on Date(time) Fields](https://www.odoo.com/documentation/15.0/developer/reference/backend/orm.html#date-time-fields).
+
+## CREDITS
+
+This project utilizes the following open-source tool, which helps enhance functionality and efficiency:
+
+- VBA-tools (GitHub repository: [https://github.com/VBA-tools](https://github.com/VBA-tools))
+
+License: MIT License (MIT)  
+Copyright (c) Tim Hall  
+See the full license details in the LICENSE files or at the [VBA-tools repository](https://github.com/VBA-tools).
+
+Support the developer:  
+Tim Hall accepts donations to support his work via Patreon: [Patreon link](https://www.patreon.com/timhall)
