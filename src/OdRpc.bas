@@ -35,6 +35,7 @@ Option Explicit
 '
 ' https://www.odoo.com/documentation/master/developer/reference/external_api.html
 '
+
 ' --------
 '  COMMON
 ' --------
@@ -72,8 +73,9 @@ Public Function ParseIsoDatetime(aIsoString As String) As Date
     ParseIsoDatetime = JsonConverter.ParseIso(aIsoString)
 End Function
 
-Public Function NewOdClient() As OdClient
+Public Function NewOdClient(Optional aBaseUrl As String = "") As OdClient
     Set NewOdClient = New OdClient
+    NewOdClient.BaseUrl = aBaseUrl
 End Function
 
 Public Function NewDomain() As OdFilterDomain
@@ -272,16 +274,19 @@ Public Function JsonRpcCommonAuthenticate(aOdConnection As OdConnection) As Dict
     Set JsonRpcCommonAuthenticate = dic ' Type of json("result") is Long.
 End Function
 
-Public Function JsonRpcObjectExecuteKw(aOdConnection As OdConnection, aModelName As String, aMethodName As String, Optional aParams As Variant = "", Optional aOptions As Variant = "") As Dictionary
+Public Function JsonRpcObjectExecuteKw(aOdConnection As OdConnection, aModelName As String, aMethodName As String, Optional aParams, Optional aNamedParams) As Dictionary
     Dim args As New Collection
     With args
         .Add aOdConnection.DbName    ' the database to use, a string
         .Add aOdConnection.UserId    ' the user id (retrieved through authenticate), an integer
-        .Add aOdConnection.Password  ' the user�fs password, a string
+        .Add aOdConnection.Password  ' the user password, a string
         
-        .Add aModelName                 ' the model name, a string
-        .Add aMethodName                ' the method name, a string
-        If IsObject(aParams) Then       ' an array/list of parameters passed by position
+        .Add aModelName              ' the model name, a string
+        .Add aMethodName             ' the method name, a string
+        ' an array/list of parameters passed by position
+        If IsMissing(aParams) Then
+            .Add New Collection
+        ElseIf IsObject(aParams) Then
             If aParams Is Nothing Then
                 .Add New Collection
             Else
@@ -294,13 +299,16 @@ Public Function JsonRpcObjectExecuteKw(aOdConnection As OdConnection, aModelName
                 .Add JsonConverter.ParseJson(aParams)
             End If
         End If
-        If IsObject(aOptions) Then      ' a mapping/dict of parameters to pass by keyword (optional)
-            If Not aOptions Is Nothing Then
-                .Add aOptions
-            End If
-        Else
-            If aOptions <> "" Then
-                .Add JsonConverter.ParseJson(aOptions)
+        ' a mapping/dict of parameters to pass by keyword (optional)
+        If Not IsMissing(aNamedParams) Then
+            If IsObject(aNamedParams) Then
+                If Not aNamedParams Is Nothing Then
+                    .Add aNamedParams
+                End If
+            Else
+                If aNamedParams <> "" Then
+                    .Add JsonConverter.ParseJson(aNamedParams)
+                End If
             End If
         End If
     End With
