@@ -60,19 +60,15 @@ On Error Resume Next
 On Error GoTo 0
     If GetAuthConn Is Nothing Then
         Dim oClient As OdClient
-        Set oClient = NewOdClient
-        
+        ' New OdClient
+        Set oClient = NewOdClient(aBaseUrl)
         With oClient
-            .BaseUrl = aBaseUrl
             .SetInsecure aInsecure
             .SetFollowRedirects aFollowRedirects
-            .DbName = aDbName
-            .Username = aUserName
-            .Password = aPassword
         End With
-        
-        oClient.Common.Authenticate
-        
+        ' Authenticate
+        oClient.Common.Authenticate aDbName:=aDbName, aUserName:=aUserName, aPassword:=aPassword
+        ' Cache
         mConn.Add oClient, aConnName
         Set GetAuthConn = oClient
     End If
@@ -123,11 +119,9 @@ Public Function GetCommonVersion( _
 Optional aBaseUrl As String = CBASEURL, _
 Optional aInsecure As Boolean = CINSECURE, _
 Optional aFollowRedirects As Boolean = CFOLLOWREDIRECTS) As OdResult
-    With NewOdClient
-        .BaseUrl = aBaseUrl
+    With NewOdClient(aBaseUrl)
         .SetInsecure aInsecure
         .SetFollowRedirects aFollowRedirects
-            
         ' Version
         Set GetCommonVersion = .Common.Version()
     End With

@@ -72,8 +72,9 @@ Public Function ParseIsoDatetime(aIsoString As String) As Date
     ParseIsoDatetime = JsonConverter.ParseIso(aIsoString)
 End Function
 
-Public Function NewOdClient() As OdClient
+Public Function NewOdClient(Optional aBaseUrl As String = "") As OdClient
     Set NewOdClient = New OdClient
+    NewOdClient.BaseUrl = aBaseUrl
 End Function
 
 Public Function NewDomain() As OdFilterDomain

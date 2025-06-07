@@ -89,7 +89,7 @@ Public Sub SetConnectionInfo(Optional aBaseUrl As String = "", Optional aDbName 
         End If
     End If
     If blnChanged Then
-        mUserId = 0
+        ResetUserId
     End If
 End Sub
 
@@ -129,13 +129,17 @@ Public Property Get UserId() As Long
     UserId = mUserId
 End Property
 
-Public Property Let UserId(newValue As Long)
+Public Sub SetUserId(newValue As Long)
     If newValue > 0 Then
         mUserId = newValue
     Else
-        mUserId = 0
+        ResetUserId
     End If
-End Property
+End Sub
+
+Private Sub ResetUserId()
+    mUserId = 0
+End Sub
 
 Public Function IsAuthenticated() As Boolean
     IsAuthenticated = mUserId > 0

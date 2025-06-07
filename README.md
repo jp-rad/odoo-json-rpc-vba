@@ -2,6 +2,7 @@
 The odoo's models API is easily available over JSON-RPC and accessible from the VBA language such as Excel application.
 
 - odoo-JSON-RPC-VBA (GitHub repository: [https://github.com/jp-rad/odoo-json-rpc-vba](https://github.com/jp-rad/odoo-json-rpc-vba))
+- [odoo docs - External API](https://www.odoo.com/documentation/master/developer/reference/external_api.html)
 
 ### git clone
 
@@ -39,7 +40,7 @@ cd odoo-json-rpc-vba
 
 Refer to the following document for the contents of each step.
 
-- [odoo docs - External API](https://www.odoo.com/documentation/15.0/developer/misc/api/external_api.html)
+- [odoo docs - External API `Calling methods`](https://www.odoo.com/documentation/master/developer/reference/external_api.html#calling-methods)
 
 ## Note:
 
