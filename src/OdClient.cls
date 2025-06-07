@@ -139,7 +139,7 @@ Public Property Get Model(aModelName As String) As OdService
     End With
 End Property
 
-Public Function ModelExecuteKw(aModelName As String, aMethodName As String, Optional aParams As Collection = Nothing, Optional aNamedParams As Dictionary = Nothing) As OdResult
+Public Function ModelExecuteKw(aModelName As String, aMethodName As String, Optional aParams, Optional aNamedParams) As OdResult
     With New OdResult
         Set ModelExecuteKw = Me.Model(aModelName).MethodExecuteKw(aMethodName, aParams, aNamedParams)
     End With

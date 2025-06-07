@@ -1,36 +1,67 @@
 ## odoo-JSON-RPC-VBA
-The odoo's models API is easily available over JSON-RPC and accessible from the VBA language such as Excel application.
 
+Odoo's models API is easily accessible via JSON-RPC and can be used from VBA, such as in Excel applications.
+
+- [Odoo Docs - External API](https://www.odoo.com/documentation/master/developer/reference/external_api.html)
 - odoo-JSON-RPC-VBA (GitHub repository: [https://github.com/jp-rad/odoo-json-rpc-vba](https://github.com/jp-rad/odoo-json-rpc-vba))
-- [odoo docs - External API](https://www.odoo.com/documentation/master/developer/reference/external_api.html)
 
-### git clone
+### Simple Example
 
-Run the `git clone --recursive` command with the submodules.
+```vba
+Sub DoSearchRead()
+    Dim oc As OdClient
+    Dim rs As OdResult
+
+    ' Create OdClient
+    Set oc = OdRpc.NewOdClient("https://localhost")
+    oc.SetInsecure True
+
+    ' Login
+    oc.Common.Authenticate "dev_odoo", "admin", "admin"
+
+    ' Search and read
+    Set rs = oc.Model("res.partner").Method("search_read").ExecuteKw( _
+        "[[['is_company', '=', true]]]", _
+        "{'fields': ['name', 'country_id'], 'limit': 3}" _
+    )
+
+    ' Output JSON
+    Debug.Print
+    Debug.Print "JSON: >>>>>"
+    Debug.Print JsonConverter.ConvertToJson(rs.Result, 2)
+    Debug.Print "<<<<<"
+End Sub
+```
+
+---
+
+### Clone the Repository
+
+Clone the repository with submodules:
 
 ```
 git clone --recursive https://github.com/jp-rad/odoo-json-rpc-vba
 ```
 
-### Example workbook
+### Example Workbook
 
-Run `./create_workbook.bat`.
+Run the batch file to create the example workbook:
 
 ```
 cd odoo-json-rpc-vba
 ./create_workbook.bat
 ```
 
-**Open the Excel Files**  
+**Open the Excel Files:**  
 - Open both `odoo-json-rpc-vba example.xlsm` and `odoo-json-rpc-vba.xlam`.
 
-**Configure References in Visual Basic Editor (VBE)**  
+**Configure References in Visual Basic Editor (VBE):**  
 - Open the Visual Basic Editor (VBE).  
-- In VBE, select the project of `odoo-json-rpc-vba example.xlsm`.  
+- In VBE, select the project `odoo-json-rpc-vba example.xlsm`.  
 - Go to **Tools** > **References**.  
 - In the References dialog, select `OdooJsonRpcVBA`.
 
-**Execute the Tutorial Method**  
+**Run the Tutorial Method:**  
 - Open the **Immediate Window** in VBE.  
 - Run the following command:  
 
@@ -38,27 +69,29 @@ cd odoo-json-rpc-vba
    DoTutorialExternalApi
    ```
 
-Refer to the following document for the contents of each step.
+Refer to the following document for step-by-step details:
 
-- [odoo docs - External API `Calling methods`](https://www.odoo.com/documentation/master/developer/reference/external_api.html#calling-methods)
+- [Odoo Docs - External API: Calling methods](https://www.odoo.com/documentation/master/developer/reference/external_api.html#calling-methods)
 
-## Note:
+---
+
+## Notes
 
 ### VBS Tools Runtime Error
 
-Programmatic access to Office VBA project may be  denied.  In that case, please refer to the following page.
+Programmatic access to the Office VBA project may be denied. If this occurs, refer to:
 
 - [Programmatic access to Office VBA project is denied](https://support.microsoft.com/en-us/topic/programmatic-access-to-office-vba-project-is-denied-960d5265-6592-9400-31bc-b2ddfb94b445)
 
-### Date(time) Fields
+### Date and Datetime Fields
 
-When working with Date or Datetime fields in Odoo from VBA, note the following:
+When working with Date or Datetime fields in Odoo from VBA, note:
 
 - Odoo expects dates as strings in specific formats:
   - Date: `YYYY-MM-DD`
   - Datetime: `YYYY-MM-DDTHH:MM:SS`
 - Assigning a VBA `Date` value directly to JSON will convert it to an ISO format string, which Odoo may not accept.
-- VBA does not distinguish between date and datetime types, so both are converted the same way.
+- VBA does not distinguish between date and datetime types; both are converted the same way.
 
 **To ensure compatibility:**
 
@@ -72,9 +105,11 @@ When working with Date or Datetime fields in Odoo from VBA, note the following:
 
 For more details, see the [Odoo documentation on Date(time) Fields](https://www.odoo.com/documentation/15.0/developer/reference/backend/orm.html#date-time-fields).
 
-## CREDITS
+---
 
-This project utilizes the following open-source tool, which helps enhance functionality and efficiency:
+## Credits
+
+This project utilizes the following open-source tool to enhance functionality and efficiency:
 
 - VBA-tools (GitHub repository: [https://github.com/VBA-tools](https://github.com/VBA-tools))
 

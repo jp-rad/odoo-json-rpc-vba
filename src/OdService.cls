@@ -84,7 +84,7 @@ End Function
 ' ======================
 ' Calling methods:
 ' https://www.odoo.com/documentation/master/developer/reference/external_api.html#calling-methods
-Public Function ExecuteKw(Optional aParams As Collection = Nothing, Optional aNamedParams As Dictionary = Nothing) As OdResult
+Public Function ExecuteKw(Optional aParams, Optional aNamedParams) As OdResult
     Debug.Assert mModelName <> ""
     Debug.Assert mMethodName <> ""
     With New OdResult
@@ -103,7 +103,7 @@ Public Property Get Method(aMethodName As String) As OdService
     End With
 End Property
 
-Public Function MethodExecuteKw(aMethodName As String, Optional aParams As Collection = Nothing, Optional aNamedParams As Dictionary = Nothing) As OdResult
+Public Function MethodExecuteKw(aMethodName As String, Optional aParams, Optional aNamedParams) As OdResult
     Debug.Assert mModelName <> ""
     With New OdResult
         Set MethodExecuteKw = Me.Method(aMethodName).ExecuteKw(aParams, aNamedParams)
