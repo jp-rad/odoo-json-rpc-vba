@@ -11,25 +11,26 @@ Odoo's models API is easily accessible via JSON-RPC and can be used from VBA, su
 Sub DoSearchRead()
     Dim oc As OdClient
     Dim rs As OdResult
-
-    ' Create OdClient
+    
+    ' OdClient
     Set oc = OdRpc.NewOdClient("https://localhost")
-    oc.SetInsecure True
-
+    oc.RefWebClient.Insecure = True
+    
     ' Login
     oc.Common.Authenticate "dev_odoo", "admin", "admin"
-
+    
     ' Search and read
     Set rs = oc.Model("res.partner").Method("search_read").ExecuteKw( _
         "[[['is_company', '=', true]]]", _
         "{'fields': ['name', 'country_id'], 'limit': 3}" _
     )
-
-    ' Output JSON
+    
+    ' (JSON)
     Debug.Print
     Debug.Print "JSON: >>>>>"
     Debug.Print JsonConverter.ConvertToJson(rs.Result, 2)
     Debug.Print "<<<<<"
+    
 End Sub
 ```
 
