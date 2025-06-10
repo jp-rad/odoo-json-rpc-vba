@@ -72,7 +72,7 @@ End Function
 ' Logging in:
 ' https://www.odoo.com/documentation/master/developer/reference/external_api.html#logging-in
 Public Function Authenticate(Optional aDbName As String = "", Optional aUserName As String, Optional aPassword As String = "") As OdResult
-    mOdConnection.SetConnectionInfo aDbName:=aDbName, aUserName:=aUserName, aPassword:=aPassword
+    mOdConnection.SetDbUserInfo aDbName:=aDbName, aUserName:=aUserName, aPassword:=aPassword
     With New OdResult
         Set Authenticate = .W(JsonRpcCommonAuthenticate(mOdConnection))
         mOdConnection.SetUserId .Result

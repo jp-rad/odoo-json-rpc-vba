@@ -44,7 +44,6 @@ Option Explicit
 ' https://www.odoo.com/documentation/master/developer/reference/external_api.html
 '
 
-Private mBaseUrl As String      ' Base URL (HOST)
 Private mDbName As String       ' the database to use, a string
 Private mUsername As String     ' the user name, a string
 Private mPassword As String     ' the user's password, a string
@@ -54,22 +53,15 @@ Private mUserId As Long         ' the user id (retrieved through authenticate), 
 Private mWebClient As New WebClient
 
 Private Sub Class_Initialize()
-    SetConnectionInfo _
-        aBaseUrl:="https://localhost", _
+    SetDbUserInfo _
         aDbName:="odoo", _
         aUserName:="admin", _
         aPassword:="admin"
 End Sub
 
-Public Sub SetConnectionInfo(Optional aBaseUrl As String = "", Optional aDbName As String = "", Optional aUserName As String, Optional aPassword As String = "")
+Public Sub SetDbUserInfo(Optional aDbName As String = "", Optional aUserName As String, Optional aPassword As String = "")
     Dim blnChanged As Boolean
     blnChanged = False
-    If aBaseUrl <> "" Then
-        If mBaseUrl <> aBaseUrl Then
-            mBaseUrl = aBaseUrl
-            blnChanged = True
-        End If
-    End If
     If aDbName <> "" Then
         If mDbName <> aDbName Then
             mDbName = aDbName
@@ -94,11 +86,11 @@ Public Sub SetConnectionInfo(Optional aBaseUrl As String = "", Optional aDbName 
 End Sub
 
 Public Property Get BaseUrl() As String
-    BaseUrl = mBaseUrl
+    BaseUrl = mWebClient.BaseUrl
 End Property
 
 Public Property Let BaseUrl(newValue As String)
-    SetConnectionInfo aBaseUrl:=newValue
+    mWebClient.BaseUrl = newValue
 End Property
 
 Public Property Get DbName() As String
@@ -106,7 +98,7 @@ Public Property Get DbName() As String
 End Property
 
 Public Property Let DbName(newValue As String)
-    SetConnectionInfo aDbName:=newValue
+    SetDbUserInfo aDbName:=newValue
 End Property
 
 Public Property Get Username() As String
@@ -114,7 +106,7 @@ Public Property Get Username() As String
 End Property
 
 Public Property Let Username(newValue As String)
-    SetConnectionInfo aUserName:=newValue
+    SetDbUserInfo aUserName:=newValue
 End Property
 
 Public Property Get Password() As String
@@ -122,7 +114,7 @@ Public Property Get Password() As String
 End Property
 
 Public Property Let Password(newValue As String)
-    SetConnectionInfo aPassword:=newValue
+    SetDbUserInfo aPassword:=newValue
 End Property
 
 Public Property Get UserId() As Long
@@ -144,14 +136,6 @@ End Sub
 Public Function IsAuthenticated() As Boolean
     IsAuthenticated = mUserId > 0
 End Function
-
-Public Sub SetInsecure(aInsecure As Boolean)
-    mWebClient.Insecure = aInsecure
-End Sub
-
-Public Sub SetFollowRedirects(aFollowRedirects As Boolean)
-    mWebClient.FollowRedirects = aFollowRedirects
-End Sub
 
 Public Property Get RefWebClient() As WebClient
     Set RefWebClient = mWebClient
