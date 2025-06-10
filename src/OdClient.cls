@@ -88,13 +88,10 @@ Public Function IsAuthenticated() As Boolean
     IsAuthenticated = mOdConnection.IsAuthenticated
 End Function
 
-Public Sub SetInsecure(aInsecure As Boolean)
-    mOdConnection.SetInsecure aInsecure
-End Sub
+Public Property Get RefWebClient() As WebClient
+    Set RefWebClient = mOdConnection.RefWebClient
+End Property
 
-Public Sub SetFollowRedirects(aFollowRedirects As Boolean)
-    mOdConnection.SetFollowRedirects aFollowRedirects
-End Sub
 
 ' ======================
 '  Start

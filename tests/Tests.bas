@@ -59,7 +59,7 @@ Sub DoSearchRead()
     
     ' OdClient
     Set oc = OdRpc.NewOdClient("https://localhost")
-    oc.SetInsecure True
+    oc.RefWebClient.Insecure = True
     
     ' Login
     oc.Common.Authenticate "dev_odoo", "admin", "admin"

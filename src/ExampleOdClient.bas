@@ -42,6 +42,7 @@ Private Const CFOLLOWREDIRECTS As Boolean = False
 Private Const CDBNAME As String = "dev_odoo"
 Private Const CUSERNAME As String = "admin"
 Private Const CPASSWORD As String = "admin"
+Private Const CTIMEOUTMS As Long = 10000
 
 Private mConn As New Collection
 
@@ -51,7 +52,8 @@ End Function
 
 Public Function GetAuthConn(Optional aConnName As String = "", Optional aForceFetch As Boolean = False, _
 Optional aBaseUrl As String = CBASEURL, Optional aInsecure As Boolean = CINSECURE, Optional aFollowRedirects As Boolean = CFOLLOWREDIRECTS, _
-Optional aDbName As String = CDBNAME, Optional aUserName As String = CUSERNAME, Optional aPassword As String = CPASSWORD) As OdClient
+Optional aDbName As String = CDBNAME, Optional aUserName As String = CUSERNAME, Optional aPassword As String = CPASSWORD, _
+Optional aTimeoutMs As Long = CTIMEOUTMS) As OdClient
 On Error Resume Next
     If aForceFetch Then
         mConn.Remove aConnName
@@ -62,9 +64,10 @@ On Error GoTo 0
         Dim oClient As OdClient
         ' New OdClient
         Set oClient = NewOdClient(aBaseUrl)
-        With oClient
-            .SetInsecure aInsecure
-            .SetFollowRedirects aFollowRedirects
+        With oClient.RefWebClient
+            .Insecure = aInsecure
+            .FollowRedirects = aFollowRedirects
+            .TimeoutMs = aTimeoutMs
         End With
         ' Authenticate
         oClient.Common.Authenticate aDbName:=aDbName, aUserName:=aUserName, aPassword:=aPassword
@@ -74,7 +77,21 @@ On Error GoTo 0
     End If
 End Function
 
-Public Function DoTestGetAuthConn()
+Public Function GetCommonVersion( _
+Optional aBaseUrl As String = CBASEURL, _
+Optional aInsecure As Boolean = CINSECURE, _
+Optional aFollowRedirects As Boolean = CFOLLOWREDIRECTS) As OdResult
+    With NewOdClient(aBaseUrl)
+        With .RefWebClient
+            .Insecure = aInsecure
+            .FollowRedirects = aFollowRedirects
+        End With
+        ' Version
+        Set GetCommonVersion = .Common.Version()
+    End With
+End Function
+
+Public Function DoTestGetAuthConnAndGetCommonVersion()
     Dim oClient As OdClient
     Dim oTest As OdResult
     
@@ -112,18 +129,11 @@ Public Function DoTestGetAuthConn()
     ' (ERROR) cached - force
     Set oClient = GetAuthConn(aConnName:="", aInsecure:=False, aForceFetch:=True)
     Debug.Assert Err.Number <> 0
-
-End Function
-
-Public Function GetCommonVersion( _
-Optional aBaseUrl As String = CBASEURL, _
-Optional aInsecure As Boolean = CINSECURE, _
-Optional aFollowRedirects As Boolean = CFOLLOWREDIRECTS) As OdResult
-    With NewOdClient(aBaseUrl)
-        .SetInsecure aInsecure
-        .SetFollowRedirects aFollowRedirects
-        ' Version
-        Set GetCommonVersion = .Common.Version()
-    End With
+    On Error GoTo 0
+    
+    ' Version - Server Version
+    Debug.Print "---"
+    Debug.Print "Server Version:", GetCommonVersion().vServerVersion
+    
 End Function
 
