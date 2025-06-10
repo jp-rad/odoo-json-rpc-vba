@@ -53,7 +53,7 @@ Public Property Get BaseUrl() As String
 End Property
 
 Public Property Let BaseUrl(newValue As String)
-    mOdConnection.SetConnectionInfo aBaseUrl:=newValue
+    mOdConnection.BaseUrl = newValue
 End Property
 
 Public Property Get DbName() As String
@@ -61,7 +61,7 @@ Public Property Get DbName() As String
 End Property
 
 Public Property Let DbName(newValue As String)
-    mOdConnection.SetConnectionInfo aDbName:=newValue
+    mOdConnection.SetDbUserInfo aDbName:=newValue
 End Property
 
 Public Property Get Username() As String
@@ -69,7 +69,7 @@ Public Property Get Username() As String
 End Property
 
 Public Property Let Username(newValue As String)
-    mOdConnection.SetConnectionInfo aUserName:=newValue
+    mOdConnection.SetDbUserInfo aUserName:=newValue
 End Property
 
 Public Property Get Password() As String
@@ -77,7 +77,7 @@ Public Property Get Password() As String
 End Property
 
 Public Property Let Password(newValue As String)
-    mOdConnection.SetConnectionInfo aPassword:=newValue
+    mOdConnection.SetDbUserInfo aPassword:=newValue
 End Property
 
 Public Property Get UserId() As Long
@@ -121,8 +121,8 @@ Public Function CommonVersion() As OdResult
     Set CommonVersion = Me.Common.Version()
 End Function
 
-Public Function CommonAuthenticate() As OdResult
-    Set CommonAuthenticate = Me.Common.Authenticate()
+Public Function CommonAuthenticate(Optional aDbName As String = "", Optional aUserName As String, Optional aPassword As String = "") As OdResult
+    Set CommonAuthenticate = Me.Common.Authenticate(aDbName:=aDbName, aUserName:=aUserName, aPassword:=aPassword)
 End Function
 
 ' ======================

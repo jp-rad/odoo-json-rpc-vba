@@ -186,26 +186,34 @@ Private Function GetHeaderFromWebResponse(wr As WebResponse, header As String) A
 End Function
 
 Public Function PostJson(aOdConnection As OdConnection, aUrlPath As String, aJsonRpc As Dictionary) As Dictionary
-    Dim sUrl As String
     Dim wr As WebResponse
     Dim errSrc As String
     Dim errDsc As String
-    sUrl = WebHelpers.JoinUrl(aOdConnection.BaseUrl, aUrlPath)
-    Set wr = aOdConnection.RefWebClient.PostJson(sUrl, aJsonRpc)
+    Dim pos As Integer
+    Dim sBaseUrl As String
+    Set wr = aOdConnection.RefWebClient.PostJson(aUrlPath, aJsonRpc)
     If wr.StatusCode = 301 Or wr.StatusCode = 302 Or wr.StatusCode = 307 Then
-        sUrl = GetHeaderFromWebResponse(wr, "Location")
-        Set wr = aOdConnection.RefWebClient.PostJson(sUrl, aJsonRpc)
+        sBaseUrl = GetHeaderFromWebResponse(wr, "Location")
+        pos = InStr(1, sBaseUrl, aUrlPath)
+        If pos > 0 Then
+            sBaseUrl = Left(sBaseUrl, pos - 1)
+            If Right(sBaseUrl, 1) = "/" Then
+                sBaseUrl = Left(sBaseUrl, Len(sBaseUrl) - 1)
+            End If
+        End If
+        aOdConnection.RefWebClient.BaseUrl = sBaseUrl
+        Set wr = aOdConnection.RefWebClient.PostJson(aUrlPath, aJsonRpc)
     End If
-    If wr.StatusCode = 400 Then
-        errSrc = sUrl
-        errDsc = "web response error (status code: " & wr.StatusCode & " )" & vbCrLf & sUrl
-        errDsc = errDsc & vbCrLf & "The redirect may have failed. Try setting 'OdClient.SetFollowRedirects' to 'False'."""
+    If wr.StatusCode = 400 And aOdConnection.RefWebClient.FollowRedirects Then
+        errSrc = WebHelpers.JoinUrl(aOdConnection.BaseUrl, aUrlPath)
+        errDsc = "web response error (status code: " & wr.StatusCode & " )" & vbCrLf & errSrc
+        errDsc = errDsc & vbCrLf & "The redirect may have failed. Try setting 'FollowRedirects' to 'False'."""
         LogError errDsc, errSrc, CERR_STATUSCODE
         Err.Raise CERR_STATUSCODE, errSrc, errDsc
     End If
     If wr.StatusCode <> WebStatusCode.Ok Then
-        errSrc = sUrl
-        errDsc = "web response error (status code: " & wr.StatusCode & " )" & vbCrLf & sUrl
+        errSrc = WebHelpers.JoinUrl(aOdConnection.BaseUrl, aUrlPath)
+        errDsc = "web response error (status code: " & wr.StatusCode & " )" & vbCrLf & errSrc
         LogError errDsc, errSrc, CERR_STATUSCODE
         Err.Raise CERR_STATUSCODE, errSrc, errDsc
     End If
@@ -359,19 +367,17 @@ End Function
 
 Public Function PostXml(aOdConnection As OdConnection, aUrlPath As String, aBody As Variant, Optional aOptions As Dictionary) As Object    ' MSXML2.DOMDocument
     ' https://github.com/VBA-tools/VBA-Web/wiki/XML-Support-in-4.0
-    Dim sUrl As String
     Dim web_Request As WebRequest
     Dim web_Response As WebResponse
     Dim errSrc As String
     Dim errDsc As String
     
-    sUrl = WebHelpers.JoinUrl(aOdConnection.BaseUrl, aUrlPath)
-    Set web_Request = CreatePostXmlWebRequest(sUrl, aBody, aOptions)
+    Set web_Request = CreatePostXmlWebRequest(aUrlPath, aBody, aOptions)
     Set web_Response = aOdConnection.RefWebClient.Execute(web_Request)
     
     If web_Response.StatusCode <> WebStatusCode.Ok Then
-        errSrc = sUrl
-        errDsc = "web response error (status code: " & web_Response.StatusCode & " )" & vbCrLf & sUrl
+        errSrc = aOdConnection.RefWebClient.GetFullUrl(web_Request)
+        errDsc = "web response error (status code: " & web_Response.StatusCode & " )" & vbCrLf & errSrc
         LogError errDsc, errSrc, CERR_STATUSCODE
         Err.Raise CERR_STATUSCODE, errSrc, errDsc
     End If
