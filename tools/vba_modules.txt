@@ -6,6 +6,7 @@ library	../src/OdFilterDomain.cls
 library	../src/OdResult.cls
 library	../src/OdRpc.bas
 library	../src/OdService.cls
+example	../src/ExampleJsonLookup.bas
 example	../src/ExampleOdClient.bas
 example	../src/ExampleOdTutrial.bas
 imports	../imports/vba-web/src/WebHelpers.bas
@@ -20,4 +21,5 @@ vbatest	../specs/imports/vba-test/src/ImmediateReporter.cls
 vbatest	../specs/imports/vba-test/src/TestCase.cls
 vbatest	../specs/imports/vba-test/src/TestSuite.cls
 tests	../tests/Tests.bas
+tests	../tests/Tests_ExampleJsonLookup.bas
 tests	../tests/Tests_OdFilter.bas
