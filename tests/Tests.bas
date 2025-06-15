@@ -50,6 +50,7 @@ Public Sub Run(Optional OutputPath As Variant)
     End If
     
     Tests_OdFilter.RunTests Suite.Group("Tests_OdFilter")
+    Tests_ExampleJsonLookup.RunTests Suite.Group("Tests_ExampleJsonLookup")
     
 End Sub
 
