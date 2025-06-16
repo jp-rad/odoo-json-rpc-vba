@@ -26,6 +26,8 @@ Attribute VB_Name = "ExampleJsonLookup"
 
 Option Explicit
 
+Private Const CESCAPED_SLASH As String = vbBack
+
 ' ExtractJsonValue is a helper function for JSONLOOKUP
 Private Function ExtractJsonValue(jsonObject As Object, jsonPath As String, ByRef rResult As Variant) As Boolean
     Dim remainingPath As String
@@ -63,6 +65,7 @@ Private Function ExtractJsonValue(jsonObject As Object, jsonPath As String, ByRe
     If Key = "" Then
         Set tempItem = jsonObject
     Else
+        Key = Replace(Key, CESCAPED_SLASH, "/") '@Unescaping slash
         Set dict = jsonObject
         If Not dict.Exists(Key) Then
             Err.Raise 9 ' Index out of bounds --> CVErr(xlErrRef)
@@ -88,6 +91,9 @@ Private Function ExtractJsonValue(jsonObject As Object, jsonPath As String, ByRe
         Else
             tempItem = coll.Item(Index)
         End If
+    End If
+    If IsNull(tempItem) Then
+        GoTo ExitProc   ' Break
     End If
 
     ' Recursively resolve the remaining path
@@ -116,6 +122,12 @@ On Error GoTo ErrHandler
     
     ' Convert JSON string into an object
     Set jsonObject = JsonConverter.ParseJson(jsonInput)
+    
+    ' Escape "\/"
+    jsonPath = Replace(jsonPath, "\/", CESCAPED_SLASH)
+    
+    ' Normalize jsonPath
+    jsonPath = Replace(jsonPath, "][", "]/[")
     
     ' Extract value using the specified JSON path
     ExtractJsonValue jsonObject, jsonPath, JSONLOOKUP
