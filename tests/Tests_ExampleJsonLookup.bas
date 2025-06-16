@@ -58,12 +58,24 @@ Private Sub Test_Returns(Suite As TestSuite)
     Dim Tests As New TestSuite
     Dim Test As TestCase
     Dim json As String
+    
     With Suite.Test("JSONLOOKUP - ReturnsValueForSimplePath")
     
         Set Test = Tests.Test("ReturnsValueForSimplePath")
         With Test
             json = "{""foo"":123,""bar"":{""baz"":""hello""}}"
             .IsEqual 123, JSONLOOKUP(json, "foo")
+        End With
+        
+        .IsEqual Test.Result, TestResultType.Pass
+    End With
+    
+    With Suite.Test("JSONLOOKUP - ReturnsValueForSplashKey")
+    
+        Set Test = Tests.Test("ReturnsValueForSplashKey")
+        With Test
+            json = "{""foo"":123,""foo/bar"":{""baz"":""hello""}}"
+            .IsEqual "hello", JSONLOOKUP(json, "foo\/bar/baz")
         End With
         
         .IsEqual Test.Result, TestResultType.Pass
@@ -135,6 +147,32 @@ Private Sub Test_Returns(Suite As TestSuite)
         .IsEqual Test.Result, TestResultType.Pass
     End With
     
+    With Suite.Test("JSONLOOKUP - ReturnsNestedArrayValue")
+        
+        Set Test = Tests.Test("ReturnsNestedValue")
+        With Test
+            json = "[""apple0"", [""apple1"", [""apple2"", ""banana2"", ""cherry2""], ""cherry1""], ""cherry0""]"
+            .IsEqual "banana2", JSONLOOKUP(json, "[1]/[1]/[1]")
+        End With
+        With Test
+            json = "[""apple0"", [""apple1"", [""apple2"", ""banana2"", ""cherry2""], ""cherry1""], ""cherry0""]"
+            .IsEqual "apple2", JSONLOOKUP(json, "[1][1][0]")
+        End With
+        
+        .IsEqual Test.Result, TestResultType.Pass
+    End With
+    
+    With Suite.Test("JSONLOOKUP - ReturnsNestedValueInArray")
+        
+        Set Test = Tests.Test("ReturnsNestedValueInArray")
+        With Test
+            json = "{""items"": [""apple"", {""foo"":123,""bar"":{""baz"":""hello""}}, ""cherry""]}"
+            .IsEqual "hello", JSONLOOKUP(json, "items[1]/bar/baz")
+        End With
+        
+        .IsEqual Test.Result, TestResultType.Pass
+    End With
+    
 End Sub
 
 Private Sub Test_ErrValue(Suite As TestSuite)
@@ -142,6 +180,20 @@ Private Sub Test_ErrValue(Suite As TestSuite)
     Dim Test As TestCase
     Dim json As String
     Dim Result As Variant
+    
+    With Suite.Test("JSONLOOKUP - ReturnsValueErrorForEmptyJson")
+    
+        Set Test = Tests.Test("ReturnsValueErrorForEmptyJson")
+        With Test
+            json = ""
+            Result = JSONLOOKUP(json, "foo")
+            .IsOk IsError(Result)
+            .IsOk CVErr(xlErrValue) = Result
+        End With
+        
+        .IsEqual Test.Result, TestResultType.Pass
+    End With
+    
     With Suite.Test("JSONLOOKUP - ReturnsValueErrorForInvalidJson")
     
         Set Test = Tests.Test("ReturnsValueErrorForInvalidJson")
@@ -244,5 +296,34 @@ Private Sub Test_ErrNa(Suite As TestSuite)
         
         .IsEqual Test.Result, TestResultType.Pass
     End With
+    
+    With Suite.Test("JSONLOOKUP - ReturnsNAForNullInArray")
+    
+        Set Test = Tests.Test("ReturnsNAForNullInArray")
+        With Test
+            json = "{""items"": [""apple"", null, ""cherry""]}"
+            Result = JSONLOOKUP(json, "items[1]")
+            .IsOk IsError(Result)
+            .IsOk CVErr(xlErrNA) = Result
+        End With
+        
+        With Test
+            json = "{""items"": [""apple"", null, ""cherry""]}"
+            Result = JSONLOOKUP(json, "items[1]/foo/bar")
+            .IsOk IsError(Result)
+            .IsOk CVErr(xlErrNA) = Result
+        End With
+        
+        
+        With Test
+            json = "{""items"": [""apple"", null, ""cherry""]}"
+            Result = JSONLOOKUP(json, "items[1]/[0]")
+            .IsOk IsError(Result)
+            .IsOk CVErr(xlErrNA) = Result
+        End With
+                
+        .IsEqual Test.Result, TestResultType.Pass
+    End With
+    
     
 End Sub
