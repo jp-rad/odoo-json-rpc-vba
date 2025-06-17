@@ -55,10 +55,16 @@ Private Function ExtractJsonValue(jsonObject As Object, jsonPath As String, ByRe
 
     ' Handle key with index notation, e.g., item[0]
     If InStr(Key, "[") > 0 Then
+        If Right(Key, 1) <> "]" Then
+            Err.Raise 9 ' Index out of bounds, returns CVErr(xlErrRef)
+        End If
         Key = Replace(Key, "[", "/")
         Key = Replace(Key, "]", "")
         pathSegments = Split(Key, "/")
         Key = Trim(pathSegments(0))
+        If Not IsNumeric(pathSegments(1)) Then
+            Err.Raise 9 ' Index out of bounds, returns CVErr(xlErrRef)
+        End If
         Index = pathSegments(1) + 1 ' Collections in VBA are 1-based
         hasIndex = True
     Else
