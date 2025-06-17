@@ -52,12 +52,25 @@ Public Sub RunTests(Suite As TestSuite)
     Test_ErrRef Suite
     Test_ErrNa Suite
     
+    Test_JSONCOUNT Suite
+    
 End Sub
 
 Private Sub Test_Returns(Suite As TestSuite)
     Dim Tests As New TestSuite
     Dim Test As TestCase
     Dim json As String
+    
+    With Suite.Test("JSONLOOKUP - ReturnsValueForEmptyPath")
+    
+        Set Test = Tests.Test("ReturnsValueForEmptyPath")
+        With Test
+            json = "{""foo"":123,""bar"":{""baz"":""hello""}}"
+            .IsEqual "{""foo"":123,""bar"":{""baz"":""hello""}}", JSONLOOKUP(json, "")
+        End With
+        
+        .IsEqual Test.Result, TestResultType.Pass
+    End With
     
     With Suite.Test("JSONLOOKUP - ReturnsValueForSimplePath")
     
@@ -314,7 +327,6 @@ Private Sub Test_ErrNa(Suite As TestSuite)
             .IsOk CVErr(xlErrNA) = Result
         End With
         
-        
         With Test
             json = "{""items"": [""apple"", null, ""cherry""]}"
             Result = JSONLOOKUP(json, "items[1]/[0]")
@@ -325,5 +337,66 @@ Private Sub Test_ErrNa(Suite As TestSuite)
         .IsEqual Test.Result, TestResultType.Pass
     End With
     
+End Sub
+
+Private Sub Test_JSONCOUNT(Suite As TestSuite)
+    Dim Tests As New TestSuite
+    Dim Test As TestCase
+    Dim json As String
+    
+    With Suite.Test("JSONCOUNT - Count0")
+    
+        Set Test = Tests.Test("Count0")
+        With Test
+            json = "[]"
+            .IsEqual 0, JSONCOUNT(json)
+        End With
+        
+        .IsEqual Test.Result, TestResultType.Pass
+    End With
+    
+    With Suite.Test("JSONCOUNT - Count1")
+    
+        Set Test = Tests.Test("Count1")
+        With Test
+            json = "[""apple""]"
+            .IsEqual 1, JSONCOUNT(json)
+        End With
+        
+        .IsEqual Test.Result, TestResultType.Pass
+    End With
+    
+    With Suite.Test("JSONCOUNT - Count2")
+    
+        Set Test = Tests.Test("Count2")
+        With Test
+            json = "[""apple"", null]"
+            .IsEqual 2, JSONCOUNT(json)
+        End With
+        
+        .IsEqual Test.Result, TestResultType.Pass
+    End With
+    
+    With Suite.Test("JSONCOUNT - Count3")
+    
+        Set Test = Tests.Test("Count3")
+        With Test
+            json = "[""apple"", null, ""cherry""]"
+            .IsEqual 3, JSONCOUNT(json)
+        End With
+        
+        .IsEqual Test.Result, TestResultType.Pass
+    End With
+    
+    With Suite.Test("JSONCOUNT - Err")
+    
+        Set Test = Tests.Test("Err")
+        With Test
+            json = "{""foo"":123,""bar"":{""baz"":""hello""}}"
+            .IsOk CVErr(xlErrValue) = JSONCOUNT(json)
+        End With
+        
+        .IsEqual Test.Result, TestResultType.Pass
+    End With
     
 End Sub

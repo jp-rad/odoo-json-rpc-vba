@@ -57,6 +57,10 @@ End Sub
 Sub DoSearchRead()
     Dim oc As OdClient
     Dim rs As OdResult
+    Dim sJson As String
+    Dim n As Integer
+    Dim i As Integer
+    Dim sPartner As String
     
     ' OdClient
     Set oc = OdRpc.NewOdClient("https://localhost")
@@ -72,11 +76,25 @@ Sub DoSearchRead()
     )
     
     ' (JSON)
+    sJson = JsonConverter.ConvertToJson(rs.Result, 2)
     Debug.Print
     Debug.Print "JSON: >>>>>"
-    Debug.Print JsonConverter.ConvertToJson(rs.Result, 2)
+    Debug.Print sJson
     Debug.Print "<<<<<"
+    Debug.Print
+    
+    ' (JSONLOOKUP)
+    n = JSONCOUNT(sJson)
+    Debug.Print "id", "country name", "(id)", "name"
+    Debug.Print "--", "------------", "----", "----"
+    For i = 0 To n - 1
+        sPartner = JSONLOOKUP(sJson, "[" & i & "]")
+        Debug.Print JSONLOOKUP(sPartner, "id"), _
+                    JSONLOOKUP(sPartner, "country_id[1]"), _
+                    "(" & JSONLOOKUP(sPartner, "country_id[0]") & ")", _
+                    JSONLOOKUP(sPartner, "name")
+    Next i
+    Debug.Print
+    Debug.Print "record count: " & n
     
 End Sub
-
-

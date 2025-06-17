@@ -28,7 +28,7 @@ Option Explicit
 
 Private Const CESCAPED_SLASH As String = vbBack
 
-' ExtractJsonValue is a helper function for JSONLOOKUP
+' Helper function for JSONLOOKUP to extract a value from a JSON object using a path
 Private Function ExtractJsonValue(jsonObject As Object, jsonPath As String, ByRef rResult As Variant) As Boolean
     Dim remainingPath As String
     Dim nestedJsonObject As Object
@@ -40,16 +40,20 @@ Private Function ExtractJsonValue(jsonObject As Object, jsonPath As String, ByRe
     Dim dict As Dictionary
     Dim coll As Collection
 
-    ' Split the JSON path by '/' to extract the first key/index
+    ' Split the JSON path by '/' to extract the first key or index
     pathSegments = Split(jsonPath, "/", 2)
-    Key = Trim(pathSegments(0))
+    If UBound(pathSegments) >= 0 Then
+        Key = Trim(pathSegments(0))
+    Else
+        Key = ""
+    End If
     If UBound(pathSegments) > 0 Then
         remainingPath = pathSegments(1)
     Else
         remainingPath = ""
     End If
 
-    ' Handle key with index notation (e.g., item[0])
+    ' Handle key with index notation, e.g., item[0]
     If InStr(Key, "[") > 0 Then
         Key = Replace(Key, "[", "/")
         Key = Replace(Key, "]", "")
@@ -65,10 +69,10 @@ Private Function ExtractJsonValue(jsonObject As Object, jsonPath As String, ByRe
     If Key = "" Then
         Set tempItem = jsonObject
     Else
-        Key = Replace(Key, CESCAPED_SLASH, "/") '@Unescaping slash
+        Key = Replace(Key, CESCAPED_SLASH, "/") ' Unescape slash
         Set dict = jsonObject
         If Not dict.Exists(Key) Then
-            Err.Raise 9 ' Index out of bounds --> CVErr(xlErrRef)
+            Err.Raise 9 ' Index out of bounds, returns CVErr(xlErrRef)
         End If
         If IsObject(dict.Item(Key)) Then
             Set tempItem = dict.Item(Key)
@@ -77,13 +81,13 @@ Private Function ExtractJsonValue(jsonObject As Object, jsonPath As String, ByRe
         End If
     End If
     If IsNull(tempItem) Then
-        GoTo ExitProc   ' Break
+        GoTo ExitProc
     End If
 
     ' Retrieve value from collection if indexed
     If hasIndex Then
         If TypeName(tempItem) <> "Collection" Then
-            Err.Raise 9 ' Index out of bounds --> CVErr(xlErrRef)
+            Err.Raise 9 ' Index out of bounds, returns CVErr(xlErrRef)
         End If
         Set coll = tempItem
         If IsObject(coll.Item(Index)) Then
@@ -93,7 +97,7 @@ Private Function ExtractJsonValue(jsonObject As Object, jsonPath As String, ByRe
         End If
     End If
     If IsNull(tempItem) Then
-        GoTo ExitProc   ' Break
+        GoTo ExitProc
     End If
 
     ' Recursively resolve the remaining path
@@ -112,23 +116,23 @@ ExitProc:
 
 End Function
 
-' JSONLOOKUP: Excel worksheet function to extract values from JSON data
-' jsonInput: A JSON string to be parsed
-' jsonPath: Path to the target value within the JSON structure, using '/' as a separator.
-'           Array elements can be accessed with square brackets, e.g., "items[0]" for the first element.
+' Excel worksheet function to extract values from JSON data
+' jsonInput: JSON string to parse
+' jsonPath: Path to the target value in the JSON structure, using '/' as a separator
+'           Array elements can be accessed with square brackets, e.g., "items[0]" for the first element
 Public Function JSONLOOKUP(ByVal jsonInput As String, ByVal jsonPath As String) As Variant
 On Error GoTo ErrHandler
     Dim jsonObject As Object
-    
-    ' Convert JSON string into an object
+
+    ' Parse JSON string into an object
     Set jsonObject = JsonConverter.ParseJson(jsonInput)
-    
+
     ' Escape "\/"
     jsonPath = Replace(jsonPath, "\/", CESCAPED_SLASH)
-    
+
     ' Normalize jsonPath
     jsonPath = Replace(jsonPath, "][", "]/[")
-    
+
     ' Extract value using the specified JSON path
     ExtractJsonValue jsonObject, jsonPath, JSONLOOKUP
     If IsNull(JSONLOOKUP) Then
@@ -139,7 +143,7 @@ On Error GoTo ErrHandler
         JSONLOOKUP = JsonConverter.ConvertToJson(JSONLOOKUP)
         GoTo ExitProc
     End If
-    
+
 ExitProc:
     Exit Function
 ErrHandler:
@@ -149,5 +153,21 @@ ErrHandler:
         Case Else ' General fallback
             JSONLOOKUP = CVErr(xlErrValue)
     End Select
+    Resume ExitProc
+End Function
+
+' Excel worksheet function to count the number of items in a JSON array
+' jsonArray: JSON array string to parse
+Public Function JSONCOUNT(ByVal jsonArray As String) As Variant
+On Error GoTo ErrHandler
+    Dim coll As Collection
+
+    Set coll = JsonConverter.ParseJson(jsonArray)
+    JSONCOUNT = coll.Count
+
+ExitProc:
+    Exit Function
+ErrHandler:
+    JSONCOUNT = CVErr(xlErrValue)
     Resume ExitProc
 End Function
