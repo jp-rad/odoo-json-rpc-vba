@@ -5,12 +5,16 @@ Odoo's models API is easily accessible via JSON-RPC and can be used from VBA, su
 - [Odoo Docs - External API](https://www.odoo.com/documentation/master/developer/reference/external_api.html)
 - odoo-JSON-RPC-VBA (GitHub repository: [https://github.com/jp-rad/odoo-json-rpc-vba](https://github.com/jp-rad/odoo-json-rpc-vba))
 
-### Simple Example
+### Excel VBA Example
 
-```vba
+```vb
 Sub DoSearchRead()
     Dim oc As OdClient
     Dim rs As OdResult
+    Dim sJson As String
+    Dim n As Integer
+    Dim i As Integer
+    Dim sPartner As String
     
     ' OdClient
     Set oc = OdRpc.NewOdClient("https://localhost")
@@ -26,13 +30,71 @@ Sub DoSearchRead()
     )
     
     ' (JSON)
+    sJson = JsonConverter.ConvertToJson(rs.Result, 2)
     Debug.Print
     Debug.Print "JSON: >>>>>"
-    Debug.Print JsonConverter.ConvertToJson(rs.Result, 2)
+    Debug.Print sJson
     Debug.Print "<<<<<"
+    Debug.Print
+    
+    ' (JSONLOOKUP)
+    n = JSONCOUNT(sJson)
+    Debug.Print "id", "country name", "(id)", "name"
+    Debug.Print "--", "------------", "----", "----"
+    For i = 0 To n - 1
+        sPartner = JSONLOOKUP(sJson, "[" & i & "]")
+        Debug.Print JSONLOOKUP(sPartner, "id"), _
+                    JSONLOOKUP(sPartner, "country_id[1]"), _
+                    "(" & JSONLOOKUP(sPartner, "country_id[0]") & ")", _
+                    JSONLOOKUP(sPartner, "name")
+    Next i
+    Debug.Print
+    Debug.Print "record count: " & n
     
 End Sub
 ```
+
+**Output**
+
+```
+JSON: >>>>>
+[
+  {
+    "id": 15,
+    "name": "Azure Interior",
+    "country_id": [
+      233,
+      "United States"
+    ]
+  },
+  {
+    "id": 10,
+    "name": "Deco Addict",
+    "country_id": [
+      233,
+      "United States"
+    ]
+  },
+  {
+    "id": 11,
+    "name": "Gemini Furniture",
+    "country_id": [
+      233,
+      "United States"
+    ]
+  }
+]
+<<<<<
+
+id            country name  (id)          name
+--            ------------  ----          ----
+ 15           United States (233)         Azure Interior
+ 10           United States (233)         Deco Addict
+ 11           United States (233)         Gemini Furniture
+
+record count: 3
+```
+
 
 ---
 
