@@ -268,6 +268,27 @@ Private Sub Test_ErrRef(Suite As TestSuite)
             .IsOk CVErr(xlErrRef) = Result
         End With
         
+        With Test
+            json = "{""items"": [""apple"", ""banana""]}"
+            Result = JSONLOOKUP(json, "items[string]")
+            .IsOk IsError(Result)
+            .IsOk CVErr(xlErrRef) = Result
+        End With
+        
+        With Test
+            json = "{""items"": [""apple"", ""banana""]}"
+            Result = JSONLOOKUP(json, "items[1")
+            .IsOk IsError(Result)
+            .IsOk CVErr(xlErrRef) = Result
+        End With
+        
+        With Test
+            json = "{""items"": [""apple"", ""banana""]}"
+            Result = JSONLOOKUP(json, "items[0]1")
+            .IsOk IsError(Result)
+            .IsOk CVErr(xlErrRef) = Result
+        End With
+        
         .IsEqual Test.Result, TestResultType.Pass
     End With
 End Sub
