@@ -262,9 +262,11 @@ Public Sub DoTutorialExternalApi()
         .BuildAndAppend params
     End With
     Set oRet = oClient.ModelOfIrModel.Method("search").ExecuteKw(params)
-    Set params = NewList
-    params.Add oRet.Result
-    Set oRet = oClient.ModelOfIrModel.Method("unlink").ExecuteKw(params)
+    If oRet.Result.Count > 0 Then
+        Set params = NewList
+        params.Add oRet.Result
+        Set oRet = oClient.ModelOfIrModel.Method("unlink").ExecuteKw(params)
+    End If
     
     ' Inspection and introspection - ir.model, fields_get
     ' python: models.execute_kw(db, uid, password, 'ir.model', 'create', [{
