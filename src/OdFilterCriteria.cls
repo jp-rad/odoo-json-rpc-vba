@@ -47,19 +47,45 @@ Private mFieldExpr As String
 Private mOperator As String
 Private mValue As Variant   ' string, number, boolean, null or OdFilterDOmain
 
-Private Function COdFilterDomain(v As Variant) As OdFilterDomain
-    Set COdFilterDomain = v
-End Function
+Private Const CERR_FIELD_EMPTY     As Long = vbObjectError + 1000
+Private Const CERR_OPERATOR_EMPTY  As Long = vbObjectError + 1001
+Private Const CERR_VALUE_MISSING   As Long = vbObjectError + 1002
+Private Const CERR_INVALID_OBJECT  As Long = vbObjectError + 1003
+
+Private Sub ValidateMembers()
+    If Len(Trim(mFieldExpr)) = 0 Then
+        Err.Raise CERR_FIELD_EMPTY, "OdFilterCriteria", "Field expression must not be empty."
+    End If
+
+    If Len(Trim(mOperator)) = 0 Then
+        Err.Raise CERR_OPERATOR_EMPTY, "OdFilterCriteria", "Operator must not be empty." & vbCrLf & "[FieldExpr = '" & mFieldExpr & "']"
+    End If
+
+    If IsMissing(mValue) Then
+        Err.Raise CERR_VALUE_MISSING, "OdFilterCriteria", "Value expression is Missing." & vbCrLf & "[FieldExpr = '" & mFieldExpr & "']"
+    End If
+
+    If IsObject(mValue) Then
+        If Not TypeOf mValue Is OdFilterDomain Then
+            Err.Raise CERR_INVALID_OBJECT, "OdFilterCriteria", "Object value must be of type OdFilterDomain." & vbCrLf & "[FieldExpr = '" & mFieldExpr & "']"
+        End If
+    End If
+End Sub
 
 Public Function ToJson() As String
     Dim sValue As String
-    If IsEmpty(mValue) Then
+    Dim filterDomain As OdFilterDomain
+    
+    ValidateMembers
+    
+    If IsNull(mValue) Then
         sValue = "null"
     ElseIf IsObject(mValue) Then
         If mValue Is Nothing Then
             sValue = "null" ' null
         Else
-            sValue = COdFilterDomain(mValue).ToJson()
+            Set filterDomain = mValue
+            sValue = filterDomain.ToJson()
         End If
     ElseIf VarType(mValue) = vbString Then
         sValue = "'" & mValue & "'"
@@ -74,7 +100,7 @@ End Function
 
 Public Sub SetValue(aValueExpr As Variant)
     If IsObject(aValueExpr) Then
-        Set mValue = COdFilterDomain(aValueExpr)
+        Set mValue = aValueExpr
     Else
         mValue = aValueExpr
     End If
@@ -174,5 +200,13 @@ End Function
 
 Public Function NotAny(aValueExpr As Variant) As OdFilterCriteria
     Set NotAny = SetOpeValue("not any", aValueExpr)
+End Function
+
+Public Function EqNull() As OdFilterCriteria
+    Set EqNull = SetOpeValue("=", Null)
+End Function
+
+Public Function NotNull() As OdFilterCriteria
+    Set NotNull = SetOpeValue("!=", Null)
 End Function
 
