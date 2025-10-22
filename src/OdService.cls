@@ -105,8 +105,40 @@ End Property
 
 Public Function MethodExecuteKw(aMethodName As String, Optional aParams, Optional aNamedParams) As OdResult
     Debug.Assert mModelName <> ""
-    With New OdResult
-        Set MethodExecuteKw = Me.Method(aMethodName).ExecuteKw(aParams, aNamedParams)
-    End With
+    Set MethodExecuteKw = Me.Method(aMethodName).ExecuteKw(aParams, aNamedParams)
+End Function
+
+' ======================
+'  Syntax Sugar
+' ======================
+Public Function MethodSearch(aDomain As OdFilterDomain, Optional aModifiers) As OdResult
+    Dim params As Collection
+    Set params = NewList
+    aDomain.BuildAndAppend params
+    Set MethodSearch = MethodExecuteKw("search", params, aModifiers)
+End Function
+
+Public Function MethodRead(aIds As Variant, aFieldNames As Collection) As OdResult
+    Dim params As Collection
+    Dim named As Dictionary
+    Set params = NewList
+    params.Add aIds
+    Set named = NewDict
+    Set named("fields") = aFieldNames
+    Set MethodRead = MethodExecuteKw("read", params, named)
+End Function
+
+Public Function MethodSearchRead(aDomain As OdFilterDomain, aFieldNames As Collection, Optional aModifiers As Dictionary = Nothing) As OdResult
+    Dim params As Collection
+    Dim named As Dictionary
+    Set params = NewList
+    aDomain.BuildAndAppend params
+    If aModifiers Is Nothing Then
+        Set named = NewDict
+    Else
+        Set named = aModifiers
+    End If
+    Set named.Item("fields") = aFieldNames
+    Set MethodSearchRead = MethodExecuteKw("search_read", params, named)
 End Function
 

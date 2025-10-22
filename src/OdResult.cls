@@ -67,6 +67,14 @@ Public Property Get Result() As Variant
     End If
 End Property
 
+Public Function ToJsonOrString(Optional ByVal Whitespace As Variant, Optional ByVal json_CurrentIndentation As Long = 0) As String
+    If IsObject(mResult) Then
+        ToJsonOrString = JsonConverter.ConvertToJson(mResult, Whitespace, json_CurrentIndentation)
+    Else
+        ToJsonOrString = CStr(mResult)
+    End If
+End Function
+
 Public Function W(dic As Dictionary) As OdResult
     Set W = Me
     If IsObject(dic("result")) Then

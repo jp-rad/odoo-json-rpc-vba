@@ -39,6 +39,7 @@ Option Explicit
 ' --------
 '  COMMON
 ' --------
+
 Private Const CERR_STATUSCODE   As Long = 2001 + vbObjectError   ' web response error
 Private Const CERR_RESPONSE     As Long = 2002 + vbObjectError   ' JSON-RPC error
 Private Const CERR_JSONRPC_ID   As Long = 2003 + vbObjectError   ' JSON-RPC id error
@@ -47,16 +48,19 @@ Private Const CERR_AUTHENTICATE As Long = 2004 + vbObjectError   ' authenticatio
 ' ----------
 '  JSON-RPC
 ' ----------
+
 Private mJsonRpcId As Long
 
 ' ---------
 '  XML-RPC
 ' ---------
+
 Private mRegisteredXml As Boolean
 
 ' ---------
 '  HELPERS
 ' ---------
+
 Public Function FormatDate(aDate As Date) As String
     FormatDate = Format(aDate, "yyyy-mm-dd")
 End Function
@@ -72,6 +76,42 @@ End Function
 Public Function ParseIsoDatetime(aIsoString As String) As Date
     ParseIsoDatetime = JsonConverter.ParseIso(aIsoString)
 End Function
+
+Function IsValueSet(ByVal aValue As Variant) As Boolean
+    If VarType(aValue) = vbBoolean Then
+        IsValueSet = (aValue <> False)
+    ElseIf IsNull(aValue) Then
+        IsValueSet = False
+    ElseIf IsObject(aValue) Then
+        If aValue Is Nothing Then
+            IsValueSet = False
+        Else
+            IsValueSet = True
+        End If
+    Else
+        IsValueSet = True
+    End If
+End Function
+
+Function ValueOrDefault(ByVal aValue As Variant, Optional ByVal aDefaultValue As Variant = "") As Variant
+    If IsValueSet(aValue) Then
+        If IsObject(aValue) Then
+            Set ValueOrDefault = aValue
+        Else
+            ValueOrDefault = aValue
+        End If
+    Else
+        If IsObject(aDefaultValue) Then
+            Set ValueOrDefault = aDefaultValue
+        Else
+            ValueOrDefault = aDefaultValue
+        End If
+    End If
+End Function
+
+' ---------
+'  FACTORY
+' ---------
 
 Public Function NewOdClient(Optional aBaseUrl As String = "") As OdClient
     Set NewOdClient = New OdClient
@@ -143,6 +183,7 @@ End Function
 ' ----------
 '  JSON-RPC
 ' ----------
+
 Private Function createJsonRpcId() As Long
     createJsonRpcId = mJsonRpcId + 1
 End Function
@@ -326,6 +367,7 @@ End Function
 ' ---------
 '  XML-RPC
 ' ---------
+
 Public Function CreatePostXmlWebRequest(Url As String, Body As Variant, Optional Options As Dictionary) As WebRequest
     ' https://github.com/VBA-tools/VBA-Web/wiki/XML-Support-in-4.0
     

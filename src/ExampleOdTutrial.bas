@@ -42,8 +42,12 @@ Public Sub DoTutorialExternalApi()
     Dim oRet As OdResult
     Dim params As Collection
     Dim named As Dictionary
+    Dim domain As OdFilterDomain
+    Dim fieldNames As Collection
+    Dim modifiers As Dictionary
     Dim sJson As String
     Dim nId As Long
+    Dim ids As Collection
 
     ' Version
     Set oRet = GetCommonVersion()
@@ -251,6 +255,7 @@ Public Sub DoTutorialExternalApi()
         .AddArity NewField("id").Eq(nId)
         .BuildAndAppend params
     End With
+    Debug.Print JsonConverter.ConvertToJson(params)
     Set oRet = oClient.Model("res.partner").Method("search").ExecuteKw(params)
     Debug.Print JsonConverter.ConvertToJson(oRet.Result, 4)
     Debug.Print
@@ -261,11 +266,14 @@ Public Sub DoTutorialExternalApi()
         .AddArity NewField("model").IsILike("x_custom")
         .BuildAndAppend params
     End With
+    Debug.Print JsonConverter.ConvertToJson(params)
     Set oRet = oClient.ModelOfIrModel.Method("search").ExecuteKw(params)
+    Debug.Print "RESULT(search)", oRet.Result.Count, oRet.ToJsonOrString()
     If oRet.Result.Count > 0 Then
         Set params = NewList
         params.Add oRet.Result
         Set oRet = oClient.ModelOfIrModel.Method("unlink").ExecuteKw(params)
+        Debug.Print "RESULT(unlink)", oRet.ToJsonOrString()
     End If
     
     ' Inspection and introspection - ir.model, fields_get
@@ -367,5 +375,57 @@ Public Sub DoTutorialExternalApi()
     Set oRet = oClient.Model("x_custom").Method("read").ExecuteKw(params)
     Debug.Print JsonConverter.ConvertToJson(oRet.Result, 4)
     Debug.Print
+    
+    ' ======================
+    '  Syntax Sugar
+    ' ======================
+    
+    ' Pagination - search
+    ' python: models.execute_kw(db, uid, password, 'res.partner', 'search', [[['is_company', '=', True]]], {'offset': 10, 'limit': 5})
+    Set domain = NewDomain
+    domain.AddArity NewField("is_company").Eq(True)
+    Set modifiers = NewDict  ' {'offset': 10, 'limit': 5}
+    With modifiers
+        .Add "offset", 2 ' 10
+        .Add "limit", 5
+    End With
+    Set oRet = oClient.Model("res.partner").MethodSearch(domain)
+    Debug.Print oRet.ToJsonOrString
+    Set oRet = oClient.Model("res.partner").MethodSearch(domain, modifiers)
+    Debug.Print oRet.ToJsonOrString
+    
+    ' Read records - search, read
+    ' python: ids = models.execute_kw(db, uid, password, 'res.partner', 'search', [[['is_company', '=', True]]], {'limit': 1})
+    '         [record] = models.execute_kw(db, uid, password, 'res.partner', 'read', [ids])
+    '         # count the number of fields fetched by default
+    '         len(record)
+    '         models.execute_kw(db, uid, password, 'res.partner', 'read', [ids], {'fields': ['name', 'country_id', 'comment']})
+    Set ids = oRet.Result
+    nId = ids(2)
+    Set fieldNames = NewList
+    With fieldNames
+        .Add "name"
+        .Add "country_id"
+        .Add "comment"
+    End With
+    Set oRet = oClient.Model("res.partner").MethodRead(ids, fieldNames)
+    Debug.Print oRet.ToJsonOrString(4)
+    Set oRet = oClient.Model("res.partner").MethodRead(nId, fieldNames)
+    Debug.Print oRet.ToJsonOrString
+    
+    ' Search and read - search_read
+    ' python: models.execute_kw(db, uid, password, 'res.partner', 'search_read', [[['is_company', '=', True]]], {'fields': ['name', 'country_id', 'comment'], 'limit': 5})
+    Set domain = NewDomain
+    domain.AddArity NewField("is_company").Eq(True)
+    Set fieldNames = NewList
+    With fieldNames
+        .Add "name"
+        .Add "country_id"
+        .Add "comment"
+    End With
+    Set modifiers = NewDict
+    modifiers.Add "limit", 3 ' 5
+    Set oRet = oClient.Model("res.partner").MethodSearchRead(domain, fieldNames, modifiers)
+    Debug.Print oRet.ToJsonOrString(4)
     
 End Sub

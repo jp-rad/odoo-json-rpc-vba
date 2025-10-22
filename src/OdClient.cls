@@ -137,9 +137,19 @@ Public Property Get Model(aModelName As String) As OdService
 End Property
 
 Public Function ModelExecuteKw(aModelName As String, aMethodName As String, Optional aParams, Optional aNamedParams) As OdResult
-    With New OdResult
-        Set ModelExecuteKw = Me.Model(aModelName).MethodExecuteKw(aMethodName, aParams, aNamedParams)
-    End With
+    Set ModelExecuteKw = Me.Model(aModelName).MethodExecuteKw(aMethodName, aParams, aNamedParams)
+End Function
+
+Public Function ModelSearch(aModelName As String, aDomain As OdFilterDomain, Optional aModifiers) As OdResult
+    Set ModelSearch = Me.Model(aModelName).MethodSearch(aDomain, aModifiers)
+End Function
+
+Public Function ModelRead(aModelName As String, aIds As Variant, aFieldNames As Collection) As OdResult
+    Set ModelRead = Me.Model(aModelName).MethodRead(aIds, aFieldNames)
+End Function
+
+Public Function ModelSearchRead(aModelName As String, aDomain As OdFilterDomain, aFieldNames As Collection, Optional aModifiers As Dictionary = Nothing) As OdResult
+    Set ModelSearchRead = Me.Model(aModelName).MethodSearchRead(aDomain, aFieldNames, aModifiers)
 End Function
 
 ' ======================================
