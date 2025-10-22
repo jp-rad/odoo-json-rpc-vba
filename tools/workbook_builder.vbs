@@ -25,6 +25,8 @@
 
 Option Explicit
 
+private const VERSION = "0.5.11"
+
 Private Function GetExcelApplication() 'As Excel.Application
     Set GetExcelApplication = WScript.CreateObject("Excel.Application")
 End Function
@@ -46,7 +48,7 @@ Private Function GetVbaModules(t) 'As Dictionary
     Dim fso 'As FileSystemObject
     Dim a 'As Variant
     dim filter 'As Dictionary
-    
+
     Set dic = CreateNewDictionary()
     Set fso = GetFileSystemObject()
     Set filter = CreateNewDictionary()
@@ -76,7 +78,7 @@ Private Function GetVbaModules(t) 'As Dictionary
         Loop
         .Close
     End With
-    
+
     Set GetVbaModules = dic
 End Function
 
@@ -103,22 +105,50 @@ Public Sub BuildWorkbookFile(t)
     Dim appExcel 'As Excel.Application
     Set appExcel = GetExcelApplication()
     appExcel.Visible = True
-    
+
     Dim wbk 'As Workbook
     Set wbk = appExcel.Workbooks.Add()
     
     Dim fso 'As FileSystemObject
     Set fso = GetFileSystemObject()
-    
+
+    Dim tempPath 'As String
+    tempPath = fso.GetSpecialFolder(2) ' TemporaryFolder
+
+    Dim shell 'As WScript.Shell
+    Set shell = WScript.CreateObject("WScript.Shell")
+
     Dim cur 'As String
     cur = GetScriptFolderName()
-    
+
     Dim dic 'As Dictionary
     Dim tmp 'As String
     Set dic = GetVbaModules(t)
     For Each tmp In dic.Items()
         wbk.VBProject.VBComponents.Import fso.BuildPath(cur, tmp)
     Next 'tmp
+
+    Dim basVersionFile 'As String
+    basVersionFile = fso.BuildPath(tempPath, "OdVersion.bas")
+    with fso.CreateTextFile(basVersionFile, True)
+        .WriteLine "Attribute VB_Name = ""OdVersion"""
+        .WriteLine "' External API - odoo-JSON-RPC-VBA"
+        .WriteLine "' "
+        .WriteLine "' Version: " & VERSION
+        .WriteLine "' "
+        .WriteLine ""
+        .WriteLine "Option Explicit"
+        .WriteLine ""
+        .WriteLine "Public Function GetVersion() As String"
+        .WriteLine "    GetVersion = """ & VERSION & """"
+        .WriteLine "End Function"
+        .WriteLine ""
+        .Close
+    End With
+    wbk.VBProject.VBComponents.Import basVersionFile
+    On Error Resume Next
+    fso.DeleteFile basVersionFile
+    On Error GoTo 0
 
     Dim fnm 'As String
     If t = "library" Then
@@ -134,10 +164,12 @@ Public Sub BuildWorkbookFile(t)
         fnm = BuildUniqueFilePath(cur, "../odoo-json-rpc-vba develop", "xlsm")
         wbk.SaveAs fnm, 52 'xlOpenXMLWorkbookMacroEnabled
     End If
-    
+
     wbk.Close
     appExcel.Quit
-    
+
+    shell.Popup "Workbook has been created successfully!" & vbCrLf & "File: " & fnm & vbCrLf & "Version: " & VERSION, 5, "Build Complete", 64
+
 End Sub
 
 Dim t
@@ -148,5 +180,5 @@ If Err.Number = 0 Then
     On Error Goto 0
     BuildWorkbookFile t
 Else
-    WScript.CreateObject("WScript.Shell").PopUp  Err.Description & " (Err:" & Err.Number & ")", 5, "Do not call me directly!", 48
+    shell.PopUp  Err.Description & " (Err:" & Err.Number & ")", 5, "Do not call me directly!", 48
 End If
