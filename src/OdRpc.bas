@@ -3,7 +3,7 @@ Attribute VB_Name = "OdRpc"
 '
 ' MIT License
 '
-' Copyright (c) 2022-2025 jp-rad
+' Copyright (c) 2022-2026 jp-rad
 '
 ' Permission is hereby granted, free of charge, to any person obtaining a copy
 ' of this software and associated documentation files (the "Software"), to deal
@@ -77,13 +77,13 @@ Public Function ParseIsoDatetime(aIsoString As String) As Date
     ParseIsoDatetime = JsonConverter.ParseIso(aIsoString)
 End Function
 
-Function IsValueSet(ByVal aValue As Variant) As Boolean
-    If VarType(aValue) = vbBoolean Then
-        IsValueSet = (aValue <> False)
-    ElseIf IsNull(aValue) Then
+Function IsValueSet(ByVal vValue As Variant) As Boolean
+    If VarType(vValue) = vbBoolean Then
+        IsValueSet = (vValue <> False)
+    ElseIf IsNull(vValue) Then
         IsValueSet = False
-    ElseIf IsObject(aValue) Then
-        If aValue Is Nothing Then
+    ElseIf IsObject(vValue) Then
+        If vValue Is Nothing Then
             IsValueSet = False
         Else
             IsValueSet = True
@@ -93,12 +93,12 @@ Function IsValueSet(ByVal aValue As Variant) As Boolean
     End If
 End Function
 
-Function ValueOrDefault(ByVal aValue As Variant, Optional ByVal aDefaultValue As Variant = "") As Variant
-    If IsValueSet(aValue) Then
-        If IsObject(aValue) Then
-            Set ValueOrDefault = aValue
+Function ValueOrDefault(ByVal vValue As Variant, Optional ByVal aDefaultValue As Variant = "") As Variant
+    If IsValueSet(vValue) Then
+        If IsObject(vValue) Then
+            Set ValueOrDefault = vValue
         Else
-            ValueOrDefault = aValue
+            ValueOrDefault = vValue
         End If
     Else
         If IsObject(aDefaultValue) Then
@@ -460,4 +460,3 @@ Public Function TestDatabase(aOdConnection As OdConnection) As Dictionary
     Set TestDatabase = New Dictionary
     TestDatabase.Add "result", dicResult
 End Function
-

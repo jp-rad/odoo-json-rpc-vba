@@ -11,7 +11,7 @@ Attribute VB_Exposed = True
 '
 ' MIT License
 '
-' Copyright (c) 2022-2025 jp-rad
+' Copyright (c) 2022-2026 jp-rad
 '
 ' Permission is hereby granted, free of charge, to any person obtaining a copy
 ' of this software and associated documentation files (the "Software"), to deal
@@ -51,6 +51,8 @@ Private mPassword As String     ' the user's password, a string
 Private mUserId As Long         ' the user id (retrieved through authenticate), an integer
 
 Private mWebClient As New WebClient
+
+Private mFieldsCache As New Dictionary  ' key: model name, value: fieldsget dictionary
 
 Private Sub Class_Initialize()
     SetDbUserInfo _
@@ -140,3 +142,15 @@ End Function
 Public Property Get RefWebClient() As WebClient
     Set RefWebClient = mWebClient
 End Property
+
+Public Function HasFieldsCache(aModelName As String) As Boolean
+    HasFieldsCache = mFieldsCache.Exists(aModelName)
+End Function
+
+Public Function SetFieldsCache(aModelName As String, aFields As Dictionary)
+    Set mFieldsCache(aModelName) = aFields
+End Function
+
+Public Function GetFieldsCache(aModelName As String) As Dictionary
+    Set GetFieldsCache = mFieldsCache(aModelName)
+End Function
