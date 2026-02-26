@@ -11,7 +11,7 @@ Attribute VB_Exposed = True
 '
 ' MIT License
 '
-' Copyright (c) 2022-2025 jp-rad
+' Copyright (c) 2022-2026 jp-rad
 '
 ' Permission is hereby granted, free of charge, to any person obtaining a copy
 ' of this software and associated documentation files (the "Software"), to deal
@@ -92,7 +92,6 @@ Public Property Get RefWebClient() As WebClient
     Set RefWebClient = mOdConnection.RefWebClient
 End Property
 
-
 ' ======================
 '  Start
 ' ======================
@@ -102,7 +101,7 @@ Public Function StartTestDatabase() As OdResult
     Dim connDemo As New OdConnection
     connDemo.BaseUrl = CURL_TEST_DATABASE
     With New OdResult
-        Set StartTestDatabase = .Ws(TestDatabase(connDemo))
+        Set StartTestDatabase = .Ws(connDemo, TestDatabase(connDemo))
     End With
 End Function
 
@@ -152,6 +151,10 @@ Public Function ModelSearchRead(aModelName As String, aDomain As OdFilterDomain,
     Set ModelSearchRead = Me.Model(aModelName).MethodSearchRead(aDomain, aFieldNames, aModifiers)
 End Function
 
+Public Function ModelFieldsGet(aModelName As String, Optional aFieldNames As Collection = Nothing, Optional aAttributes As Collection = Nothing) As OdResult
+    Set ModelFieldsGet = Me.Model(aModelName).MethodFieldsGet(aFieldNames, aAttributes)
+End Function
+
 ' ======================================
 '  'ir.model' (Object)
 ' ======================================
@@ -173,3 +176,19 @@ Public Property Get ModelOfIrModelFields() As OdService
     Set ModelOfIrModelFields = Me.Model("ir.model.fields")
 End Property
 
+' ===========
+'  Relation
+' ===========
+Public Function RelationRead(aOdResult As OdResult, aFieldName As String, aReadFieldNames As Collection) As OdResult
+    Debug.Assert aOdResult.ModelName <> ""
+    
+    Dim relation As String
+    Dim ids As Collection
+    
+    relation = Me.Model(aOdResult.ModelName).FieldRelation(aFieldName)
+    Debug.Assert relation <> ""
+    
+    Set ids = aOdResult.GetRelationIds(aFieldName)
+    Set RelationRead = ModelRead(relation, ids, aReadFieldNames)
+    
+End Function

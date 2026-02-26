@@ -2,7 +2,7 @@
 '
 ' MIT License
 '
-' Copyright (c) 2022-2025 jp-rad
+' Copyright (c) 2022-2026 jp-rad
 '
 ' Permission is hereby granted, free of charge, to any person obtaining a copy
 ' of this software and associated documentation files (the "Software"), to deal
@@ -25,7 +25,7 @@
 
 Option Explicit
 
-private const VERSION = "0.5.11"
+private const VERSION = "0.6.0"
 
 Private Function GetExcelApplication() 'As Excel.Application
     Set GetExcelApplication = WScript.CreateObject("Excel.Application")

@@ -11,7 +11,7 @@ Attribute VB_Exposed = True
 '
 ' MIT License
 '
-' Copyright (c) 2022-2025 jp-rad
+' Copyright (c) 2022-2026 jp-rad
 '
 ' Permission is hereby granted, free of charge, to any person obtaining a copy
 ' of this software and associated documentation files (the "Software"), to deal
@@ -62,7 +62,7 @@ End Function
 ' https://www.odoo.com/documentation/master/developer/reference/external_api.html#logging-in
 Public Function Version() As OdResult
     With New OdResult
-        Set Version = .Wv(JsonRpcCommonVersion(mOdConnection))
+        Set Version = .Wv(mOdConnection, JsonRpcCommonVersion(mOdConnection))
     End With
 End Function
 
@@ -74,7 +74,7 @@ End Function
 Public Function Authenticate(Optional aDbName As String = "", Optional aUserName As String, Optional aPassword As String = "") As OdResult
     mOdConnection.SetDbUserInfo aDbName:=aDbName, aUserName:=aUserName, aPassword:=aPassword
     With New OdResult
-        Set Authenticate = .W(JsonRpcCommonAuthenticate(mOdConnection))
+        Set Authenticate = .Wa(mOdConnection, JsonRpcCommonAuthenticate(mOdConnection))
         mOdConnection.SetUserId .Result
     End With
 End Function
@@ -88,7 +88,7 @@ Public Function ExecuteKw(Optional aParams, Optional aNamedParams) As OdResult
     Debug.Assert mModelName <> ""
     Debug.Assert mMethodName <> ""
     With New OdResult
-        Set ExecuteKw = .W(JsonRpcObjectExecuteKw(mOdConnection, mModelName, mMethodName, aParams, aNamedParams))
+        Set ExecuteKw = .W(mOdConnection, JsonRpcObjectExecuteKw(mOdConnection, mModelName, mMethodName, aParams, aNamedParams), mModelName)
     End With
 End Function
 
@@ -142,3 +142,54 @@ Public Function MethodSearchRead(aDomain As OdFilterDomain, aFieldNames As Colle
     Set MethodSearchRead = MethodExecuteKw("search_read", params, named)
 End Function
 
+Public Function MethodFieldsGet(Optional aFieldNames As Collection = Nothing, Optional aAttributes As Collection = Nothing) As OdResult
+    Dim params As Collection
+    Dim named As Dictionary
+    Set params = NewList
+    If Not aFieldNames Is Nothing Then
+        params.Add aFieldNames
+    End If
+    Set named = NewDict
+    If Not aAttributes Is Nothing Then
+        Set named("attributes") = aAttributes
+    End If
+    Set MethodFieldsGet = MethodExecuteKw("fields_get", params, named)
+End Function
+
+Private Function GetFieldInfo(aFieldName As String) As Dictionary
+    
+    Dim f As Collection
+    Dim attr As Collection
+    Dim oRslt As OdResult
+    
+    Dim dic As Dictionary
+        
+    If Not mOdConnection.HasFieldsCache(mModelName) Then
+        Set f = NewList()
+        Set attr = NewList()
+        attr.Add "type"
+        attr.Add "relation"
+        Set oRslt = MethodFieldsGet(f, attr)
+        mOdConnection.SetFieldsCache oRslt.ModelName, oRslt.Result
+    End If
+    
+    Set dic = mOdConnection.GetFieldsCache(mModelName)
+    If IsObject(dic(aFieldName)) Then
+        Set GetFieldInfo = dic(aFieldName)
+    Else
+        Set GetFieldInfo = New Dictionary
+    End If
+    
+End Function
+
+Public Function FieldType(aFieldName As String) As String
+    Dim dic As Dictionary
+    Set dic = GetFieldInfo(aFieldName)
+    FieldType = dic("type")
+End Function
+
+Public Function FieldRelation(aFieldName As String) As String
+    Dim dic As Dictionary
+    Set dic = GetFieldInfo(aFieldName)
+    FieldRelation = dic("relation")
+End Function
