@@ -3,7 +3,7 @@ Attribute VB_Name = "ExampleOdTutrial"
 '
 ' MIT License
 '
-' Copyright (c) 2022-2025 jp-rad
+' Copyright (c) 2022-2026 jp-rad
 '
 ' Permission is hereby granted, free of charge, to any person obtaining a copy
 ' of this software and associated documentation files (the "Software"), to deal
@@ -44,10 +44,15 @@ Public Sub DoTutorialExternalApi()
     Dim named As Dictionary
     Dim domain As OdFilterDomain
     Dim fieldNames As Collection
+    Dim attributes As Collection
     Dim modifiers As Dictionary
     Dim sJson As String
     Dim nId As Long
     Dim ids As Collection
+    Dim oRelated As OdResult
+    Dim records As Collection
+    Dim v As Variant
+    Dim n As Variant
 
     ' Version
     Set oRet = GetCommonVersion()
@@ -410,9 +415,7 @@ Public Sub DoTutorialExternalApi()
     End With
     Set oRet = oClient.Model("res.partner").MethodRead(ids, fieldNames)
     Debug.Print oRet.ToJsonOrString(4)
-    Set oRet = oClient.Model("res.partner").MethodRead(nId, fieldNames)
-    Debug.Print oRet.ToJsonOrString
-    
+        
     ' Search and read - search_read
     ' python: models.execute_kw(db, uid, password, 'res.partner', 'search_read', [[['is_company', '=', True]]], {'fields': ['name', 'country_id', 'comment'], 'limit': 5})
     Set domain = NewDomain
@@ -428,4 +431,75 @@ Public Sub DoTutorialExternalApi()
     Set oRet = oClient.Model("res.partner").MethodSearchRead(domain, fieldNames, modifiers)
     Debug.Print oRet.ToJsonOrString(4)
     
+    ' List record fields - fields_get
+    ' python: models.execute_kw(db, uid, password, 'res.partner', 'fields_get', [], {'attributes': ['string', 'help', 'type']})
+    Set attributes = NewList
+    With attributes
+        '.Add "string"
+        '.Add "help"
+        .Add "name"
+        .Add "type"
+    End With
+    Set oRet = oClient.Model("res.partner").MethodFieldsGet(NewList, attributes)
+    Debug.Print JsonConverter.ConvertToJson(oRet.Result, 4)
+        
+    ' ======================
+    '  Relation
+    ' ======================
+    Set domain = NewDomain
+    domain.AddArity NewField("is_company").Eq(True)
+    Set fieldNames = NewList
+    With fieldNames
+        .Add "name"
+        .Add "state_id"     ' many2one
+        .Add "child_ids"    ' one2many
+        .Add "category_id"  ' many2many
+    End With
+    Set modifiers = NewDict
+    modifiers.Add "limit", 5
+    Set oRet = oClient.Model("res.partner").MethodSearchRead(domain, fieldNames, modifiers)
+    Debug.Print oRet.ToJsonOrString(4)
+    
+    ' state_id - many2one
+    Set fieldNames = NewList
+    With fieldNames
+        .Add "name"
+    End With
+    Set oRelated = oClient.RelationRead(oRet, "state_id", NewList)
+    Set records = oRelated.ResultAsRecords()
+    For Each v In oRet.ResultAsCollection
+        Debug.Print v("name")
+        For Each n In oRet.GetRelationIds("state_id", CLng(v("id")))
+            Debug.Print JsonConverter.ConvertToJson(records(CStr(n)))
+        Next n
+    Next v
+    
+    ' child_ids - one2many
+    Set fieldNames = NewList
+    With fieldNames
+        .Add "name"
+    End With
+    Set oRelated = oClient.RelationRead(oRet, "child_ids", fieldNames)
+    Set records = oRelated.ResultAsRecords()
+    For Each v In oRet.ResultAsCollection
+        Debug.Print v("name")
+        For Each n In oRet.GetRelationIds("child_ids", CLng(v("id")))
+            Debug.Print JsonConverter.ConvertToJson(records(CStr(n)))
+        Next n
+    Next v
+    
+    ' category_id - many2many
+    Set fieldNames = NewList
+    With fieldNames
+        .Add "name"
+    End With
+    Set oRelated = oClient.RelationRead(oRet, "category_id", fieldNames)
+    Set records = oRelated.ResultAsRecords()
+    For Each v In oRet.ResultAsCollection
+        Debug.Print v("name")
+        For Each n In oRet.GetRelationIds("category_id", CLng(v("id")))
+            Debug.Print JsonConverter.ConvertToJson(records(CStr(n)))
+        Next n
+    Next v
+            
 End Sub
