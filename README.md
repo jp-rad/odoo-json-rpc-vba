@@ -123,6 +123,10 @@ cd odoo-json-rpc-vba
 - In VBE, select the project `odoo-json-rpc-vba example.xlsm`.  
 - Go to **Tools** > **References**.  
 - In the References dialog, select `OdooJsonRpcVBA`.
+- **Additionally, select the following reference in the add‑in project `odoo-json-rpc-vba.xlam`:**  
+  - **Microsoft ActiveX Data Objects 2.8 Library**  
+    *(or another available version such as 6.1, depending on your system)*  
+  This reference is required for ADODB Recordset operations used by the library.
 
 **Run the Tutorial Method:**  
 - Open the **Immediate Window** in VBE.  

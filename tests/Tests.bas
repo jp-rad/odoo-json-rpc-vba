@@ -3,7 +3,7 @@ Attribute VB_Name = "Tests"
 '
 ' MIT License
 '
-' Copyright (c) 2022-2025 jp-rad
+' Copyright (c) 2022-2026 jp-rad
 '
 ' Permission is hereby granted, free of charge, to any person obtaining a copy
 ' of this software and associated documentation files (the "Software"), to deal

@@ -188,22 +188,22 @@ End Sub
 
 Private Function GetOneIds(aFieldName As String, Optional aId As Long = -1) As Collection
     Dim colIdList As New Collection
-    Dim recordSet As Collection
+    Dim colRecords As Collection
     Dim record As Dictionary
     Dim fieldValue As Variant
     Dim v As Variant
     Dim i As Long
     
     If aId < 0 Then
-        Set recordSet = ResultAsCollection()
+        Set colRecords = ResultAsCollection()
     Else
         Set record = ResultAsRecords(CStr(aId))
-        Set recordSet = New Collection
-        recordSet.Add record
+        Set colRecords = New Collection
+        colRecords.Add record
     End If
 
-    For i = 1 To recordSet.Count
-        Set record = recordSet(i)
+    For i = 1 To colRecords.Count
+        Set record = colRecords(i)
         If record.Exists(aFieldName) Then
             If TypeOf record(aFieldName) Is Collection Then
                 ' Many2one
@@ -217,22 +217,22 @@ End Function
 
 Private Function GetManyIds(aFieldName As String, Optional aId As Long = -1) As Collection
     Dim colIdList As New Collection
-    Dim recordSet As Collection
+    Dim colRecords As Collection
     Dim record As Dictionary
     Dim fieldValue As Variant
     Dim v As Variant
     Dim i As Long
     
     If aId < 0 Then
-        Set recordSet = ResultAsCollection()
+        Set colRecords = ResultAsCollection()
     Else
         Set record = ResultAsRecords(CStr(aId))
-        Set recordSet = New Collection
-        recordSet.Add record
+        Set colRecords = New Collection
+        colRecords.Add record
     End If
 
-    For i = 1 To recordSet.Count
-        Set record = recordSet(i)
+    For i = 1 To colRecords.Count
+        Set record = colRecords(i)
         If record.Exists(aFieldName) Then
             If TypeOf record(aFieldName) Is Collection Then
                 ' Many2many / One2many
