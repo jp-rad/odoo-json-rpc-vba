@@ -6,9 +6,13 @@ library	../src/OdFilterDomain.cls
 library	../src/OdResult.cls
 library	../src/OdRpc.bas
 library	../src/OdService.cls
+library	../src/OdxApi.bas
+library	../src/OdxContext.cls
+library	../src/OdxModelView.cls
 example	../src/ExampleJsonLookup.bas
 example	../src/ExampleOdClient.bas
 example	../src/ExampleOdTutrial.bas
+example	../src/ExampleOdx.bas
 imports	../imports/vba-web/src/WebHelpers.bas
 imports	../imports/vba-web/src/IWebAuthenticator.cls
 imports	../imports/vba-web/src/WebClient.cls
