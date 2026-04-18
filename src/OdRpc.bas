@@ -402,9 +402,9 @@ Public Function ParseXml(Encoded As String) As Object ' MSXML2.DOMDocument
     ParseXml.LoadXML Encoded
 End Function
  
-Public Function ConvertToXml(Obj As Object) As String
+Public Function ConvertToXml(obj As Object) As String
     ' https://github.com/VBA-tools/VBA-Web/wiki/XML-Support-in-4.0
-    ConvertToXml = Trim(Replace(Obj.Xml, vbCrLf, ""))
+    ConvertToXml = Trim(Replace(obj.Xml, vbCrLf, ""))
 End Function
 
 Public Function PostXml(aOdConnection As OdConnection, aUrlPath As String, aBody As Variant, Optional aOptions As Dictionary) As Object    ' MSXML2.DOMDocument

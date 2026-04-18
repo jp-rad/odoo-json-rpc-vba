@@ -27,13 +27,20 @@ Attribute VB_Name = "ExampleOdx"
 Option Explicit
 
 Public Sub DoExampleOdx()
+    Dim oModelView As OdxModelView
+    Dim oDomain As OdFilterDomain
+    
     Dim oClient As OdClient
     Dim oCtx As OdxContext
-    Dim oMainView As OdxModelView
-    Dim mv As OdxModelView
+    
     Dim wb As Workbook
     Dim sht As Worksheet
     Dim rng As Range
+    
+    Dim colNameList As New Collection
+    Dim colTagList As New Collection
+    Dim v As Variant
+    Dim s As String
     
     Set oClient = GetAuthConn()
     Set oCtx = NewContext(oClient)
@@ -42,6 +49,13 @@ Public Sub DoExampleOdx()
     SetWorksheetName sht, "OdxModelView Example"
     Set rng = sht.Range("A1")
     
+    s = "Gemini"
+    colTagList.Add s
+    colNameList.Add "Gemini Furniture", s
+    s = "Mitchell"
+    colTagList.Add s
+    colNameList.Add "Mitchell Admin", s
+    
     DebugRange rng, "--------------"
     DebugRange rng, " DoExampleOdx"
     DebugRange rng, "--------------"
@@ -49,16 +63,17 @@ Public Sub DoExampleOdx()
     ' ==================
     '  New OdxModelView
     ' ==================
-    Set oMainView = oCtx.NewModelView("res.partner")
-    With oMainView
+    Set oModelView = oCtx.NewModelView("res.partner")
+    With oModelView
         ' -------------
         '  res.partner
         ' -------------
-        Debug.Print .ModelName
         DebugRange rng, .ModelName
+        DebugRangeSchema rng, .ModelName, .GetModelSchema()
         
-        ' .AddField "id"
         .AddField "name"
+        .AddField "is_company"
+        .AddField "is_public"
         
         With .AddField("company_id")    ' many2one
             ' --------------------------
@@ -66,9 +81,26 @@ Public Sub DoExampleOdx()
             ' --------------------------
             DebugRange rng, "company_id: many2one --> " & .ModelName
             Debug.Assert .IsMany2One
+            DebugRangeSchema rng, .ModelName, .GetModelSchema()
             
             .AddField "name"
             .AddField "city"
+            
+            With .AddField("currency_id")   ' many2one
+                ' --------------------------
+                '  res.currency
+                ' --------------------------
+                DebugRange rng, "company_id: many2one --> currency_id: many2one --> " & .ModelName
+                Debug.Assert .IsMany2One
+                DebugRangeSchema rng, .ModelName, .GetModelSchema()
+                
+                .AddField "name"
+                .AddField "symbol"
+
+            End With
+            
+            .AddField "layout_background"
+
         End With
         
         With .AddField("child_ids")     ' one2many
@@ -77,6 +109,7 @@ Public Sub DoExampleOdx()
             ' --------------------------
             DebugRange rng, "child_ids: one2many --> " & .ModelName
             Debug.Assert .IsOne2Many
+            DebugRangeSchema rng, .ModelName, .GetModelSchema()
             
             .AddField "name"
         End With
@@ -87,6 +120,7 @@ Public Sub DoExampleOdx()
             ' --------------------------
             DebugRange rng, "category_id: many2many --> " & .ModelName
             Debug.Assert .IsMany2Many
+            DebugRangeSchema rng, .ModelName, .GetModelSchema()
             
             .AddField "name"
         End With
@@ -95,42 +129,53 @@ Public Sub DoExampleOdx()
     ' ==================
     '  Fetch data
     ' ==================
-    oMainView.ExecuteSearchRead NewDomain
-    
-    ' ==================
-    '  Filtered
-    ' ==================
-    oMainView.SetFilter "name = 'Gemini Furniture'"
-    If oMainView.Recordset.EOF Then
-        Debug.Print "No record"
-        Debug.Assert False
-    Else
-        Set mv = oMainView
-        DebugPrintModelView wb, mv, "Filtered"
-        Set mv = oMainView.GetRelatedModelView("company_id")
-        DebugPrintModelView wb, mv, "Filtered(company_id)"
-        Set mv = oMainView.GetRelatedModelView("child_ids")
-        DebugPrintModelView wb, mv, "Filtered(child_ids)"
-        Set mv = oMainView.GetRelatedModelView("category_id")
-        DebugPrintModelView wb, mv, "Filtered(category_id)"
-    End If
+    Set oDomain = NewDomain
+    oModelView.ExecuteSearchRead oDomain
     
     ' ==================
     '  All
     ' ==================
-    oMainView.ClearFilter
+    oModelView.ClearFilter  ' Unfiltered
+    With oModelView
+        DebugPrintModelView wb, .RefMe
+        With .GetRelatedModelView("company_id", True)
+            DebugPrintModelView wb, .RefMe
+            With .GetRelatedModelView("currency_id", True)
+                DebugPrintModelView wb, .RefMe
+            End With
+        End With
+        With .GetRelatedModelView("child_ids", True)
+            DebugPrintModelView wb, .RefMe
+        End With
+        With .GetRelatedModelView("category_id", True)
+            DebugPrintModelView wb, .RefMe
+        End With
+    End With
     
-    Set mv = oMainView
-    DebugPrintModelView wb, mv
     
-    Set mv = oMainView.GetRelatedModelView("company_id", True)
-    DebugPrintModelView wb, mv
-    
-    Set mv = oMainView.GetRelatedModelView("child_ids", True)
-    DebugPrintModelView wb, mv
-    
-    Set mv = oMainView.GetRelatedModelView("category_id", True)
-    DebugPrintModelView wb, mv
+    ' ==================
+    '  Filtered
+    ' ==================
+    For Each v In colTagList
+        s = colNameList(CStr(v))
+        
+        oModelView.SetFilter "name = '" & s & "'"   ' Filtered
+        With oModelView
+            DebugPrintModelView wb, .RefMe, CStr(v)
+            With .GetRelatedModelView("company_id")
+                DebugPrintModelView wb, .RefMe, v & "(company_id)"
+                With .GetRelatedModelView("currency_id")
+                    DebugPrintModelView wb, .RefMe, v & "(currency_id)"
+                End With
+            End With
+            With .GetRelatedModelView("child_ids")
+                DebugPrintModelView wb, .RefMe, v & "(child_ids)"
+            End With
+            With .GetRelatedModelView("category_id")
+                DebugPrintModelView wb, .RefMe, v & "(category_id)"
+            End With
+        End With
+    Next v
     
     sht.Select
     wb.Saved = True
@@ -141,6 +186,43 @@ Private Sub DebugRange(ByRef rng As Range, v As Variant)
     Debug.Print v
     rng = v
     Set rng = rng.Offset(1, 0)
+End Sub
+
+Private Sub DebugRangeSchema(ByRef rng As Range, aModelName As String, dicModelSchema As Dictionary)
+    Debug.Print JsonConverter.ConvertToJson(dicModelSchema)
+    
+    Dim tag As String
+    Dim i As Long
+    Dim dic As Dictionary
+    
+    tag = aModelName
+    
+    ' header
+    rng.Offset(0, 0) = tag
+    rng.Offset(0, 1) = "#"
+    rng.Offset(0, 2) = OdxApi.CODOO_ATTR_NAME
+    rng.Offset(0, 3) = OdxApi.CODOO_ATTR_REQUIRED
+    rng.Offset(0, 4) = OdxApi.CODOO_ATTR_TYPE
+    rng.Offset(0, 5) = OdxApi.CODOO_ATTR_RELATION
+    rng.Offset(0, 6) = OdxApi.CODOO_ATTR_FKEY
+    rng.Offset(0, 7) = OdxApi.CODOO_ATTR_STRING
+    ' next row
+    Set rng = rng.Offset(1, 0)
+    
+    ' fields
+    For i = 1 To dicModelSchema.Count
+        Set dic = dicModelSchema.Items(i - 1)
+        rng.Offset(0, 0) = tag
+        rng.Offset(0, 1) = i
+        rng.Offset(0, 2) = dic(OdxApi.CODOO_ATTR_NAME)
+        rng.Offset(0, 3) = dic(OdxApi.CODOO_ATTR_REQUIRED)
+        rng.Offset(0, 4) = dic(OdxApi.CODOO_ATTR_TYPE)
+        rng.Offset(0, 5) = dic(OdxApi.CODOO_ATTR_RELATION)
+        rng.Offset(0, 6) = dic(OdxApi.CODOO_ATTR_FKEY)
+        rng.Offset(0, 7) = dic(OdxApi.CODOO_ATTR_STRING)
+        ' next row
+        Set rng = rng.Offset(1, 0)
+    Next i
 End Sub
 
 Private Function TrySetWorksheetName(aWs As Worksheet, aName As String) As Boolean
