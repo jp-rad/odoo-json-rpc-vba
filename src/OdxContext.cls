@@ -111,3 +111,14 @@ Public Function NewModelView(aModelName As String) As OdxModelView
     NewModelView.InitView Me, aModelName
 End Function
 
+Private Function DeepcopyDictionary(dic As Dictionary) As Dictionary
+    Dim s As String
+    Debug.Assert dic.CompareMode = BinaryCompare
+    s = JsonConverter.ConvertToJson(dic)
+    Set DeepcopyDictionary = JsonConverter.ParseJson(s)
+    Debug.Assert DeepcopyDictionary.CompareMode = dic.CompareMode
+End Function
+
+Public Function GetModelSchema(aModelName As String) As Dictionary
+    Set GetModelSchema = DeepcopyDictionary(GetModelFields(aModelName))
+End Function

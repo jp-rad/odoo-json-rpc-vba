@@ -29,10 +29,11 @@ Private Const CBIT_DSP      As Long = &H100000 ' bit20
 Private Const CBIT_M2O      As Long = &H200000 ' bit21
 Private Const CBIT_O2M      As Long = &H400000 ' bit22
 Private Const CBIT_M2M      As Long = &H800000 ' bit23
-Private Const CBIT_REQUIRED As Long = FieldAttributeEnum.adFldIsNullable    ' odoo required
+Private Const CBIT_NULLABLE As Long = FieldAttributeEnum.adFldMayBeNull ' Enable NULLs via adFldMayBeNull even for Odoo's required fields.
 
 Private Const CATTR_PK_ID        As Long = FieldAttributeEnum.adFldKeyColumn
-Private Const CATTR_FIELD        As Long = FieldAttributeEnum.adFldUpdatable Or FieldAttributeEnum.adFldMayBeNull
+Private Const CATTR_FIELD        As Long = FieldAttributeEnum.adFldUpdatable _
+                                            Or FieldAttributeEnum.adFldIsNullable   ' Force adFldIsNullable to allow NULLs in the Recordset regardless of DB constraints.
 Private Const CATTR_DISPLAY_NAME As Long = CATTR_FIELD Or CBIT_DSP
 Private Const CATTR_M2O          As Long = CATTR_FIELD Or CBIT_M2O
 Private Const CATTR_O2M          As Long = CATTR_FIELD Or CBIT_O2M
@@ -64,8 +65,12 @@ Public Function IsOdooMany2ManyField(fld As ADODB.Field) As Boolean
     IsOdooMany2ManyField = 0 <> (fld.attributes And CBIT_M2M)
 End Function
 
+Public Function IsOdooNullableField(fld As ADODB.Field) As Boolean
+    IsOdooNullableField = 0 <> (fld.attributes And CBIT_NULLABLE)
+End Function
+
 Public Function IsOdooRequiredField(fld As ADODB.Field) As Boolean
-    IsOdooRequiredField = 0 <> (fld.attributes And CBIT_REQUIRED)
+    IsOdooRequiredField = Not IsOdooNullableField(fld)
 End Function
 
 Public Function IsOdooDateField(fld As ADODB.Field) As Boolean
@@ -132,91 +137,91 @@ End Function
 Public Function AddRecordsetField(rs As ADODB.Recordset, dicModelField As Dictionary) As ADODB.Field
     Dim sFieldName As String
     Dim sFieldType As String
-    Dim attrOdooRequired As Long
+    Dim attrOdooNullable As Long
     
     Debug.Assert dicModelField.Exists(CODOO_ATTR_NAME)
     sFieldName = dicModelField(CODOO_ATTR_NAME)
     If dicModelField.Exists(CODOO_ATTR_REQUIRED) Then
-        attrOdooRequired = IIf(dicModelField(CODOO_ATTR_REQUIRED), CBIT_REQUIRED, 0)
+        attrOdooNullable = IIf(dicModelField(CODOO_ATTR_REQUIRED), 0, CBIT_NULLABLE)
     Else
-        attrOdooRequired = 0
+        attrOdooNullable = CBIT_NULLABLE
     End If
     Debug.Assert dicModelField.Exists(CODOO_ATTR_TYPE)
     sFieldType = dicModelField(CODOO_ATTR_TYPE)
     Select Case sFieldType
 
         '----------------------------------------
-        ' many2one（id, display_name）
+        ' many2one: (id, display_name)
         '----------------------------------------
         Case "many2one"
-            rs.Fields.Append Name:=sFieldName, Type:=adInteger, Attrib:=CATTR_M2O Or attrOdooRequired
+            rs.Fields.Append Name:=sFieldName, Type:=adInteger, Attrib:=CATTR_M2O Or attrOdooNullable
             rs.Fields.Append Name:=FormatDisplayName(sFieldName), Type:=adVarWChar, DefinedSize:=-1, Attrib:=CATTR_DISPLAY_NAME
 
         '----------------------------------------
-        ' one2many（list of id -> CSV）
+        ' one2many: list of id -> CSV
         '----------------------------------------
         Case "one2many"
-            rs.Fields.Append Name:=sFieldName, Type:=adLongVarWChar, DefinedSize:=-1, Attrib:=CATTR_O2M Or attrOdooRequired
+            rs.Fields.Append Name:=sFieldName, Type:=adLongVarWChar, DefinedSize:=-1, Attrib:=CATTR_O2M Or attrOdooNullable
 
         '----------------------------------------
-        ' many2many（list of id → CSV）
+        ' many2many: list of id → CSV
         '----------------------------------------
         Case "many2many"
-            rs.Fields.Append Name:=sFieldName, Type:=adLongVarWChar, DefinedSize:=-1, Attrib:=CATTR_M2M Or attrOdooRequired
+            rs.Fields.Append Name:=sFieldName, Type:=adLongVarWChar, DefinedSize:=-1, Attrib:=CATTR_M2M Or attrOdooNullable
 
         '----------------------------------------
         ' char
         '----------------------------------------
         Case "char"
-            rs.Fields.Append Name:=sFieldName, Type:=adVarWChar, DefinedSize:=-1, Attrib:=CATTR_FIELD Or attrOdooRequired
+            rs.Fields.Append Name:=sFieldName, Type:=adVarWChar, DefinedSize:=-1, Attrib:=CATTR_FIELD Or attrOdooNullable
 
         '----------------------------------------
         ' text / html
         '----------------------------------------
         Case "text", "html"
-            rs.Fields.Append Name:=sFieldName, Type:=adLongVarWChar, DefinedSize:=-1, Attrib:=CATTR_FIELD Or attrOdooRequired
+            rs.Fields.Append Name:=sFieldName, Type:=adLongVarWChar, DefinedSize:=-1, Attrib:=CATTR_FIELD Or attrOdooNullable
 
         '----------------------------------------
         ' boolean
         '----------------------------------------
         Case "boolean"
-            rs.Fields.Append Name:=sFieldName, Type:=adBoolean, Attrib:=CATTR_FIELD Or attrOdooRequired
+            rs.Fields.Append Name:=sFieldName, Type:=adBoolean, Attrib:=CATTR_FIELD Or attrOdooNullable
 
         '----------------------------------------
         ' integer
         '----------------------------------------
         Case "integer"
-            rs.Fields.Append Name:=sFieldName, Type:=adInteger, Attrib:=CATTR_FIELD Or attrOdooRequired
+            rs.Fields.Append Name:=sFieldName, Type:=adInteger, Attrib:=CATTR_FIELD Or attrOdooNullable
 
         '----------------------------------------
         ' float
         '----------------------------------------
         Case "float"
-            rs.Fields.Append Name:=sFieldName, Type:=adDouble, Attrib:=CATTR_FIELD Or attrOdooRequired
+            rs.Fields.Append Name:=sFieldName, Type:=adDouble, Attrib:=CATTR_FIELD Or attrOdooNullable
 
         '----------------------------------------
         ' date
         '----------------------------------------
         Case "date"
-            rs.Fields.Append Name:=sFieldName, Type:=adDBDate, Attrib:=CATTR_FIELD Or attrOdooRequired
+            rs.Fields.Append Name:=sFieldName, Type:=adDBDate, Attrib:=CATTR_FIELD Or attrOdooNullable
         
         '----------------------------------------
         ' datetime
         '----------------------------------------
         Case "datetime"
-            rs.Fields.Append Name:=sFieldName, Type:=adDBTimeStamp, Attrib:=CATTR_FIELD Or attrOdooRequired
+            rs.Fields.Append Name:=sFieldName, Type:=adDBTimeStamp, Attrib:=CATTR_FIELD Or attrOdooNullable
 
         '----------------------------------------
         ' binary
         '----------------------------------------
         Case "binary"
-            rs.Fields.Append Name:=sFieldName, Type:=adLongVarBinary, DefinedSize:=-1, Attrib:=CATTR_FIELD Or attrOdooRequired
+            rs.Fields.Append Name:=sFieldName, Type:=adLongVarBinary, DefinedSize:=-1, Attrib:=CATTR_FIELD Or attrOdooNullable
 
         '----------------------------------------
         ' selection（char）
         '----------------------------------------
         Case "selection"
-            rs.Fields.Append Name:=sFieldName, Type:=adVarWChar, DefinedSize:=-1, Attrib:=CATTR_FIELD Or attrOdooRequired
+            rs.Fields.Append Name:=sFieldName, Type:=adVarWChar, DefinedSize:=-1, Attrib:=CATTR_FIELD Or attrOdooNullable
 
         '----------------------------------------
         ' Unknown (char)
@@ -224,7 +229,7 @@ Public Function AddRecordsetField(rs As ADODB.Recordset, dicModelField As Dictio
         Case Else
             Debug.Print "Unknown:", sFieldName
             Debug.Assert False
-            rs.Fields.Append Name:=sFieldName, Type:=adVarWChar, DefinedSize:=-1, Attrib:=CATTR_FIELD Or attrOdooRequired
+            rs.Fields.Append Name:=sFieldName, Type:=adVarWChar, DefinedSize:=-1, Attrib:=CATTR_FIELD Or attrOdooNullable
 
     End Select
 

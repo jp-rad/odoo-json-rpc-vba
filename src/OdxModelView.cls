@@ -34,6 +34,10 @@ Attribute VB_Exposed = True
 
 Option Explicit
 
+' Odoo IDs are always positive integers, so we use -1 as an impossible ID.
+' Filtering by this value guarantees the Recordset becomes empty.
+Private Const CMISSING_ID As Long = -1
+
 Private mCtx As OdxContext
 Private mRs As ADODB.Recordset
 Private mModelName As String
@@ -97,6 +101,10 @@ Public Property Get ModelName() As String
     ModelName = mModelName
 End Property
 
+Public Property Get RefMe() As OdxModelView
+    Set RefMe = Me
+End Property
+
 Private Sub SaftyOpenRecordset()
 On Error Resume Next
     mRs.Open
@@ -125,7 +133,7 @@ Public Sub ClearRecords()
     Dim v As Variant
     
     SaftyOpenRecordset  ' open recordset, no error
-    SaftyMoveFirst
+    ClearFilter         ' clear filter and move first
     
     Do Until mRs.EOF
         mRs.Delete
@@ -384,14 +392,35 @@ Public Sub ClearFilter()
     SaftyMoveFirst
 End Sub
 
-Private Function GetFieldValueOrDefault(aFieldName As String, aDefault As Variant) As Variant
-    Dim fld As ADODB.Field
-    Set fld = mRs.Fields(aFieldName)
-    If IsNull(fld.Value) Then
-        GetFieldValueOrDefault = aDefault
+Private Function LetOrSetValue(v1 As Variant, ByRef v2 As Variant)
+    If IsObject(v1) Then
+        Set v2 = v1
     Else
-        GetFieldValueOrDefault = fld.Value
+        v2 = v1
     End If
+End Function
+
+Private Function GetFieldValueOrDefault(aFieldName As String, aDefault As Variant) As Variant
+On Error GoTo ErrHandler
+    Dim fld As ADODB.Field
+    
+    LetOrSetValue aDefault, GetFieldValueOrDefault
+    
+    If mRs.BOF Or mRs.EOF Then
+        ' no cursor
+        GoTo ExitProc
+    End If
+    
+    Set fld = mRs.Fields(aFieldName)
+    If Not IsNull(fld.Value) Then
+        LetOrSetValue fld.Value, GetFieldValueOrDefault
+    End If
+ExitProc:
+    Exit Function
+ErrHandler:
+    Debug.Print Err.Description
+    Debug.Assert False
+    Resume ExitProc
 End Function
 
 Public Function GetRelatedModelView(aFieldName As String, Optional optNotFilterd As Boolean = False) As OdxModelView
@@ -406,11 +435,11 @@ Public Function GetRelatedModelView(aFieldName As String, Optional optNotFilterd
     Else
         With GetRelatedModelView
             If .IsMany2One Then
-                .SetFilterMany2One GetFieldValueOrDefault(aFieldName, -1)
+                .SetFilterMany2One GetFieldValueOrDefault(aFieldName, CMISSING_ID)
             ElseIf .IsOne2Many Then
-                .SetFilterOne2Many GetFieldValueOrDefault("id", -1)
+                .SetFilterOne2Many GetFieldValueOrDefault("id", CMISSING_ID)
             ElseIf .IsMany2Many Then
-                .SetFilterMany2Many GetFieldValueOrDefault("id", -1)
+                .SetFilterMany2Many GetFieldValueOrDefault("id", CMISSING_ID)
             Else
                 ' not relations
                 Debug.Assert False
@@ -422,3 +451,6 @@ ExitProc:
     Exit Function
 End Function
 
+Public Function GetModelSchema() As Dictionary
+    Set GetModelSchema = mCtx.GetModelSchema(mModelName)
+End Function
