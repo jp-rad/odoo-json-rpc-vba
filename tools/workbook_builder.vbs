@@ -25,7 +25,7 @@
 
 Option Explicit
 
-private const VERSION = "0.7.0"
+private const VERSION = "0.7.2"
 
 Private Function GetExcelApplication() 'As Excel.Application
     Set GetExcelApplication = WScript.CreateObject("Excel.Application")

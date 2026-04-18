@@ -66,8 +66,10 @@ Private Sub ValidateMembers()
     End If
 
     If IsObject(mValue) Then
-        If Not TypeOf mValue Is OdFilterDomain Then
-            Err.Raise CERR_INVALID_OBJECT, "OdFilterCriteria", "Object value must be of type OdFilterDomain." & vbCrLf & "[FieldExpr = '" & mFieldExpr & "']"
+        If Not mValue Is Nothing Then
+            If Not TypeOf mValue Is OdFilterDomain And Not TypeOf mValue Is Collection Then
+                Err.Raise CERR_INVALID_OBJECT, "OdFilterCriteria", "Object value must be of type OdFilterDomain or Collection." & vbCrLf & "[FieldExpr = '" & mFieldExpr & "']"
+            End If
         End If
     End If
 End Sub
@@ -78,24 +80,22 @@ Public Function ToJson() As String
     
     ValidateMembers
     
-    If IsNull(mValue) Then
+    If IsNull(mValue) Then  ' vbNull
+        sValue = "null"
+    ElseIf IsEmpty(mValue) Then ' Empty
         sValue = "null"
     ElseIf IsObject(mValue) Then
-        If mValue Is Nothing Then
+        If mValue Is Nothing Then   ' Nothing
             sValue = "null" ' null
         Else
             Set filterDomain = mValue
             sValue = filterDomain.ToJson()
         End If
-    ElseIf VarType(mValue) = vbString Then
-        sValue = "'" & mValue & "'"
-    ElseIf VarType(mValue) = vbBoolean Then
-        sValue = IIf(mValue, "true", "false")   ' true/false
     Else
-        sValue = mValue
+        sValue = JsonConverter.ConvertToJson(mValue)
     End If
 
-    ToJson = "['" & mFieldExpr & "', '" & mOperator & "', " & sValue & "]"
+    ToJson = "[" & JsonConverter.ConvertToJson(mFieldExpr) & ", " & JsonConverter.ConvertToJson(mOperator) & ", " & sValue & "]"
 End Function
 
 Public Sub SetValue(aValueExpr As Variant)
