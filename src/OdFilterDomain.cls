@@ -45,12 +45,12 @@ Option Explicit
 
 Private mList As New Collection ' list of criteria or combinations
 
-Public Function AddArity(aArity As Object) As OdFilterDomain
+Public Function AddArity(aArity As Variant) As OdFilterDomain
     Set AddArity = Me
     mList.Add aArity
 End Function
 
-Private Function VarToJson(v As Object) As String
+Private Function VarToJson(v As Variant) As String
 On Error Resume Next
     Dim criteria As OdFilterCriteria
     Set criteria = v
@@ -64,8 +64,9 @@ On Error Resume Next
         VarToJson = combi.ToJson()
         GoTo ExitProc
     End If
-On Error GoTo ErrRaiseHandler
     VarToJson = v.ToJson()
+On Error GoTo ErrRaiseHandler
+    VarToJson = JsonConverter.ConvertToJson(v)
 ExitProc:
     Exit Function
 ErrRaiseHandler:
