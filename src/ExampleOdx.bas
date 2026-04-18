@@ -29,6 +29,7 @@ Option Explicit
 Public Sub DoExampleOdx()
     Dim oModelView As OdxModelView
     Dim oDomain As OdFilterDomain
+    Dim oNames As OdFilterDomain
     
     Dim oClient As OdClient
     Dim oCtx As OdxContext
@@ -49,12 +50,17 @@ Public Sub DoExampleOdx()
     SetWorksheetName sht, "OdxModelView Example"
     Set rng = sht.Range("A1")
     
-    s = "Gemini"
-    colTagList.Add s
-    colNameList.Add "Gemini Furniture", s
+    ' target name
     s = "Mitchell"
     colTagList.Add s
     colNameList.Add "Mitchell Admin", s
+    s = "Marc"
+    colTagList.Add s
+    colNameList.Add "Marc Demo", s
+    s = "Gemini"
+    colTagList.Add s
+    colNameList.Add "Gemini Furniture", s
+            
     
     DebugRange rng, "--------------"
     DebugRange rng, " DoExampleOdx"
@@ -129,7 +135,12 @@ Public Sub DoExampleOdx()
     ' ==================
     '  Fetch data
     ' ==================
+    Set oNames = NewDomain
+    For Each v In colNameList
+        oNames.AddArity v
+    Next v
     Set oDomain = NewDomain
+    oDomain.AddArity NewField("name").IsIn(oNames)
     oModelView.ExecuteSearchRead oDomain
     
     ' ==================

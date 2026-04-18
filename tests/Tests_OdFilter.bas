@@ -70,6 +70,18 @@ ErrHandler:
     Resume ExitProc
 End Function
 
+Private Sub TestIsEqualJson(oTest As TestCase, aExcept As String, aActual As String)
+On Error Resume Next
+    Debug.Assert IsValidJson(aExcept)
+    Debug.Assert IsValidJson(aActual)
+    oTest.IsEqual JsonConverter.ConvertToJson(JsonConverter.ParseJson(aExcept)), _
+        JsonConverter.ConvertToJson(JsonConverter.ParseJson(aActual))
+End Sub
+
+Private Sub TestIsEqualJsonCsv(oTest As TestCase, aExcept As String, aActual As String)
+    TestIsEqualJson oTest, "[" & aExcept & "]", "[" & aActual & "]"
+End Sub
+
 Private Sub TestJson(Suite As TestSuite)
     Dim Tests As New TestSuite
     Dim Test As TestCase
@@ -78,21 +90,20 @@ Private Sub TestJson(Suite As TestSuite)
     With Suite.Test("TestJson - True/False/Nothing To true/false/null")
         Set Test = Tests.Test("should pass")
         With NewField("is_company")
+            With .Eq(Null) ' Null
+                TestIsEqualJson Test, "['is_company', '=', null]", .ToJson()
+            End With
             With .Eq(v) ' Empty
-                Test.IsEqual "['is_company', '=', null]", .ToJson()
-                Test.IsOk IsValidJson(.ToJson())
+                TestIsEqualJson Test, "['is_company', '=', null]", .ToJson()
             End With
             With .Eq(True)
-                Test.IsEqual "['is_company', '=', true]", .ToJson()
-                Test.IsOk IsValidJson(.ToJson())
+                TestIsEqualJson Test, "['is_company', '=', true]", .ToJson()
             End With
             With .Eq(False)
-                Test.IsEqual "['is_company', '=', false]", .ToJson()
-                Test.IsOk IsValidJson(.ToJson())
+                TestIsEqualJson Test, "['is_company', '=', false]", .ToJson()
             End With
             With .Eq(Nothing)
-                Test.IsEqual "['is_company', '=', null]", .ToJson()
-                Test.IsOk IsValidJson(.ToJson())
+                TestIsEqualJson Test, "['is_company', '=', null]", .ToJson()
             End With
         End With
         .IsEqual Test.Result, TestResultType.Pass
@@ -108,23 +119,23 @@ Public Sub TestCombi(Suite As TestSuite)
         Set Test = Tests.Test("should pass")
 
         With NewAnd(NewField("phone").IsILike("7620"), NewField("mobile").IsILike("7620"))
-            Test.IsEqual "'&', ['phone', 'ilike', '7620'], ['mobile', 'ilike', '7620']", .ToJson()
+            TestIsEqualJsonCsv Test, "'&', ['phone', 'ilike', '7620'], ['mobile', 'ilike', '7620']", .ToJson()
             .Add NewField("fax").IsILike("7620")
-            Test.IsEqual "'&', '&', ['phone', 'ilike', '7620'], ['mobile', 'ilike', '7620'], ['fax', 'ilike', '7620']", .ToJson()
+            TestIsEqualJsonCsv Test, "'&', '&', ['phone', 'ilike', '7620'], ['mobile', 'ilike', '7620'], ['fax', 'ilike', '7620']", .ToJson()
         End With
         
         With NewOr(NewField("phone").IsILike("7620"), NewField("mobile").IsILike("7620"))
-            Test.IsEqual "'|', ['phone', 'ilike', '7620'], ['mobile', 'ilike', '7620']", .ToJson()
+            TestIsEqualJsonCsv Test, "'|', ['phone', 'ilike', '7620'], ['mobile', 'ilike', '7620']", .ToJson()
             .Add NewField("fax").IsILike("7620")
-            Test.IsEqual "'|', '|', ['phone', 'ilike', '7620'], ['mobile', 'ilike', '7620'], ['fax', 'ilike', '7620']", .ToJson()
+            TestIsEqualJsonCsv Test, "'|', '|', ['phone', 'ilike', '7620'], ['mobile', 'ilike', '7620'], ['fax', 'ilike', '7620']", .ToJson()
         End With
         
         With NewNot(NewField("phone").IsILike("7620"))
-            Test.IsEqual "'!', ['phone', 'ilike', '7620']", .ToJson()
+            TestIsEqualJsonCsv Test, "'!', ['phone', 'ilike', '7620']", .ToJson()
             .Add NewField("mobile").IsILike("7620")
-            Test.IsEqual "'!', ['phone', 'ilike', '7620']", .ToJson()
+            TestIsEqualJsonCsv Test, "'!', ['phone', 'ilike', '7620']", .ToJson()
             .Add NewField("fax").IsILike("7620")
-            Test.IsEqual "'!', ['phone', 'ilike', '7620']", .ToJson()
+            TestIsEqualJsonCsv Test, "'!', ['phone', 'ilike', '7620']", .ToJson()
         End With
         
         .IsEqual Test.Result, TestResultType.Pass
@@ -157,35 +168,40 @@ Public Sub TestField(Suite As TestSuite)
         Set Test = Tests.Test("should pass")
 
         With NewField("name").Eq("ABC")
-            Test.IsEqual "['name', '=', 'ABC']", .ToJson()
+            TestIsEqualJson Test, "['name', '=', 'ABC']", .ToJson()
         End With
         
         With NewField("phone").IsILike("7620")
-            Test.IsEqual "['phone', 'ilike', '7620']", .ToJson()
+            'Test.IsEqual "['phone', 'ilike', '7620']", .ToJson()
+            TestIsEqualJson Test, "['phone', 'ilike', '7620']", .ToJson()
         End With
         
         With NewField("mobile").IsILike("7620")
-            Test.IsEqual "['mobile', 'ilike', '7620']", .ToJson()
+            TestIsEqualJson Test, "['mobile', 'ilike', '7620']", .ToJson()
         End With
         
         With NewField("invoice_status").Eq("to invoice")
-            Test.IsEqual "['invoice_status', '=', 'to invoice']", .ToJson()
+            TestIsEqualJson Test, "['invoice_status', '=', 'to invoice']", .ToJson()
         End With
-        
-        With NewField("invoice_status").Eq("to invoice")
-            Test.IsEqual "['invoice_status', '=', 'to invoice']", .ToJson()
-        End With
-        
+                
         With NewField("product_id.qty_available").Le(0)
-            Test.IsEqual "['product_id.qty_available', '<=', 0]", .ToJson()
+            TestIsEqualJson Test, "['product_id.qty_available', '<=', 0]", .ToJson()
         End With
         
         With NewField("order_line").IsAny(NewDomain().AddArity(NewField("product_id.qty_available").Le(0)))
-            Test.IsEqual "['order_line', 'any', [['product_id.qty_available', '<=', 0]]]", .ToJson()
+            TestIsEqualJson Test, "['order_line', 'any', [['product_id.qty_available', '<=', 0]]]", .ToJson()
         End With
     
         With NewField("birthday.month_number").Eq(2)
-            Test.IsEqual "['birthday.month_number', '=', 2]", .ToJson()
+            TestIsEqualJson Test, "['birthday.month_number', '=', 2]", .ToJson()
+        End With
+
+        Dim d As OdFilterDomain
+        Set d = NewDomain
+        d.AddArity "abc's"
+        d.AddArity 123
+        With NewField("name").IsIn(d)
+            TestIsEqualJson Test, "['name', 'in', [""abc's"", 123]]", .ToJson()
         End With
 
         .IsEqual Test.Result, TestResultType.Pass
@@ -217,35 +233,35 @@ Public Sub TestCriteria(Suite As TestSuite)
         Set Test = Tests.Test("should pass")
         
         With NewCriteria("name", "=", "ABC")
-            Test.IsEqual "['name', '=', 'ABC']", .ToJson()
+            TestIsEqualJson Test, "['name', '=', 'ABC']", .ToJson()
         End With
         
         With NewCriteria("phone", "ilike", "7620")
-            Test.IsEqual "['phone', 'ilike', '7620']", .ToJson()
+            TestIsEqualJson Test, "['phone', 'ilike', '7620']", .ToJson()
         End With
         
         With NewCriteria("mobile", "ilike", "7620")
-            Test.IsEqual "['mobile', 'ilike', '7620']", .ToJson()
+            TestIsEqualJson Test, "['mobile', 'ilike', '7620']", .ToJson()
         End With
         
         With NewCriteria("invoice_status", "=", "to invoice")
-            Test.IsEqual "['invoice_status', '=', 'to invoice']", .ToJson()
+            TestIsEqualJson Test, "['invoice_status', '=', 'to invoice']", .ToJson()
         End With
         
         With NewCriteria("invoice_status", "=", "to invoice")
-            Test.IsEqual "['invoice_status', '=', 'to invoice']", .ToJson()
+            TestIsEqualJson Test, "['invoice_status', '=', 'to invoice']", .ToJson()
         End With
         
         With NewCriteria("product_id.qty_available", "<=", 0)
-            Test.IsEqual "['product_id.qty_available', '<=', 0]", .ToJson()
+            TestIsEqualJson Test, "['product_id.qty_available', '<=', 0]", .ToJson()
         End With
         
         With NewCriteria("order_line", "any", NewDomain().AddArity(NewCriteria("product_id.qty_available", "<=", 0)))
-            Test.IsEqual "['order_line', 'any', [['product_id.qty_available', '<=', 0]]]", .ToJson()
+            TestIsEqualJson Test, "['order_line', 'any', [['product_id.qty_available', '<=', 0]]]", .ToJson()
         End With
     
         With NewCriteria("birthday.month_number", "=", 2)
-            Test.IsEqual "['birthday.month_number', '=', 2]", .ToJson()
+            TestIsEqualJson Test, "['birthday.month_number', '=', 2]", .ToJson()
         End With
         
         .IsEqual Test.Result, TestResultType.Pass
@@ -281,20 +297,20 @@ Public Sub TestDomain(Suite As TestSuite)
             .AddArity NewField("name").Eq("ABC")
             .AddArity NewOr(NewField("phone").IsILike("7620"), NewField("mobile").IsILike("7620"))
             Test.IsOk IsValidJson(.ToJson())
-            Test.IsEqual Replace("[['name','=','ABC'],'|',['phone','ilike','7620'],['mobile','ilike','7620']]", "'", """"), JsonConverter.ConvertToJson(.Build)
+            TestIsEqualJson Test, "[['name','=','ABC'],'|',['phone','ilike','7620'],['mobile','ilike','7620']]", JsonConverter.ConvertToJson(.Build)
         End With
         
         With NewDomain()
             .AddArity NewField("invoice_status").Eq("to invoice")
             .AddArity NewField("order_line").IsAny(NewDomain().AddArity(NewField("product_id.qty_available").Le(0)))
             Test.IsOk IsValidJson(.ToJson())
-            Test.IsEqual Replace("[['invoice_status','=','to invoice'],['order_line','any',[['product_id.qty_available','<=',0]]]]", "'", """"), JsonConverter.ConvertToJson(.Build)
+            TestIsEqualJson Test, "[['invoice_status','=','to invoice'],['order_line','any',[['product_id.qty_available','<=',0]]]]", JsonConverter.ConvertToJson(.Build)
         End With
         
         With NewDomain()
             .AddArity NewCriteria("birthday.month_number", "=", 2)
             Test.IsOk IsValidJson(.ToJson())
-            Test.IsEqual Replace("[['birthday.month_number','=',2]]", "'", """"), JsonConverter.ConvertToJson(.Build)
+            TestIsEqualJson Test, "[['birthday.month_number','=',2]]", JsonConverter.ConvertToJson(.Build)
         End With
         
         .IsEqual Test.Result, TestResultType.Pass
@@ -322,7 +338,7 @@ Public Sub TestCoding(Suite As TestSuite)
             .AddArity NewField("is_company").Eq(True)
             .BuildAndAppend params
         End With
-        Test.IsEqual Replace("[[['is_company','=',true]]]", "'", """"), JsonConverter.ConvertToJson(params)
+        TestIsEqualJson Test, "[[['is_company','=',true]]]", JsonConverter.ConvertToJson(params)
         
         ' [[['id', '=', id]]]
         nId = &H7FFFFFFF ' 2147483647
@@ -331,7 +347,7 @@ Public Sub TestCoding(Suite As TestSuite)
             .AddArity NewField("id").Eq(nId)
             .BuildAndAppend params
         End With
-        Test.IsEqual Replace("[[['id','=',2147483647]]]", "'", """"), JsonConverter.ConvertToJson(params)
+        TestIsEqualJson Test, "[[['id','=',2147483647]]]", JsonConverter.ConvertToJson(params)
     
         ' [[['id', '=', id]]]
         ' id = 0, 1, 2, 3
@@ -345,7 +361,7 @@ Public Sub TestCoding(Suite As TestSuite)
             criteria.SetValue nId
             Set params = NewList
             params.Add domain.Build
-            Test.IsEqual Replace("[[['id','='," & nId & "]]]", "'", """"), JsonConverter.ConvertToJson(params)
+            TestIsEqualJson Test, "[[['id','='," & nId & "]]]", JsonConverter.ConvertToJson(params)
         Next v
         
         '   [[['invoice_status', '=', 'to invoice',
@@ -359,7 +375,7 @@ Public Sub TestCoding(Suite As TestSuite)
             .AddArity NewField("order_line").IsAny(subdomain)
             .BuildAndAppend params
         End With
-        Test.IsEqual Replace("[[['invoice_status','=','to invoice'],['order_line','any',[['product_id.qty_available','<=',0]]]]]", "'", """"), JsonConverter.ConvertToJson(params)
+        TestIsEqualJson Test, "[[['invoice_status','=','to invoice'],['order_line','any',[['product_id.qty_available','<=',0]]]]]", JsonConverter.ConvertToJson(params)
         
         .IsEqual Test.Result, TestResultType.Pass
     End With
