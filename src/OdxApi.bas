@@ -25,10 +25,10 @@ Attribute VB_Name = "OdxApi"
 '
 Option Explicit
 
-Private Const CBIT_DSP      As Long = &H100000 ' bit20
-Private Const CBIT_M2O      As Long = &H200000 ' bit21
-Private Const CBIT_O2M      As Long = &H400000 ' bit22
-Private Const CBIT_M2M      As Long = &H800000 ' bit23
+Private Const CBIT_DSP      As Long = &H100000  ' bit20 - display name, not model's field
+Private Const CBIT_M2O      As Long = &H200000  ' bit21 - many2one
+Private Const CBIT_O2M      As Long = &H400000  ' bit22 - one2many
+Private Const CBIT_M2M      As Long = &H800000  ' bit23 - many2many
 Private Const CBIT_NULLABLE As Long = FieldAttributeEnum.adFldMayBeNull ' Enable NULLs via adFldMayBeNull even for Odoo's required fields.
 
 Private Const CATTR_PK_ID        As Long = FieldAttributeEnum.adFldKeyColumn
@@ -74,11 +74,11 @@ Public Function IsOdooRequiredField(fld As ADODB.Field) As Boolean
 End Function
 
 Public Function IsOdooDateField(fld As ADODB.Field) As Boolean
-    IsOdooDateField = adDate = fld.Type
+    IsOdooDateField = adDBDate = fld.Type
 End Function
 
 Public Function IsOdooDateTimeField(fld As ADODB.Field) As Boolean
-    IsOdooDateTimeField = adDBTimeStamp = fld.Type
+    IsOdooDateTimeField = adDate = fld.Type
 End Function
 
 Public Function ExecuteModelFieldsGet(oClient As OdClient, aModelName As String) As Dictionary
@@ -176,9 +176,21 @@ Public Function AddRecordsetField(rs As ADODB.Recordset, dicModelField As Dictio
             rs.Fields.Append Name:=sFieldName, Type:=adVarWChar, DefinedSize:=-1, Attrib:=CATTR_FIELD Or attrOdooNullable
 
         '----------------------------------------
-        ' text / html
+        ' text
         '----------------------------------------
-        Case "text", "html"
+        Case "text"
+            rs.Fields.Append Name:=sFieldName, Type:=adLongVarWChar, DefinedSize:=-1, Attrib:=CATTR_FIELD Or attrOdooNullable
+
+        '----------------------------------------
+        ' html
+        '----------------------------------------
+        Case "html"
+            rs.Fields.Append Name:=sFieldName, Type:=adLongVarWChar, DefinedSize:=-1, Attrib:=CATTR_FIELD Or attrOdooNullable
+
+        '----------------------------------------
+        ' json
+        '----------------------------------------
+        Case "json"
             rs.Fields.Append Name:=sFieldName, Type:=adLongVarWChar, DefinedSize:=-1, Attrib:=CATTR_FIELD Or attrOdooNullable
 
         '----------------------------------------
@@ -200,34 +212,46 @@ Public Function AddRecordsetField(rs As ADODB.Recordset, dicModelField As Dictio
             rs.Fields.Append Name:=sFieldName, Type:=adDouble, Attrib:=CATTR_FIELD Or attrOdooNullable
 
         '----------------------------------------
+        ' monetary
+        '----------------------------------------
+        Case "monetary"
+            rs.Fields.Append Name:=sFieldName, Type:=adCurrency, Attrib:=CATTR_FIELD Or attrOdooNullable
+
+        '----------------------------------------
         ' date
         '----------------------------------------
         Case "date"
             rs.Fields.Append Name:=sFieldName, Type:=adDBDate, Attrib:=CATTR_FIELD Or attrOdooNullable
         
         '----------------------------------------
-        ' datetime
+        ' datetime (UTC -> local datetime)
         '----------------------------------------
         Case "datetime"
-            rs.Fields.Append Name:=sFieldName, Type:=adDBTimeStamp, Attrib:=CATTR_FIELD Or attrOdooNullable
+            rs.Fields.Append Name:=sFieldName, Type:=adDate, Attrib:=CATTR_FIELD Or attrOdooNullable
 
         '----------------------------------------
-        ' binary
+        ' binary (base64 char)
         '----------------------------------------
         Case "binary"
-            rs.Fields.Append Name:=sFieldName, Type:=adLongVarBinary, DefinedSize:=-1, Attrib:=CATTR_FIELD Or attrOdooNullable
+            rs.Fields.Append Name:=sFieldName, Type:=adLongVarWChar, DefinedSize:=-1, Attrib:=CATTR_FIELD Or attrOdooNullable
 
         '----------------------------------------
-        ' selectionÅicharÅj
+        ' selection (char)
         '----------------------------------------
         Case "selection"
             rs.Fields.Append Name:=sFieldName, Type:=adVarWChar, DefinedSize:=-1, Attrib:=CATTR_FIELD Or attrOdooNullable
 
         '----------------------------------------
+        ' properties (json char)
+        '----------------------------------------
+        Case "properties"
+            rs.Fields.Append Name:=sFieldName, Type:=adLongVarWChar, DefinedSize:=-1, Attrib:=CATTR_FIELD Or attrOdooNullable
+
+        '----------------------------------------
         ' Unknown (char)
         '----------------------------------------
         Case Else
-            Debug.Print "Unknown:", sFieldName
+            Debug.Print "Unknown type:", sFieldType, sFieldName
             Debug.Assert False
             rs.Fields.Append Name:=sFieldName, Type:=adVarWChar, DefinedSize:=-1, Attrib:=CATTR_FIELD Or attrOdooNullable
 

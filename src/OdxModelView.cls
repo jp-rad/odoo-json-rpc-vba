@@ -271,6 +271,8 @@ Private Function UpsertRecordSet(colResult As Collection)
             ElseIf IsOdooDateTimeField(fld) Then
                 ' datetime
                 fld.Value = ParseIsoDatetime(dicRecord(fld.Name))
+            ElseIf IsObject(dicRecord(fld.Name)) Then
+                fld.Value = JsonConverter.ConvertToJson(dicRecord(fld.Name))
             Else
                 fld.Value = dicRecord(fld.Name)
             End If

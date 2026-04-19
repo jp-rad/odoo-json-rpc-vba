@@ -73,7 +73,10 @@ Public Function ConvertToIsoDatetime(aDatetime As Date) As String
     ConvertToIsoDatetime = JsonConverter.ConvertToIso(aDatetime)
 End Function
 
-Public Function ParseIsoDatetime(aIsoString As String) As Date
+Public Function ParseIsoDatetime(ByVal aIsoString As String) As Date
+    If InStr(aIsoString, "T") = 0 Then
+        aIsoString = Replace(aIsoString, " ", "T") & "Z"
+    End If
     ParseIsoDatetime = JsonConverter.ParseIso(aIsoString)
 End Function
 
