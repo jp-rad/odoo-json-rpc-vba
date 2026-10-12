@@ -1,3 +1,9 @@
+> [!IMPORTANT]
+> **Repository Moved & Redesigned**  
+> Active development for this project has moved to **[odoo-json-rpc-2-vba](https://github.com/jp-rad/odoo-json-rpc-2-vba)**.  
+> This repository (`odoo-json-rpc-vba`) is no longer maintained. The project structure and architecture have been redesigned in the new repository for better maintainability and functionality. Please use the new repository for future updates and developments.
+
+
 ## odoo-JSON-RPC-VBA
 
 Odoo's models API is easily accessible via JSON-RPC and can be used from VBA, such as in Excel applications.
